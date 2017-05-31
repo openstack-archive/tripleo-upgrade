@@ -1,0 +1,6 @@
+[gerrit]
+host=review.gerrithub.io
+port=29418
+project=redhat-openstack/tripleo-upgrade.git
+defaultbranch=master
+
