@@ -1,2 +1,8 @@
 ---
 # vars file for tripleo-upgrade
+overcloud_deploy_script: "~/overcloud_deploy.sh"
+undercloud_upgrade_script: "~/undercloud_upgrade.sh"
+overcloud_composable_upgrade_script: "~/composable_docker_upgrade.sh"
+overcloud_converge_upgrade_script: "~/converge_docker_upgrade.sh"
+undercloud_rc: "~/stackrc"
+overcloud_rc: "~/overcloudrc"

@@ -1,2 +1,33 @@
 ---
 # tasks file for tripleo-upgrade
+- name: create upgrade scripts
+  include: create-scripts.yaml
+  tags: create_upgrade_scripts
+
+- name: upgrade undercloud
+  shell: "bash {{ undercloud_upgrade_script }}"
+  tags: undercloud_upgrade
+
+- name: validate undercloud upgrade
+  include: undercloud_validate_upgrade.yaml
+  tags: undercloud_upgrade_validate
+
+# TODO: move this out of upgrade
+- name: create container images
+  include: container_images_rhel.yaml
+  tags: container_images
+
+- name: run docker upgrade composable step
+  shell: "bash {{ overcloud_composable_upgrade_script }}"
+  tags: docker_composable_upgrade
+
+- name: upgrade nova compute nodes
+  include: node_upgrade.yml
+  with_items: "{{ groups.compute|default([]) }}"
+  loop_control:
+      loop_var: node_name
+  tags: nova_compute_upgrade
+
+- name: run docker upgrade converge step
+  shell: "bash {{ overcloud_converge_upgrade_script }}"
+  tags: docker_converge_upgrade

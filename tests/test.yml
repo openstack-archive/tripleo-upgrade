@@ -1,5 +1,11 @@
 ---
-- hosts: localhost
-  remote_user: root
+- hosts: all
+  gather_facts: true
+
+- hosts: undercloud
+  gather_facts: false
+  become: yes
+  become_method: sudo
+  become_user: stack
   roles:
     - tripleo-upgrade

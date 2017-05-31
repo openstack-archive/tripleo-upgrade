@@ -1,0 +1,24 @@
+---
+- name: Create {{ ugstage.step }} base script
+  copy:
+      src: "{{ overcloud_deploy_script }}"
+      dest: "{{ ugstage.script }}"
+      mode: 0755
+      remote_src: true
+
+- name: Store last deploy command line
+  command: "tail -1 {{ ugstage.script }}"
+  register: deploy_lastline
+
+- name: Append params to {{ ugstage.step }} script
+  lineinfile:
+      dest: "{{ ugstage.script }}"
+      insertbefore: "{{ deploy_lastline.stdout }}"
+      line: '-e {{ item }} \'
+  with_items: "{{ ugstage.environment_file }}"
+
+- name: Change log file name of {{ ugstage.step }} script
+  lineinfile:
+      dest: "{{ ugstage.script }}"
+      regexp: '^--log-file.*'
+      state: absent

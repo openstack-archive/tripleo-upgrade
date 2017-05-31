@@ -1,0 +1,2 @@
+source {{ overcloud_rc }}
+nova host-evacuate-live {{ hostvars[node_name].ansible_fqdn }}

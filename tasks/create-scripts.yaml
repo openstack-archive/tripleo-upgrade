@@ -1,0 +1,29 @@
+---
+- name: create undercloud upgrade script
+  template:
+    src: undercloud_upgrade.sh.j2
+    dest: "{{ undercloud_upgrade_script }}"
+
+- name: create composable upgrade scripts
+  include: step_upgrade.yml
+  loop_control:
+    loop_var: ugstage
+  with_items:
+    - step: "Docker containers composable upgrade"
+      script: "{{ overcloud_composable_upgrade_script }}"
+      environment_file:
+        - /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml
+        - /usr/share/openstack-tripleo-heat-templates/environments/major-upgrade-composable-steps-docker.yaml
+        - ~/docker-osp12.yaml
+    - step: "Docker containers converge upgrade"
+      script: "{{ overcloud_converge_upgrade_script }}"
+      environment_file:
+        - /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml
+        - /usr/share/openstack-tripleo-heat-templates/environments/major-upgrade-converge-docker.yaml
+        - ~/docker-osp12.yaml
+
+- name: Nova compute nodes upgrade scripts
+  include: node_upgrade_script.yml
+  with_items: "{{ groups.compute|default([]) }}"
+  loop_control:
+      loop_var: node_name

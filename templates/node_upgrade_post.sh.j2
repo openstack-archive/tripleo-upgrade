@@ -1,0 +1,4 @@
+source {{ overcloud_rc }}
+{% for instance in node_instances.stdout_lines %}
+nova live-migration {{ instance }} {{ hostvars[node_name].ansible_fqdn }}
+{% endfor %}
