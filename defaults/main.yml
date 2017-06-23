@@ -1,7 +1,7 @@
 ---
 # defaults file for tripleo-upgrade
 # main vars:
-working_dir: "{{ lookup('env', 'HOME') }}"
+working_dir: "{{ ansible_env.HOME }}"
 
 #rc files:
 undercloud_rc: "{{ working_dir }}/stackrc"
@@ -9,10 +9,28 @@ overcloud_rc: "{{ working_dir }}/overcloudrc"
 
 # upgrade jinja template name:
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
+container_images_download_template: download_images.sh.j2
+local_docker_registry_env_template: create_registry_env.sh.j2
 
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"
 overcloud_deploy_script: "{{ working_dir }}/overcloud_deploy.sh"
 overcloud_composable_upgrade_script: "{{ working_dir }}/composable_docker_upgrade.sh"
 overcloud_converge_upgrade_script: "{{ working_dir }}/converge_docker_upgrade.sh"
+container_images_download_script: "{{ working_dir }}/container_images_download.sh"
+local_docker_registry_env_script: "{{ working_dir }}/local_docker_registry_env.sh"
 
+# enable local docker registry
+use_local_docker_registry: true
+
+# use upstream or downstream container images
+upstream_container_images: true
+
+# tripleo-heat-templates directory
+tht_directory: "/usr/share/openstack-tripleo-heat-templates"
+
+# local registry environment file location
+containers_default_parameters: "{{ working_dir }}/docker-osp12.yaml"
+
+# container_images.yaml file location
+container_images_location: "{{ working_dir }}/container_images.yaml"

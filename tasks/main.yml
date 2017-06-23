@@ -5,7 +5,7 @@
   tags: create_upgrade_scripts
 
 - name: upgrade undercloud
-  shell: "bash {{ undercloud_upgrade_script }}"
+  shell: "bash {{ undercloud_upgrade_script }} &> undercloud_upgrade.log"
   tags: undercloud_upgrade
 
 - name: validate undercloud upgrade
@@ -13,12 +13,15 @@
   tags: undercloud_upgrade_validate
 
 # TODO: move this out of upgrade
-- name: create container images
-  include: container_images_rhel.yaml
+- name: download container images
+  include: container_images.yaml
   tags: container_images
 
-- name: run docker upgrade composable step
-  shell: "bash {{ overcloud_composable_upgrade_script }}"
+- name: create local docker registry environment file
+  include: local_docker_registry_env.yaml
+  tags: local_docker_registry
+
+- include: docker_composable_upgrade.yml
   tags: docker_composable_upgrade
 
 - name: upgrade nova compute nodes

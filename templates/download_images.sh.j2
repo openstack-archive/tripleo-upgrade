@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Download container images and upload them to local docker registry
+set -euo pipefail
+
+{% if upstream_container_images  %}
+source {{ undercloud_rc }}
+openstack overcloud container image upload --verbose --config-file /usr/share/tripleo-common/container-images/overcloud_containers.yaml
+{% else %}
+REPO_FILE="$(find /etc/yum.repos.d/ -iname 'rhos-release-??.*')"
+REPO_URL="$(grep -B2 enabled=1 $REPO_FILE | grep -m1 puddle | sed -E 's/.*(http.*[0-9]-RHEL-.\/).*/\1/')"
+curl -L -o {{ container_images_location }} $REPO_URL/latest_containers/container_images.yaml
+
+source {{ undercloud_rc }}
+openstack overcloud container image upload --verbose --config-file {{ container_images_location }}
+{% endif %}
