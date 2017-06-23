@@ -1,2 +1,18 @@
 ---
 # defaults file for tripleo-upgrade
+# main vars:
+working_dir: "{{ lookup('env', 'HOME') }}"
+
+#rc files:
+undercloud_rc: "{{ working_dir }}/stackrc"
+overcloud_rc: "{{ working_dir }}/overcloudrc"
+
+# upgrade jinja template name:
+undercloud_upgrade_template: undercloud_upgrade.sh.j2
+
+# upgrade scripts name:
+undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"
+overcloud_deploy_script: "{{ working_dir }}/overcloud_deploy.sh"
+overcloud_composable_upgrade_script: "{{ working_dir }}/composable_docker_upgrade.sh"
+overcloud_converge_upgrade_script: "{{ working_dir }}/converge_docker_upgrade.sh"
+

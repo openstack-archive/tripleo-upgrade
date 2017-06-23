@@ -1,7 +1,7 @@
 ---
 - name: create undercloud upgrade script
   template:
-    src: undercloud_upgrade.sh.j2
+    src: "{{ undercloud_upgrade_template }}"
     dest: "{{ undercloud_upgrade_script }}"
 
 - name: create composable upgrade scripts
