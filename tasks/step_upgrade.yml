@@ -16,6 +16,7 @@
       insertbefore: "{{ deploy_lastline.stdout }}"
       line: '-e {{ item }} \'
   with_items: "{{ ugstage.environment_file }}"
+  when: "{{ item|length > 0 }}"
 
 - name: Change log file name of {{ ugstage.step }} script
   lineinfile:

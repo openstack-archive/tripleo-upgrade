@@ -4,6 +4,16 @@
     src: "{{ undercloud_upgrade_template }}"
     dest: "{{ undercloud_upgrade_script }}"
 
+- name: create container images download script
+  template:
+    src: "{{ container_images_download_template }}"
+    dest: "{{ container_images_download_script }}"
+
+- name: create registry environment file script
+  template:
+    src: "{{ local_docker_registry_env_template }}"
+    dest: "{{ local_docker_registry_env_script }}"
+
 - name: create composable upgrade scripts
   include: step_upgrade.yml
   loop_control:
@@ -12,15 +22,15 @@
     - step: "Docker containers composable upgrade"
       script: "{{ overcloud_composable_upgrade_script }}"
       environment_file:
-        - /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml
-        - /usr/share/openstack-tripleo-heat-templates/environments/major-upgrade-composable-steps-docker.yaml
-        - ~/docker-osp12.yaml
+        - "{{ tht_directory }}/environments/docker.yaml"
+        - "{{ tht_directory }}/major-upgrade-composable-steps-docker.yaml"
+        - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
     - step: "Docker containers converge upgrade"
       script: "{{ overcloud_converge_upgrade_script }}"
       environment_file:
-        - /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml
-        - /usr/share/openstack-tripleo-heat-templates/environments/major-upgrade-converge-docker.yaml
-        - ~/docker-osp12.yaml
+        - "{{ tht_directory }}/environments/docker.yaml"
+        - "{{ tht_directory }}/major-upgrade-converge-docker.yaml"
+        - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
 
 - name: Nova compute nodes upgrade scripts
   include: node_upgrade_script.yml
