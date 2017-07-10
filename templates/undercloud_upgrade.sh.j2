@@ -4,5 +4,5 @@
 set -euo pipefail
 
 sudo systemctl stop 'openstack-*' 'neutron-*' httpd
-sudo yum update -y instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient
+sudo yum update -y instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient python-mistralclient
 openstack undercloud upgrade &> undercloud_upgrade.log
