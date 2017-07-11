@@ -59,6 +59,10 @@ Location of the undercloud credentials file.
 
 Location of the overcloud credentials file.
 
+    upgrade_workarounds: false
+
+Allows the user to apply known issues workarounds during the upgrade process. The list of patches/commands used for workarounds should be passed via --extra-vars and it should include dictionaries for undercloud/overcloud workarounds.
+
 Dependencies
 ------------
 

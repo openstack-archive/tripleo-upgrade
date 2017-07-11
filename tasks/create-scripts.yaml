@@ -4,6 +4,17 @@
     src: "{{ undercloud_upgrade_template }}"
     dest: "{{ undercloud_upgrade_script }}"
 
+- block:
+    - name: create undercloud upgrade workarounds script
+      template:
+        src: upgrade_undercloud_workarounds.sh.j2
+        dest: ~/upgrade_undercloud_workarounds.sh
+    - name: create overcloud upgrade workarounds script
+      template:
+        src: upgrade_overcloud_workarounds.sh.j2
+        dest: ~/upgrade_overcloud_workarounds.sh
+  when: upgrade_workarounds
+
 - name: create container images download script
   template:
     src: "{{ container_images_download_template }}"

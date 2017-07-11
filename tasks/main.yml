@@ -12,9 +12,17 @@
     - name: validate undercloud upgrade
       include: undercloud_validate_upgrade.yaml
       tags: undercloud_upgrade_validate
+
+    - name: apply undercloud upgrade workarounds
+      shell: "bash ~/upgrade_undercloud_workarounds.sh"
+      when: upgrade_workarounds
   when: undercloud_upgrade or undercloud_update
 
 - block:
+    - name: apply upgrade overcloud upgrade workarounds
+      shell: "bash ~/upgrade_overcloud_workarounds.sh"
+      when: upgrade_workarounds
+
     # TODO: move this out of upgrade
     - name: download container images
       include: container_images.yaml
