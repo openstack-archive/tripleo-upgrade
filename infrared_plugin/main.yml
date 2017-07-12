@@ -1,0 +1,36 @@
+---
+# This is file and plugin.spec are required by Infrared project
+
+- hosts: all
+  gather_facts: true
+
+- hosts: undercloud
+  gather_facts: false
+  become: yes
+  become_method: sudo
+  become_user: stack
+
+  pre_tasks:
+
+    - name: Set undercloud upgrade
+      set_fact:
+         undercloud_upgrade: true
+      when: install.undercloud.upgrade
+
+    - name: Set overcloud upgrade
+      set_fact:
+         overcloud_upgrade: true
+      when: install.overcloud.upgrade
+
+    - name: Set undercloud update
+      set_fact:
+        undercloud_update: true
+      when: install.undercloud.get('update', {})
+
+    - name: Set overcloud update
+      set_fact:
+        overcloud_update: true
+      when: install.overcloud.get('update', {})
+
+  roles:
+    - tripleo-upgrade
