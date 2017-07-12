@@ -23,7 +23,8 @@
       script: "{{ overcloud_composable_upgrade_script }}"
       environment_file:
         - "{{ tht_directory }}/environments/docker.yaml"
-        - "{{ tht_directory }}/major-upgrade-composable-steps-docker.yaml"
+        - "{{ tht_directory }}/environments/docker-ha.yaml"
+        - "{{ tht_directory }}/environments/major-upgrade-composable-steps-docker.yaml"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
     - step: "Docker containers converge upgrade"
       script: "{{ overcloud_converge_upgrade_script }}"
