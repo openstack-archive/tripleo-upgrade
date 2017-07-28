@@ -19,6 +19,16 @@ subparsers:
                       help: |
                           Upgrade Undercloud
                       default: false
+                  upgrade-workarounds:
+                      type: Bool
+                      help: |
+                          Apply upgrade workarounds
+                      default: false
+                  upstream-container-images:
+                      type: Bool
+                      help: |
+                          Use upstream or downstream container images during upgrade
+                      default: false
             - title: TripleO Update
               options:
                   overcloud-update:

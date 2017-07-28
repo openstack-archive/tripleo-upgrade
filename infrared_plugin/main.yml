@@ -22,6 +22,16 @@
          overcloud_upgrade: true
       when: install.overcloud.upgrade
 
+    - name: Set upgrade workarounds
+      set_fact:
+         upgrade_workarounds: true
+      when: install.upgrade.workarounds
+
+    - name: Set upstream container images
+      set_fact:
+         upstream_container_images: false
+      when: not install.upstream.container.images
+
     - name: Set undercloud update
       set_fact:
         undercloud_update: true

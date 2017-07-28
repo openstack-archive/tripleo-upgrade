@@ -9,6 +9,9 @@ overcloud_upgrade: false
 undercloud_update: false
 overcloud_update: false
 
+# enable upgrade workarounds
+upgrade_workarounds: false
+
 #rc files:
 undercloud_rc: "{{ working_dir }}/stackrc"
 overcloud_rc: "{{ working_dir }}/overcloudrc"
