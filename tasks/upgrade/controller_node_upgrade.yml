@@ -1,0 +1,10 @@
+---
+- name: Running post upgrade scripts for {{ node_name | splitext | first }}
+  shell: "{{working_dir}}/{{ node_name | splitext | first }}_post/{{ item }}.sh"
+  with_items:
+    - 'reboot'
+    - 'haproxy'
+    - 'rabbitmq'
+    - 'galera'
+    - 'redis'
+    - 'haproxy_backend'

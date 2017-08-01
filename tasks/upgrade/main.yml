@@ -1,0 +1,76 @@
+---
+- name: create upgrade scripts
+  include: create-upgrade-scripts.yaml
+  tags: create_upgrade_scripts
+  when: upgrade_noop|bool or undercloud_upgrade|bool or overcloud_upgrade|bool
+
+- block:
+    - name: apply pre undercloud upgrade workarounds
+      command: "{{working_dir}}/pre_undercloud_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+
+    - name: upgrade undercloud
+      shell: "bash {{ undercloud_upgrade_script }} &> {{ working_dir }}/undercloud_upgrade.log"
+      tags: undercloud_upgrade
+
+    - name: validate undercloud upgrade
+      include: undercloud_validate_upgrade.yaml
+      tags: undercloud_upgrade_validate
+
+    - name: apply post undercloud upgrade workarounds
+      command: "{{working_dir}}/post_undercloud_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+  when: undercloud_upgrade|bool
+
+- block:
+    # TODO: move this out of upgrade
+    - name: download container images
+      include: container_images.yaml
+      when: use_local_docker_registry
+      tags: container_images
+
+    - name: create local docker registry environment file
+      include: docker_registry_images_env.yaml
+      when: create_docker_registry
+      tags: docker_registry_images_env
+
+    - name: apply pre docker composable upgrade workarounds
+      command: "{{working_dir}}/pre_docker_composable_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+      tags: docker_composable_upgrade
+
+    - include: docker_composable_upgrade.yml
+      tags: docker_composable_upgrade
+
+    - name: apply pre nova compute upgrade workarounds
+      command: "{{working_dir}}/pre_nova_compute_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+      tags: nova_compute_upgrade
+
+    - name: upgrade nova compute nodes
+      include: compute_upgrade.yml
+      tags: nova_compute_upgrade
+
+    - name: upgrade swift storage nodes
+      include: swiftstorage_upgrade.yml
+      tags: swift_storage_upgrade
+
+    - name: apply pre docker upgrade converge workarounds
+      command: "{{working_dir}}/pre_docker_converge_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+      tags: docker_converge_upgrade
+
+    - include: docker_converge_upgrade.yml
+      tags: docker_converge_upgrade
+
+    - name: apply post docker upgrade converge workarounds
+      command: "{{working_dir}}/post_docker_converge_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+      tags: docker_converge_upgrade
+
+    - name: run controller post upgrade steps
+      include: controller_post_upgrade.yml
+      tags: controller_post_upgrade
+      when: controller_upgrade_post|bool
+  when: overcloud_upgrade|bool
+

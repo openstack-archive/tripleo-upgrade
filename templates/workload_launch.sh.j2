@@ -1,0 +1,102 @@
+#!/bin/bash
+#
+# Script that spawns an instance
+
+OVERCLOUD_RC=~/overcloudrc
+IMAGE_URL='{{ workload_image_url }}'
+IMAGE_NAME='upgrade_workload'
+IMAGE_FILE=~/upgrade_workload.qcow2
+KEYPAIR_NAME=userkey
+FLAVOR_NAME='v1-1G-5G'
+SECGROUP_NAME='allow-icmp-ssh'
+TENANT_NET_NAME='internal_net'
+EXTERNAL_NET_NAME='{{ external_network_name }}'
+
+source ${OVERCLOUD_RC}
+
+## create image
+openstack image list | grep ${IMAGE_NAME}
+
+if [ $? -ne 0 ]; then
+    curl --silent -L -4 -o ${IMAGE_FILE} ${IMAGE_URL}
+    openstack image create \
+        --file ${IMAGE_FILE} \
+        --disk-format qcow2 \
+        --container-format bare \
+        ${IMAGE_NAME}
+fi
+
+## create user key
+openstack keypair list | grep ${KEYPAIR_NAME}
+if [ $? -ne 0 ]; then
+    openstack keypair create --public-key ~/.ssh/id_rsa.pub ${KEYPAIR_NAME}
+fi
+
+## create flavor
+openstack flavor list | grep ${FLAVOR_NAME}
+if [ $? -ne 0 ]; then
+    openstack flavor create --vcpus 1 --ram {{ workload_memory }} --disk 5 --swap 512 $FLAVOR_NAME
+fi
+
+## create networking
+openstack network list | grep ${TENANT_NET_NAME}
+if [ $? -ne 0 ]; then
+    NAMESERVER=$(grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' /etc/resolv.conf  | head -1)
+    openstack router create ${TENANT_NET_NAME}_router
+    openstack network create ${TENANT_NET_NAME}
+    openstack subnet create \
+        --subnet-range 192.168.0.0/24 \
+        --allocation-pool start=192.168.0.10,end=192.168.0.100 \
+        --gateway 192.168.0.254 \
+        --dns-nameserver ${NAMESERVER} \
+        --network ${TENANT_NET_NAME} \
+        ${TENANT_NET_NAME}_subnet
+    openstack router add subnet  ${TENANT_NET_NAME}_router ${TENANT_NET_NAME}_subnet
+    openstack router set --external-gateway ${EXTERNAL_NET_NAME} ${TENANT_NET_NAME}_router
+fi
+
+## create security group
+openstack security group list | grep ${SECGROUP_NAME}
+if [ $? -ne 0 ]; then
+    openstack security group create ${SECGROUP_NAME}
+    openstack security group rule create --proto icmp ${SECGROUP_NAME}
+    openstack security group rule create --proto tcp --dst-port 22 ${SECGROUP_NAME}
+fi
+
+## create instance
+INSTANCE_NAME="instance_$(openssl rand -hex 5)"
+TENANT_NET_ID=$(openstack network list -f json | jq -r -c ".[] | select(.Name | contains(\"$TENANT_NET_NAME\")) | .ID")
+openstack server create  \
+    --image ${IMAGE_NAME} \
+    --flavor ${FLAVOR_NAME} \
+    --security-group ${SECGROUP_NAME} \
+    --key-name  ${KEYPAIR_NAME} \
+    --nic net-id=${TENANT_NET_ID} \
+    $INSTANCE_NAME
+
+timeout_seconds=120
+elapsed_seconds=0
+while true; do
+    INSTANCE_ACTIVE=$(openstack server show $INSTANCE_NAME -f json | jq -r .status)
+    if [ $INSTANCE_ACTIVE == 'ACTIVE' ]; then
+        break
+    fi
+    sleep 3
+    elapsed_seconds=$(expr $elapsed_seconds + 3)
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: Instance failed to boot."
+        exit 1
+    fi
+done
+
+## assign floating ip
+INSTANCE_FIP=$(openstack floating ip create ${EXTERNAL_NET_NAME} -f json | jq -r .id)
+INSTANCE_IP=$(openstack server show $INSTANCE_NAME -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+INSTANCE_PORT=$(openstack port list -f json | jq -r -c ".[] | select(.[\"Fixed IP Addresses\"] | contains(\"${INSTANCE_IP}\")) | .ID")
+neutron floatingip-associate ${INSTANCE_FIP} ${INSTANCE_PORT}
+
+## create and attach a volume
+CINDER_VOL_ID=$(openstack volume create --size 1 vol_$(openssl rand -hex 5) -f json | jq -r .id)
+openstack server add volume ${INSTANCE_NAME} ${CINDER_VOL_ID}
+
+echo "floating-ip: $(openstack floating ip show ${INSTANCE_FIP} -f json | jq -r .floating_ip_address)" > ~/${INSTANCE_NAME}

@@ -1,0 +1,36 @@
+---
+- name: start l3 agent connectivity check
+  shell: |
+    source {{ overcloud_rc }}
+    {{ l3_agent_connectivity_check_start_script }}
+  when: l3_agent_connectivity_check
+  async: 21660
+  poll: 0
+
+- name: run docker upgrade composable step
+  shell: |
+    source {{ undercloud_rc }}
+    bash {{ overcloud_composable_upgrade_script }} &> {{ working_dir }}/overcloud_composable_upgrade.log
+  register: overcloud_composable_upgrade
+  ignore_errors: yes
+
+- name: print stack failures
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack failures list --long overcloud | tee {{ working_dir}}/overcloud_composable_failed_upgrade.log
+  when: overcloud_composable_upgrade.rc != 0
+
+- name: print resource list
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack resource list --filter status=FAILED --nested-depth 5 overcloud | tee {{ working_dir}}/overcloud_composable_failed_resources.log
+  when: overcloud_composable_upgrade.rc != 0
+
+- fail: msg="Overcloud upgrade composable step failed... :("
+  when: overcloud_composable_upgrade.rc != 0
+
+- name: stop l3 agent connectivity check
+  shell: |
+    source {{ overcloud_rc }}
+    {{ l3_agent_connectivity_check_stop_script }}
+  when: l3_agent_connectivity_check

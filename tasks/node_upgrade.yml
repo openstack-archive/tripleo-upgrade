@@ -1,3 +1,0 @@
----
-- name: Upgrade {{ node_name }}
-  shell: "bash ~/{{ node_name }}_upgrade.sh"

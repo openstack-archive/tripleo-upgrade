@@ -1,0 +1,11 @@
+---
+- name: Running pre upgrade for {{ node_name | splitext | first }}
+  shell: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_pre.sh"
+  tags: node_upgrade_pre
+
+- name: Upgrade {{ node_name | splitext | first }}
+  shell: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade.sh"
+
+- name: Running post upgrade for {{ node_name | splitext | first }}
+  shell: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_post.sh"
+  tags: node_upgrade_post

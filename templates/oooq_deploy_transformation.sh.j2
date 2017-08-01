@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+
+awk '/status_code/{inside=0}
+    /^openstack overcloud deploy/{inside=1}
+    {if (inside==1) {print}}' {{ working_dir }}/overcloud-deploy.sh > /tmp/overcloud-deploy-tr.1
+
+sed -Ee 's/([a-zA-Z1-9]) +([-][^ ])/\1 \\\n\2/g' /tmp/overcloud-deploy-tr.1 > /tmp/overcloud-deploy-tr.2
+
+# Check if tripleo-heat-templates directory used for deployment
+# in deploy-overcloud.sh matches with one specified under {{ tht_directory }}
+if [[ $(grep "\-\-templates" /tmp/overcloud-deploy-tr.2) ]]; then
+    templates_dir=$(grep "\-\-templates" /tmp/overcloud-deploy-tr.2 | awk '{ print $2}')
+
+    if [[ "$templates_dir" != "{{ tht_directory }}" ]]; then
+        # If different templates directory, substitute the old by
+        # the new tht directory in the same temporary file
+        sed -iEe "s|$templates_dir|{{ tht_directory }}|g" /tmp/overcloud-deploy-tr.2
+    fi
+
+fi
+
+sed -Ee '$s/\\ *//' -e '/^ *$/d' /tmp/overcloud-deploy-tr.2 > {{ overcloud_deploy_script }}

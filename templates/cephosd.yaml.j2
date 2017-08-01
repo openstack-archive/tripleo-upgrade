@@ -1,0 +1,6 @@
+parameter_defaults:
+    CephAnsibleDisksConfig:
+        devices:
+{% for key, value in ceph_osds.iteritems()|sort %}
+            - '{{ key }}'
+{% endfor %}

@@ -1,0 +1,10 @@
+- name: list compute nodes
+  shell: |
+    source {{ overcloud_rc }}
+    openstack hypervisor list -f json | jq -r -c '.[] | .["Hypervisor Hostname"]'
+  register: hypervisors
+
+- include: node_upgrade.yml
+  with_items: "{{ hypervisors.stdout_lines }}"
+  loop_control:
+    loop_var: node_name

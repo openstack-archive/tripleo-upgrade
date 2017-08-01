@@ -1,0 +1,43 @@
+---
+- name: create undercloud update script
+  template:
+    src: "{{ undercloud_update_template }}"
+    dest: "{{ undercloud_update_script }}"
+    mode: 0775
+
+- name: create scripts with workarounds
+  template:
+    src: "{{ update_workarounds_template }}"
+    dest: "{{ working_dir }}/{{ item.script }}"
+    mode: 0755
+  with_items:
+    - '{{ pre_undercloud_update_workarounds|default([]) }}'
+    - '{{ post_undercloud_update_workarounds|default([]) }}'
+    - '{{ pre_overcloud_update_workarounds|default([]) }}'
+    - '{{ post_overcloud_update_workarounds|default([]) }}'
+  when: updates_workarounds|bool
+
+- name: generate inventory file
+  shell: |
+    source {{ undercloud_rc }} ;
+    tripleo-ansible-inventory --static-inventory /tmp/fake-oc-hosts ;
+    grep role_name /tmp/fake-oc-hosts | awk -F '=' '{ print $2 }' 2>/dev/null | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//'
+  register: oc_roles
+
+- name: store roles
+  set_fact:
+    oc_roles: "{{ oc_roles }}"
+
+- name: create overcloud update setup script
+  template:
+    src: "{{ overcloud_update_setup_template }}"
+    dest: "{{ overcloud_update_setup_script }}"
+    mode: 0775
+
+- name: create overcloud update script
+  template:
+    src: "{{ overcloud_update_template }}"
+    dest: "{{ overcloud_update_script_base }}-{{ item }}.sh"
+    mode: 0775
+  with_items:
+    - "{{ oc_roles.stdout_lines|default('all') }}"

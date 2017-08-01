@@ -1,0 +1,18 @@
+- name: register compute nodes
+  shell: |
+    source {{ overcloud_rc }}
+    openstack hypervisor list -f json | jq -r -c '.[] | .["Hypervisor Hostname"]'
+  register: hypervisors
+
+- name: register swift storage nodes
+  shell: |
+    source {{ undercloud_rc }}
+    openstack server list -f json |  jq -r -c '.[] | select(.Name | contains("swift") or contains("objectstorage")) | .Name'
+  register: swift_nodes
+
+- include: node_upgrade_script.yml
+  loop_control:
+    loop_var: node_name
+  with_items:
+    - "{{ hypervisors.stdout_lines }}"
+    - "{{ swift_nodes.stdout_lines }}"

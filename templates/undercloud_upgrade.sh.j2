@@ -3,6 +3,8 @@
 # Perform undercloud upgrade and related steps
 set -euo pipefail
 
-sudo systemctl stop 'openstack-*' 'neutron-*' httpd
-sudo yum update -y instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient
+# ceph-ansible needs to be installed manually
+sudo yum install -y ceph-ansible
+
+sudo yum update -y python-tripleoclient
 openstack undercloud upgrade &> undercloud_upgrade.log

@@ -1,0 +1,11 @@
+- name: register swift storage nodes
+  shell: |
+    source {{ undercloud_rc }}
+    openstack server list -f json |  jq -r -c '.[] | select(.Name | contains("swift") or contains("objectstorage")) | .Name'
+  register: swift_nodes
+
+- include: node_upgrade.yml
+  with_items: "{{ swift_nodes.stdout_lines }}"
+  loop_control:
+    loop_var: node_name
+  when: overcloud_upgrade|bool

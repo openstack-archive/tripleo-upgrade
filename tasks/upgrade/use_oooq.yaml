@@ -1,0 +1,21 @@
+---
+- name: get the compute ip.
+  shell: ". {{working_dir}}/stackrc && nova list | awk '$1 !~ /^\\+/ && NR>3 && $0 ~ /compute/ {print $4}'"
+  register: compute
+
+- name: create the compute group
+  add_host:
+    name: "{{item}}"
+    group: compute
+    ansible_fqdn: "{{item}}"
+  with_items:
+    - "{{ compute.stdout_lines|default([]) }}"
+
+- name: create transformation script
+  template:
+    src: oooq_deploy_transformation.sh.j2
+    dest: "{{ working_dir }}/oooq_deploy_transformation.sh"
+    mode: 0775
+
+- name: transform oooq script to compatible format
+  command: "{{ working_dir }}/oooq_deploy_transformation.sh"

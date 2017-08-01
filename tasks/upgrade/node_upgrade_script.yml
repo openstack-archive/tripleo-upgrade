@@ -1,0 +1,26 @@
+---
+- block:
+    - name: register instances running on {{ node_name }}
+      shell: |
+        source {{ overcloud_rc }}
+        openstack server list --host {{ node_name }} -f json | jq -r -c '.[] | select(.Status | contains("ACTIVE") or contains("PAUSED")) | .Name'
+      register: node_instances
+
+    - name: create pre upgrade script for {{ node_name }}
+      template:
+        src: node_upgrade_pre.sh.j2
+        dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_pre.sh"
+        mode: 0775
+  when: "'compute' in node_name"
+
+- name: create script for upgrading {{ node_name }}
+  template:
+    src: node_upgrade.sh.j2
+    dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade.sh"
+    mode: 0775
+
+- name: create post upgrade script for {{ node_name }}
+  template:
+    src: node_upgrade_post.sh.j2
+    dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_post.sh"
+    mode: 0775

@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Script which stops the ICMP connectivity check on validates that
+# there is no packet loss.
+
+# kill the ping process
+kill -s INT $(/usr/sbin/pidof ping)
+
+# print the ping results
+PING_RESULT_LOG=$(find ~ -iname 'ping_results*' | sort | tail -1)
+tail -2 $PING_RESULT_LOG
+
+# check results
+PING_RESULT=$(tail -2 $PING_RESULT_LOG | head -1 | awk {'print $6'} | sed s/%//)
+if [[ $PING_RESULT -gt 1 ]]; then
+    echo "Ping loss higher than 1% detected"
+    exit 1
+fi

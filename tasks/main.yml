@@ -1,48 +1,17 @@
 ---
 # tasks file for tripleo-upgrade
-- name: create upgrade scripts
-  include: create-scripts.yaml
-  tags: create_upgrade_scripts
 
 - block:
-    - name: upgrade undercloud
-      shell: "bash {{ undercloud_upgrade_script }} &> undercloud_upgrade.log"
-      tags: undercloud_upgrade
+    - name: prepare workload scripts
+      include: common/create_workload.yml
 
-    - name: validate undercloud upgrade
-      include: undercloud_validate_upgrade.yaml
-      tags: undercloud_upgrade_validate
+    - name: launch workload
+      command: "{{ workload_launch_script }}"
 
-    - name: apply undercloud upgrade workarounds
-      shell: "bash ~/upgrade_undercloud_workarounds.sh"
-      when: upgrade_workarounds
-  when: undercloud_upgrade or undercloud_update
+  when: workload_launch
 
-- block:
-    - name: apply upgrade overcloud upgrade workarounds
-      shell: "bash ~/upgrade_overcloud_workarounds.sh"
-      when: upgrade_workarounds
+- include: upgrade/main.yml
+  when: upgrade_noop|bool or undercloud_upgrade|bool or overcloud_upgrade|bool
 
-    # TODO: move this out of upgrade
-    - name: download container images
-      include: container_images.yaml
-      tags: container_images
-
-    - name: create local docker registry environment file
-      include: local_docker_registry_env.yaml
-      tags: local_docker_registry
-
-    - include: docker_composable_upgrade.yml
-      tags: docker_composable_upgrade
-
-    - name: upgrade nova compute nodes
-      include: node_upgrade.yml
-      with_items: "{{ groups.compute|default([]) }}"
-      loop_control:
-          loop_var: node_name
-      tags: nova_compute_upgrade
-
-    - name: run docker upgrade converge step
-      shell: "bash {{ overcloud_converge_upgrade_script }}"
-      tags: docker_converge_upgrade
-  when: overcloud_upgrade
+- include: update/main.yml
+  when: update_noop|bool or undercloud_update|bool or overcloud_update|bool

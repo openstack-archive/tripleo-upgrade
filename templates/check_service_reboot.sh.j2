@@ -1,0 +1,51 @@
+source {{ undercloud_rc }}
+NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+
+{% if controller_reboot %}
+OVS_RUNNING=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo ovs-vsctl show' | grep ovs_version | awk -F \" {'print $2'} | awk -F "." '{print $1"."$2}')
+OVS_INSTALLED=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo rpm --queryformat %{VERSION} -q openvswitch' | awk -F "." '{print $1"."$2}')
+if [[ $OVS_RUNNING != $OVS_INSTALLED ]]; then
+    echo "Upgraded OVS detected"
+fi
+echo "Rebooting {{ node_name | splitext | first }}"
+{% if force_reboot %}
+NOVA_ID=$(openstack server list | grep {{ node_name | splitext | first }} | awk {'print $2'})
+IRONIC_ID=$(ironic node-list | grep $NOVA_ID | awk {'print $2'})
+ironic node-set-power-state $IRONIC_ID reboot
+{% else %}
+ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo shutdown -r now'
+{% endif %}
+
+timeout_seconds={{ node_reboot_timeout }}
+elapsed_seconds=0
+while true; do
+    echo "Waiting for {{ node_name }} to go down ..."
+    NODE_DOWN=$(ping -c1 $NODE_IP)
+    if [ $? != 0 ]; then
+        break
+    fi
+    sleep 3
+    (( elapsed_seconds += 3 ))
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: Node {{ node_name }} didn't reboot in time"
+    exit 1
+    fi
+done
+{% endif %}
+
+## wait for node to get back online
+timeout_seconds={{ node_reboot_timeout }}
+elapsed_seconds=0
+while true; do
+    echo "Waiting for {{ node_name }} to boot ..."
+    PCS_STATUS=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status' | grep ^Online)
+    if [[ $PCS_STATUS == *{{ node_name }}* ]]; then
+        break
+    fi
+    sleep 3
+    (( elapsed_seconds += 3 ))
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: {{ node_name }} didn't come back up as part of the cluster"
+    exit 1
+    fi
+done

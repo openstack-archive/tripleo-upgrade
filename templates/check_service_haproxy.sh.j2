@@ -1,0 +1,23 @@
+source {{ undercloud_rc }}
+NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+
+## in case of external loadbalancer haproxy resource is not running on controller nodes
+EXT_LB=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo hiera -c /etc/puppet/hiera.yaml enable_load_balancer')
+if [[ $EXT_LB != 'false' ]]; then
+    ## wait for haproxy resource to come back up
+    timeout_seconds={{ node_reboot_timeout }}
+    elapsed_seconds=0
+    while true; do
+        echo "Waiting for haproxy pcs resource to start"
+        HAPROXY_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep haproxy-bundle | grep -i started | wc -l)
+        if [[ $HAPROXY_RES = 1 ]] || [[ $HAPROXY_RES > 2 ]]; then
+            break
+        fi
+        sleep 3
+        (( elapsed_seconds += 3 ))
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: Haproxy pcs resource didn't get started after reboot"
+        exit 1
+        fi
+    done
+fi

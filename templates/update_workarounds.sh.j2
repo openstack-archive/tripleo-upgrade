@@ -1,0 +1,23 @@
+#!/bin/env bash
+#
+# Apply workarounds for minor updates
+#
+set -euo pipefail
+
+{% if item.workarounds|default([]) %}
+
+{% for workaround in item.workarounds %}
+{% if workaround.patch_id %}
+curl -4 'https://review.openstack.org/changes/{{workaround.patch_id}}/revisions/current/patch?download' | \
+    base64 -d | \
+    sudo patch -d {{ workaround.directory }} -p1 {{ workaround.misc }}
+{% endif %} {# end of item.patch_id #}
+
+{% if workaround.command %}
+{{ workaround.command }}
+{% endif %} {# apply command for workaround #}
+{% endfor %} {# end of workarounds iteration #}
+{% else %} {# if workarounds not needed #}
+echo "No Workarounds Needed"
+exit 0
+{% endif %} {# end if no workarounds #}

@@ -1,0 +1,74 @@
+---
+- name: create update scripts
+  include: create-update-scripts.yaml
+  tags: create_update_scripts
+  when: update_noop|bool or undercloud_update|bool or overcloud_update|bool
+
+- block:
+    - name: undercloud pre-update workarounds
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ pre_undercloud_update_workarounds_script }} &> {{ working_dir }}/uc_pre_update_workarounds.log
+      when: updates_workarounds|bool
+
+    - name: update undercloud
+      shell: "bash {{ undercloud_update_script }} &> {{ working_dir }}/undercloud_update.log"
+      tags: undercloud_update
+
+    - name: undercloud post-update workarounds
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ post_undercloud_update_workarounds_script }} &> {{ working_dir }}/uc_pre_update_workarounds.log
+      when: updates_workarounds|bool
+
+    - name: validate undercloud update
+      include: ../upgrade/undercloud_validate_upgrade.yaml
+      tags: undercloud_update_validate
+
+  when: undercloud_update|bool
+
+- block:
+    - name: start l3 agent connectivity check
+      shell: |
+        source {{ overcloud_rc }}
+        {{ l3_agent_connectivity_check_start_script }}
+      when: l3_agent_connectivity_check
+      async: 21660
+      poll: 0
+
+    - name: overcloud pre-update workarounds
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ pre_overcloud_update_workarounds_script }} &> {{ working_dir }}/pre_overcloud_update_workarounds.log
+      when: updates_workarounds|bool
+
+    - name: setup HEAT outputs
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ overcloud_update_setup_script }} &> {{ working_dir }}/overcloud_update_setup.log
+      tags:
+          - overcloud_update
+          - overcloud_update_setup
+
+    - name: update overcloud
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ overcloud_update_script_base }}-{{ item }}.sh &> {{ working_dir}}/oc-update-{{ item }}.log
+      with_items:
+          - "{{ oc_roles.stdout_lines|default('all') }}"
+      tags:
+          - overcloud_update
+
+    - name: overcloud post-update workarounds
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ post_overcloud_update_workarounds_script }} &> {{ working_dir }}/post_overcloud_update_workarounds.log
+      when: updates_workarounds|bool
+
+    - name: stop l3 agent connectivity check
+      shell: |
+        source {{ overcloud_rc }}
+        {{ l3_agent_connectivity_check_stop_script }}
+      when: l3_agent_connectivity_check
+
+  when: overcloud_update|bool

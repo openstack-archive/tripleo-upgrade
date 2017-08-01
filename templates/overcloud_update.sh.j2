@@ -1,0 +1,12 @@
+#!/bin/env bash
+#
+# Run minor update on overcloud nodes
+#
+set -euo pipefail
+{% if  item|string == 'all' %}
+echo "Running minor update of all overcloud nodes"
+openstack overcloud update stack 2>&1
+{% else %}
+echo "Runing update of {{ item }}"
+openstack overcloud update stack --nodes {{ item }} 2>&1
+{% endif %}

@@ -1,2 +1,26 @@
+{% if compute_evacuate %}
 source {{ overcloud_rc }}
-nova host-evacuate-live {{ hostvars[node_name].ansible_fqdn }}
+## Detect if ceph shared storage was used
+STORAGE_BACKEND=$(openstack volume service list -f json | jq -r -c '.[] | select(.Binary | contains("cinder-volume")) | .Host' | sed s/hostgroup@tripleo_//)
+if [ $STORAGE_BACKEND == 'ceph' ]; then
+    nova host-evacuate-live {{ node_name }}
+else
+    nova host-evacuate-live --block-migrate {{ node_name }}
+fi
+
+timeout_seconds=120
+elapsed_seconds=0
+while true; do
+    echo "Waiting for {{ node_name }} to get quiesced ..."
+    INSTANCE_COUNT=$(openstack server list --host {{ node_name }} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+    if [ $INSTANCE_COUNT == 0 ]; then
+        break
+    fi
+    sleep 3
+    (( elapsed_seconds += 3 ))
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: Could not quiesce compute node {{ node_name }}"
+    exit 1
+    fi
+done
+{% endif %}

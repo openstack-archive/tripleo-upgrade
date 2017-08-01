@@ -1,0 +1,11 @@
+parameter_defaults:
+  # Run os-net-config only on DPDK compute nodes during the upgrade
+  # to ensure PCI address is updated to the existing DPDK port.
+  # NOTE: No changes in the nic-config templates.
+  ComputeNetworkDeploymentActions: ['CREATE', 'UPDATE']
+
+resource_registry:
+  # With OSP12, the environment file will have a new service
+  # OS::TripleO::Services::ComputeNeutronOvsDpdk to support the addition
+  # of new role ComputeOvsDpdk. For upgrade, this need to be mapped externally.
+  OS::TripleO::Services::ComputeNeutronOvsAgent: /usr/share/openstack-tripleo-heat-templates/puppet/services/neutron-ovs-dpdk-agent.yaml

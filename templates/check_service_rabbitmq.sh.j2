@@ -1,0 +1,19 @@
+source {{ undercloud_rc }}
+NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+
+## wait for rabbitmq resource to come back up
+timeout_seconds={{ node_reboot_timeout }}
+elapsed_seconds=0
+while true; do
+    echo "Waiting for rabbitmq pcs resource to start"
+    RABBIT_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:rabbitmq-cluster | grep -vi FAILED | grep -i started | wc -l)
+    if [[ $RABBIT_RES = 1 ]] || [[ $RABBIT_RES > 2 ]]; then
+        break
+    fi
+    sleep 3
+    (( elapsed_seconds += 3 ))
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: Rabbitmq pcs resource didn't get started after reboot"
+    exit 1
+    fi
+done

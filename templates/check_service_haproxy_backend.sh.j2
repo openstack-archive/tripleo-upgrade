@@ -1,0 +1,26 @@
+source {{ undercloud_rc }}
+NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+
+## in case of external loadbalancer haproxy resource is not running on controller nodes
+EXT_LB=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo hiera -c /etc/puppet/hiera.yaml enable_load_balancer')
+if [[ $EXT_LB != 'false' ]]; then
+    timeout_seconds={{ node_reboot_timeout }}
+    elapsed_seconds=0
+    while true; do
+        rm -rf ~/haproxy.stats
+        echo "Waiting for haproxy backend services to come up"
+ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP > ~/haproxy.stats <<-\SSH
+sudo docker exec $(sudo docker ps | grep -oP haproxy-bundle.*) bash -c 'echo "show stat" |  socat /var/lib/haproxy/stats stdio | grep -v redis'
+SSH
+        grep DOWN ~/haproxy.stats > /dev/null
+        if [[ $? != 0 ]]; then
+            break
+        fi
+        sleep 3
+        (( elapsed_seconds += 3 ))
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: $(grep DOWN haproxy.stats | awk -F ',' {'print $1'}) is down on $(grep DOWN haproxy.stats | awk -F ',' {'print $2'})"
+        exit 1
+        fi
+    done
+fi

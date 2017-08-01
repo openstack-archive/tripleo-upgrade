@@ -1,0 +1,10 @@
+- name: register controller nodes
+  shell: |
+    source {{ undercloud_rc }}
+    openstack server list -f json |  jq -r -c '.[] | select(.Name | contains("controller")) | .Name'
+  register: controllers
+
+- include: controller_node_upgrade.yml
+  with_items: "{{ controllers.stdout_lines }}"
+  loop_control:
+    loop_var: node_name

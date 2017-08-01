@@ -1,21 +1,38 @@
 ---
 # This is file and plugin.spec are required by Infrared project
 
-- hosts: all
-  gather_facts: true
-
 - hosts: undercloud
-  gather_facts: false
+  gather_facts: true
   become: yes
   become_method: sudo
   become_user: stack
 
   pre_tasks:
 
+    - name: Set upgrade workload launch
+      set_fact:
+         workload_launch: true
+      when: install.upgrade.workload
+
+    - name: Set upgrade workload image
+      set_fact:
+         workload_image_url: "{{ install.upgrade.workloadimage }}"
+      when: install.upgrade.workload
+
+    - name: Set upgrade workload memory
+      set_fact:
+         workload_memory: "{{ install.upgrade.workloadmemory }}"
+      when: install.upgrade.workload
+
     - name: Set undercloud upgrade
       set_fact:
          undercloud_upgrade: true
       when: install.undercloud.upgrade
+
+    - name: Set undercloud reboot
+      set_fact:
+         undercloud_reboot: true
+      when: install.undercloud.reboot
 
     - name: Set overcloud upgrade
       set_fact:
@@ -32,6 +49,15 @@
          upstream_container_images: false
       when: not install.upstream.container.images
 
+    - name: Set use docker local registry
+      set_fact:
+         use_local_docker_registry: false
+      when: not install.upgrade.docker.local.registry
+
+    - name: Set docker registry url
+      set_fact:
+         docker_registry_url: "{{ install.upgrade.docker.registry.url }}"
+
     - name: Set undercloud update
       set_fact:
         undercloud_update: true
@@ -41,6 +67,41 @@
       set_fact:
         overcloud_update: true
       when: install.overcloud.get('update', {})
+
+    - name: Set updates workarounds
+      set_fact:
+         updates_workarounds: true
+      when: install.updates.workarounds
+
+    - name: Set upgrade floating ip check
+      set_fact:
+         l3_agent_connectivity_check: true
+      when: install.upgrade.floatingip.check
+
+    - name: Set upgrade compute host evacuate
+      set_fact:
+         compute_evacuate: true
+      when: install.upgrade.compute.evacuate
+
+    - name: Set deployment-files base
+      set_fact:
+         container_registry_file: "{{ install.deployment.files }}/docker-images.yaml"
+      when: install.deployment.files
+
+    - name: Set upgrade controller reboot
+      set_fact:
+         controller_reboot: true
+      when: install.upgrade.controller.reboot
+
+    - name: Set upgrade controller post
+      set_fact:
+         controller_upgrade_post: true
+      when: install.upgrade.controller.post
+
+    - name: Set upgrade force reboot
+      set_fact:
+         force_reboot: true
+      when: install.upgrade.reboot.force
 
   roles:
     - tripleo-upgrade

@@ -4,18 +4,52 @@
 set -euo pipefail
 
 {% if upstream_container_images  %}
+openstack overcloud container image prepare \
+    --tag latest \
+    --env-file {{ containers_default_parameters }} \
 {% if use_local_docker_registry  %}
+    --namespace={{ ansible_br_ctlplane.ipv4.address }}:8787/tripleoupstream
 cat > {{ containers_default_parameters }} <<EOF
 parameter_defaults:
   DockerNamespace: {{ ansible_br_ctlplane.ipv4.address }}:8787/tripleoupstream
   DockerNamespaceIsRegistry: true
 EOF
+{% else %}
+{% if docker_registry_url != 'registry.example.local' %}
+    --namespace {{ docker_registry_url }}/tripleoupstream
+{% else %}
+    --namespace tripleoupstream
+{% endif %}
 {% endif %}
 {% else %}
 REPO="$(find /etc/yum.repos.d/ -iname 'rhos-release-??.*')"
 REPO_URL="$(grep -B2 enabled=1 $REPO | grep -m1 puddle | sed -E 's/.*(http.*[0-9]-RHEL-.\/).*/\1/')"
-curl -L -o  {{ containers_default_parameters }} $REPO_URL/latest_containers/docker-osp12.yaml
+curl -L -o {{ working_dir }}/overcloud_container_image_prepare.yaml $REPO_URL/latest/overcloud_container_image_prepare.yaml
+REGISTRY="$(grep -v ^# {{ working_dir }}/overcloud_container_image_prepare.yaml  | grep '  namespace' | awk -F': ' {'print $2'} | awk -F'/' {'print $1'})"
+sudo sed -i -E "s/(--insecure-registry.*)\"/\1\ --insecure-registry\ $REGISTRY\"/" /etc/sysconfig/docker
+sudo systemctl restart docker
+TAG="$(openstack overcloud container image tag discover --image $REGISTRY/rhosp12/openstack-base:latest --tag-from-label version-release)"
+{% if docker_registry_url != 'registry.example.local' %}
+REGISTRY='{{ docker_registry_url }}'
+{% endif %}
+openstack overcloud container image prepare \
+    --env-file={{ containers_default_parameters }} \
+    --prefix=openstack- \
+    --suffix=-docker \
+    --tag="$TAG" \
+    --set ceph_image=rhceph-2-rhel7 \
+    --set ceph_tag=latest \
 {% if use_local_docker_registry  %}
-sed -i s/DockerNamespace:.*/DockerNamespace:\ {{ ansible_br_ctlplane.ipv4.address }}:8787/rhosp12/ {{ containers_default_parameters }}
+{% for envs in services.stdout_lines|default([]) %}
+    --service-environment-file={{envs}} \
+{% endfor %}
+    --namespace={{ ansible_br_ctlplane.ipv4.address }}:8787/rhosp12 \
+    --set ceph_namespace={{ ansible_br_ctlplane.ipv4.address }}:8787/ceph
+{% else %}
+{% for envs in services.stdout_lines|default([]) %}
+    --service-environment-file={{envs}} \
+{% endfor %}
+    --namespace=$REGISTRY/rhosp12 \
+    --set ceph_namespace=$REGISTRY/ceph
 {% endif %}
 {% endif %}

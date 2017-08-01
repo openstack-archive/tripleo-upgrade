@@ -1,0 +1,64 @@
+---
+- name: register latest installed kernel version
+  shell: |
+    rpm -qa | grep ^kernel-[0-9] | sort | tail -1 | awk -F 'kernel-' {'print $2'}
+  register: installed_kernel
+
+- name: register loaded kernel
+  command: uname -r
+  register: loaded_kernel
+
+- name: register installed openvswitch package version
+  shell: |
+    rpm --queryformat %{VERSION} -q openvswitch | awk -F "." '{print $1"."$2}'
+  register: installed_ovs
+
+- name: register loaded openvswitch version
+  shell: |
+    ovs-vsctl show | grep ovs_version | awk -F \" {'print $2'} | awk -F "." '{print $1"."$2}'
+  become: true
+  become_user: root
+  register: loaded_ovs
+
+- block:
+
+      - name: reboot the undercloud
+        shell: "sleep 2 && shutdown -r now"
+        async: 1
+        poll: 0
+        ignore_errors: true
+        become: true
+        become_user: root
+
+      - name: waiting for the undercloud to be available
+        become: no
+        wait_for:
+            port: 22
+            host: "{{ ansible_ssh_host }}"
+            search_regex: OpenSSH
+            delay: 10
+        delegate_to: localhost
+        when: "'hypervisor' not in groups and 'virthost' not in groups"
+
+      - name: waiting for the undercloud to be available
+        become: no
+        wait_for:
+            port: 22
+            host: "{{ ansible_ssh_host }}"
+            search_regex: OpenSSH
+            delay: 10
+        delegate_to: hypervisor
+        when: "'hypervisor' in groups"
+
+      - name: waiting for the undercloud to be available
+        become: no
+        wait_for:
+            port: 22
+            host: "{{ ansible_default_ipv4.address }}"
+            search_regex: OpenSSH
+            delay: 10
+        delegate_to: virthost
+        when: "'virthost' in groups"
+  when:
+    - not tripleo_ci and (undercloud_reboot or (installed_kernel.stdout != loaded_kernel.stdout) or (installed_ovs.stdout != loaded_ovs.stdout))
+  tags: undercloud_reboot

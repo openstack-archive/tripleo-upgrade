@@ -1,9 +1,14 @@
 ---
 # defaults file for tripleo-upgrade
 # main vars:
-working_dir: "{{ ansible_env.HOME }}"
+working_dir: "{{ (ansible_env|default({})).HOME|default('/home/stack') }}"
+
+# TODO: those variable can be changed for the explicit keyword in tag
+# when https://github.com/ansible/ansible/issues/11045 is merged.
 
 # enable update/upgrade
+upgrade_noop: false
+update_noop: false
 undercloud_upgrade: false
 overcloud_upgrade: false
 undercloud_update: false
@@ -12,25 +17,68 @@ overcloud_update: false
 # enable upgrade workarounds
 upgrade_workarounds: false
 
+# enable update workarounds
+updates_workarounds: false
+
+# use oooq
+use_oooq: false
+
+# Running in tripleo ci
+tripleo_ci: false
+
 #rc files:
 undercloud_rc: "{{ working_dir }}/stackrc"
 overcloud_rc: "{{ working_dir }}/overcloudrc"
 
+# launch workload before update/upgrade
+workload_launch: false
+external_network_name: "public"
+workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
+workload_memory: "512"
+
 # upgrade jinja template name:
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
+undercloud_update_template: undercloud_update.sh.j2
 container_images_download_template: download_images.sh.j2
 local_docker_registry_env_template: create_registry_env.sh.j2
+workload_launch_template: workload_launch.sh.j2
 
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"
+undercloud_update_script: "{{ working_dir }}/undercloud_update.sh"
 overcloud_deploy_script: "{{ working_dir }}/overcloud_deploy.sh"
 overcloud_composable_upgrade_script: "{{ working_dir }}/composable_docker_upgrade.sh"
 overcloud_converge_upgrade_script: "{{ working_dir }}/converge_docker_upgrade.sh"
 container_images_download_script: "{{ working_dir }}/container_images_download.sh"
 local_docker_registry_env_script: "{{ working_dir }}/local_docker_registry_env.sh"
+workload_launch_script: "{{ working_dir }}/workload_launch.sh"
+
+# overcloud jinja template name
+overcloud_pre_update_workarounds_template: overcloud_pre_update_workarounds.sh.j2
+update_workarounds_template: update_workarounds.sh.j2
+overcloud_update_setup_template: overcloud_update_setup.sh.j2
+overcloud_update_template: overcloud_update.sh.j2
+
+# overcloud update scripts
+pre_undercloud_update_workarounds_script: "{{ working_dir }}/pre_undercloud_update_workarounds.sh"
+post_undercloud_update_workarounds_script: "{{ working_dir }}/post_undercloud_update_workarounds.sh"
+pre_overcloud_update_workarounds_script: "{{ working_dir }}/pre_overcloud_update_workarounds.sh"
+post_overcloud_update_workarounds_script: "{{ working_dir }}/post_overcloud_update_workarounds.sh"
+
+overcloud_update_setup_script: "{{ working_dir }}/overcloud_update_setup.sh"
+overcloud_update_script_base: "{{ working_dir }}/overcloud_update"
+
+# container registry file
+container_registry_file: "docker-images.yaml"
 
 # enable local docker registry
 use_local_docker_registry: true
+
+# create local docker registry env file
+create_docker_registry: true
+
+# url of the remote docker registry to be used
+docker_registry_url: 'registry.example.local'
 
 # use upstream or downstream container images
 upstream_container_images: true
@@ -43,3 +91,27 @@ containers_default_parameters: "{{ working_dir }}/docker-osp12.yaml"
 
 # container_images.yaml file location
 container_images_location: "{{ working_dir }}/container_images.yaml"
+
+# reboot nodes post upgrade
+undercloud_reboot: false
+controller_reboot: false
+force_reboot: false
+
+# time to wait for nodes to reboot in seconds
+node_reboot_timeout: 300
+
+# enable l3 agent connectivity check during upgrade
+l3_agent_connectivity_check: false
+l3_agent_connectivity_check_start_script: "{{ working_dir }}/l3_agent_start_ping.sh"
+l3_agent_connectivity_check_stop_script: "{{ working_dir }}/l3_agent_stop_ping.sh"
+l3_agent_connectivity_check_start_template: l3_agent_start_ping.sh.j2
+l3_agent_connectivity_check_stop_template: l3_agent_stop_ping.sh.j2
+
+# migrate instances between compute nodes during upgrade
+compute_evacuate: false
+
+# enable post upgrade checks
+controller_upgrade_post: false
+
+# Provide a custom ssh-config file
+need_ssh_config: true

@@ -1,0 +1,101 @@
+#!/bin/bash
+#
+# Apply upgrade workarounds
+set -euo pipefail
+
+{% if 'pre_undercloud_upgrade_workarounds' in item %}
+{% for bugs in pre_undercloud_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+    base64 -d | \
+    sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% elif 'post_undercloud_upgrade_workarounds' in item %}
+{% for bugs in post_undercloud_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+    base64 -d | \
+    sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% elif 'pre_docker_composable_upgrade_workarounds' in item %}
+{% for bugs in pre_docker_composable_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+    base64 -d | \
+    sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% elif 'pre_nova_compute_upgrade_workarounds' in item %}
+{% for bugs in pre_nova_compute_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+     base64 -d | \
+     sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% elif 'pre_docker_converge_upgrade_workarounds' in item %}
+{% for bugs in pre_docker_converge_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+    base64 -d | \
+    sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% elif 'post_docker_converge_upgrade_workarounds' in item %}
+{% for bugs in post_docker_converge_upgrade_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
+    base64 -d | \
+    sudo patch  -d {{ value.basedir }} -p1
+
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}

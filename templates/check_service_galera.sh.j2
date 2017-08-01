@@ -1,0 +1,45 @@
+source {{ undercloud_rc }}
+NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
+
+## wait for galera resource to come back up
+timeout_seconds={{ node_reboot_timeout }}
+elapsed_seconds=0
+while true; do
+    echo "Waiting for galera pcs resource to start"
+    GALERA_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:galera | grep -vi FAILED | grep -i master | wc -l)
+    if [[ $GALERA_RES = 1 ]] || [[ $GALERA_RES > 2 ]]; then
+        break
+    fi
+    sleep 3
+    (( elapsed_seconds += 3 ))
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "WARNING: galera pcs resource didn't get started after reboot. Trying to workaround BZ#1499677"
+        GVWSTATE_SIZE=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo touch /var/lib/mysql/gvwstate.dat; sudo wc -c /var/lib/mysql/gvwstate.dat' | awk {'print $1'})
+        if [ $GVWSTATE_SIZE -eq 0 ]; then
+            echo "Removing gvwstate.dat"
+            ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo rm -f /var/lib/mysql/gvwstate.dat'
+            echo "Cleanup galera resource"
+            ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs resource cleanup galera'
+            timeout_seconds={{ node_reboot_timeout }}
+            elapsed_seconds=0
+            while true; do
+                echo "Waiting for galera pcs resource to start"
+                GALERA_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:galera | grep -i master | wc -l)
+                if [[ $GALERA_RES = 1 ]] || [[ $GALERA_RES > 2 ]]; then
+                    break
+                fi
+                sleep 3
+                (( elapsed_seconds += 3 ))
+                if [ $elapsed_seconds -ge $timeout_seconds ]; then
+                    echo "FAILURE: galera pcs resource didn't get started after reboot. Workaround for BZ#1499677 applied."
+                exit 1
+                fi
+            done
+        else
+            echo "FAILURE: galera pcs resource didn't get started after reboot"
+            exit 1
+        fi
+    fi
+done
+
+

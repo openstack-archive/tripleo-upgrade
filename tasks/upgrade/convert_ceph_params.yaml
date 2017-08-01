@@ -1,0 +1,41 @@
+---
+- name: check if ceph ansible is enabled
+  command: "grep -Eq 'ceph-ansible.yaml|storage-environment.yaml' {{ overcloud_deploy_script }}"
+  register: ceph_ansible
+  ignore_errors: true
+
+- block:
+    - name: register environment files
+      shell: |
+        grep '\-e\ \|\-\-environment-file' {{ overcloud_deploy_script }} | awk {'print $2'}  | grep -v '\$'
+      register: envs
+
+    - name: look for ceph osd extra config
+      shell: |
+        grep 'ceph::profile::params::osds' {{ item }}
+      ignore_errors: true
+      register: osd_env
+      with_items:
+        - "{{ envs.stdout_lines }}"
+
+    - set_fact:
+        ceph_env: "{{ item.item }}"
+      when: "{{ item.stdout|length > 0 }}"
+      with_items:
+        - "{{ osd_env.results }}"
+
+    - block:
+        - name: register environment file
+          command: "cat {{ ceph_env }}"
+          register: ceph_puppet
+
+        - set_fact:
+            ceph_osds: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osds'] }}"
+
+        - name: generate new environment file
+          template:
+            src: cephosd.yaml.j2
+            dest: "{{working_dir}}/ceph-ansible-env.yaml"
+      when: ceph_env is defined
+
+  when: ceph_ansible|succeeded
