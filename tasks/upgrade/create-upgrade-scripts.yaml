@@ -152,6 +152,13 @@
     dest: "{{ working_dir }}/upgrade_hci.yaml"
   when: upgrade_hci|bool
 
+- name: create the custom upgrade init commands
+  template:
+    src: "{{ upgrade_init_command_template }}"
+    dest: "{{upgrade_init_command_dest}}"
+    mode: 0775
+  when: upgrade_init_command is string
+
 - name: create composable upgrade scripts
   include: step_upgrade.yml
   loop_control:
@@ -160,6 +167,7 @@
     - step: "Docker containers composable upgrade"
       script: "{{ overcloud_composable_upgrade_script }}"
       environment_file:
+        - "{% if upgrade_init_command is string %}{{upgrade_init_command_dest}}{% endif %}"
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
         - "{% if upstream_container_images and (deployment_with_ha.rc == 0)  %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ tht_directory }}/environments/major-upgrade-composable-steps-docker.yaml"

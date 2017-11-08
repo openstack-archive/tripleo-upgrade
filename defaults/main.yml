@@ -122,3 +122,8 @@ upgrade_remove_rpm: false
 
 # Enable HCI upgrade
 upgrade_hci: false
+
+# No upgrade_init_command by default
+upgrade_init_command_template: upgrade_init_command.yaml.j2
+upgrade_init_command_dest: "{{working_dir}}/UpgradeInitCommand.yaml"
+upgrade_init_command: false

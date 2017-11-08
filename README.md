@@ -12,7 +12,7 @@ This role requires:
 
 * Nodes in the inventory file are placed in groups based on their roles (e.g compute nodes are part of the 'compute' group)
 
-* Repositories containing packages to be upgraded are already installed on undercloud and overcloud nodes
+* Repositories containing packages to be upgraded are already installed on undercloud and overcloud nodes (or, for overcloud, define an upgrade_init_command variable)
 
 * The initial overcloud deploy command is placed in a script file located in the path set by the overcloud_deploy_script var. Each option/environment file should be placed on a separate new line, e.g:
 
@@ -110,6 +110,11 @@ Amount of memory assigned for the workload instance.
     tripleo_ci: false
 
 Set to true when running the role in the TripleO CI jobs. It avoids losing connectivity to the undercloud by skipping reboot and ssh kill tasks.
+
+    upgrade_init_command: |
+        sudo tripleo-repos -b pike current
+
+Bash commands, defines a custom upgrade init to be taken into account during overcloud upgrade.
 
 Dependencies
 ------------
