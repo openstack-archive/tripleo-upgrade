@@ -1,0 +1,81 @@
+- name: create a comptatible deployment scripts from oooq
+  include: ../upgrade/use_oooq.yaml
+  tags: use_oooq
+  when: use_oooq|bool
+
+- name: make a copy of the initial overcloud deploy script
+  copy:
+    remote_src: yes
+    src: "{{ overcloud_deploy_script }}"
+    dest: "{{ overcloud_deploy_script }}.orig"
+
+- name: create ffu upgrade workaround scripts
+  template:
+    src: fast-forward-upgrade/workarounds.sh.j2
+    dest: "{{working_dir}}/{{ item }}.sh"
+    mode: 0775
+  with_items:
+     - 'post_ffu_undercloud_upgrade_workarounds'
+     - 'pre_ffu_update_stack_outputs_workarounds'
+     - 'pre_ffu_download_config_workarounds'
+     - 'pre_ffu_upgrade_playbook_workarounds'
+     - 'pre_ffu_upgrade_steps_playbook_workarounds'
+     - 'pre_ffu_deploy_steps_playbook_workarounds'
+  when: ffu_upgrade_workarounds
+
+- name: register is_upstream variable
+  shell: |
+    rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
+  failed_when: false
+  register: is_upstream
+
+- name: Check if overcoud deployed with pacemaker
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show overcloud EnabledServices | grep '"pacemaker"'
+  failed_when: false
+  register: pacemaker_present
+
+- name: set deployment_with_ha fact
+  set_fact:
+    deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
+
+- name: register used service environment files
+  # Find all environment files matching which include one of the
+  # listed patterns. Supports even when there's many of them on one
+  # line, which is how OOOQ passes env files. The lookahead expression
+  # needs to have fixed width, so remove any extra leading spaces from
+  # results via sed rather than in the grep expression itself.
+  shell: |
+    grep -oP '(^| )(?<=-e |--environment-file ) *[^ ]*(environments/docker|environments/services|environments/storage|environments/ceph-ansible|ci/environments)[^ ]*' {{ overcloud_deploy_script }} \
+        | sed -E 's/^ *//'
+  register: services
+  ignore_errors: true
+
+- name: create container images download script
+  template:
+    src: "{{ container_images_download_template }}"
+    dest: "{{ container_images_download_script }}"
+    mode: 0775
+  when: use_local_docker_registry
+
+- name: create registry environment file script
+  template:
+    src: "{{ local_docker_registry_env_template }}"
+    dest: "{{ local_docker_registry_env_script }}"
+    mode: 0775
+  when: create_docker_registry
+
+- name: create ffu overcloud upgrade scripts
+  include: ../upgrade/step_upgrade.yml
+  loop_control:
+    loop_var: ugstage
+  with_items:
+    - step: "FFU update stack outputs"
+      script: "{{ working_dir }}/ffu_update_stack_outputs.sh"
+      environment_file:
+        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
+        - "{% if upstream_container_images and (deployment_with_ha.rc == 0)  %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{{ containers_default_parameters }}"
+        - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
+        - "{{ tht_directory }}/environments/noop-deploy-steps.yaml"

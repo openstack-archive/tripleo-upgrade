@@ -1,0 +1,76 @@
+- name: create upgrade prepare scripts
+  include: create-prepare-scripts.yaml
+
+- name: create fast forward upgrade scripts
+  include: create-ffu-scripts.yaml
+  tags: create_ffu_scripts
+  loop_control:
+    loop_var: release
+  with_items: "{{ ffu_undercloud_releases }}"
+  when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
+
+- block:
+    - name: ffu undercloud upgrade
+      include: undercloud-upgrade.yml
+      loop_control:
+        loop_var: release
+      with_items: "{{ ffu_undercloud_releases }}"
+
+    - name: apply post ffu undercloud upgrade workarounds
+      command: "{{working_dir}}/post_ffu_undercloud_upgrade_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+  when: ffu_undercloud_upgrade|bool
+
+- block:
+    # TODO: move this out of upgrade
+    - name: download container images
+      include: ../upgrade/container_images.yaml
+      when: use_local_docker_registry|bool
+      tags: container_images
+
+    - name: create local docker registry environment file
+      include: ../upgrade/docker_registry_images_env.yaml
+      when: create_docker_registry|bool
+      tags: docker_registry_images_env
+
+    - name: apply pre ffu update stack outputs workarounds
+      command: "{{working_dir}}/pre_ffu_update_stack_outputs_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_update_stack_outputs
+
+    - include: ffu_update_stack_outputs.yaml
+      tags: ffu_update_stack_outputs
+
+    - name: apply pre ffu download config workarounds
+      command: "{{working_dir}}/pre_ffu_download_config_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_download_config
+
+    - include: ffu_download_config.yaml
+      tags: ffu_download_config
+
+    - name: apply pre fast forward upgrade playbook workarounds
+      command: "{{working_dir}}/pre_ffu_upgrade_playbook_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_upgrade_playbook
+
+    - include: ffu_upgrade_playbook.yaml
+      tags: ffu_upgrade_playbook
+
+    - name: apply pre ffu upgrade steps playbook workarounds
+      command: "{{working_dir}}/pre_ffu_upgrade_steps_playbook_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_upgrade_steps_playbook
+
+    - include: ffu_upgrade_steps_playbook.yaml
+      tags: ffu_upgrade_steps_playbook
+
+    - name: apply pre ffu deploy steps playbook workarounds
+      command: "{{working_dir}}/pre_ffu_deploy_steps_playbook_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_deploy_steps_playbook
+
+    - include: ffu_deploy_steps_playbook.yaml
+      tags: ffu_deploy_steps_playbook
+
+  when: ffu_overcloud_upgrade|bool

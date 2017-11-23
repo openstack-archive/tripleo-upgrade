@@ -1,0 +1,22 @@
+---
+- name: update stack outputs
+  shell: |
+    source {{ undercloud_rc }}
+    {{ working_dir }}/ffu_update_stack_outputs.sh &> {{ working_dir }}/ffu_update_stack_outputs.log
+  register: ffu_stack_output
+  ignore_errors: yes
+
+- name: print stack failures
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack failures list --long overcloud | tee {{ working_dir}}/ffu_update_stack_outputs_failed.log
+  when: ffu_stack_output|failed
+
+- name: print resource list
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack resource list --filter status=FAILED --nested-depth 5 overcloud | tee {{ working_dir}}/ffu_update_stack_outputs_failed_resources.log
+  when: ffu_stack_output|failed
+
+- fail: msg="FFU update stack outputs step failed... :("
+  when: ffu_stack_output|failed

@@ -15,3 +15,6 @@
 
 - include: update/main.yml
   when: update_noop|bool or undercloud_update|bool or overcloud_update|bool
+
+- include: fast-forward-upgrade/main.yml
+  when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool

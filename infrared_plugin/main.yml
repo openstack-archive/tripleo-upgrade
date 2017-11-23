@@ -122,5 +122,28 @@
       set_fact:
          overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
 
+    - name: Set undercloud FFU upgrade
+      set_fact:
+         ffu_undercloud_upgrade: true
+      when: install.undercloud.ffu.upgrade
+
+    - name: Set undercloud FFU upgrade releases
+      set_fact:
+         ffu_undercloud_releases: "{{ install.undercloud.ffu.releases }}"
+
+    - name: Set undercloud FFU upgrade repo
+      set_fact:
+         ffu_undercloud_repo_type: "{{ install.undercloud.ffu.repo }}"
+
+    - name: Set FFU upgrade workarounds
+      set_fact:
+         ffu_upgrade_workarounds: true
+      when: install.upgrade.ffu.workarounds
+
+    - name: Set overcloud FFU upgrade
+      set_fact:
+         ffu_overcloud_upgrade: true
+      when: install.overcloud.ffu.upgrade
+
   roles:
     - tripleo-upgrade

@@ -126,3 +126,32 @@ subparsers:
                       type: Value
                       help: Overcloud stack name
                       default: "overcloud"
+            - title: TripleO Fast Forward Upgrade
+              options:
+                  overcloud-ffu-upgrade:
+                      type: Bool
+                      help: |
+                          Fast Forward Upgrade Overcloud
+                          NOTE: Upgrade require overcloud deployment script to be available in home directory of undercloud
+                          user at undercloud node
+                      default: false
+                  undercloud-ffu-upgrade:
+                      type: Bool
+                      help: |
+                          Fast Forward Upgrade Undercloud
+                      default: false
+                  undercloud-ffu-releases:
+                      type: ListValue
+                      help: |
+                          Undercloud FFU upgrade releases
+                      default: 11,12,13
+                  undercloud-ffu-repo:
+                      type: Value
+                      help: |
+                          Undercloud FFU upgrade repository method
+                      default: 'rhos-release'
+                  upgrade-ffu-workarounds:
+                      type: Bool
+                      help: |
+                          Apply FFU upgrade workarounds
+                      default: false

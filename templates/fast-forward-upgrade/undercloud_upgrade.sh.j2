@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Perform undercloud upgrade and related steps
+set -euo pipefail
+
+{% if ffu_undercloud_repo_type == 'tripleo-repos' %}
+TRIPLEO_REPOS_RPM=$(curl -L --silent https://trunk.rdoproject.org/centos7/current/ | grep python2-tripleo-repos | awk -F "href" {'print $2'} | awk -F '"' {'print $2'})
+sudo yum localinstall -y https://trunk.rdoproject.org/centos7/current/${TRIPLEO_REPOS_RPM}
+
+sudo tripleo-repos {{ cmd_args | join(' ') }} ceph
+{% endif %}
+
+{% if release == 'ocata' or release == '11' %}
+sudo systemctl stop openstack-* neutron-* httpd
+sudo yum update -y instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient
+{% else %}
+sudo yum -y install ceph-ansible
+sudo yum -y update python-tripleoclient
+{% endif %}
+
+openstack undercloud upgrade &> {{ working_dir }}/undercloud_upgrade_{{ release }}.log

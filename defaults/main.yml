@@ -14,11 +14,19 @@ overcloud_upgrade: false
 undercloud_update: false
 overcloud_update: false
 
+# enable ffu upgrade
+ffu_undercloud_upgrade: false
+ffu_overcloud_upgrade: false
+ffu_noop: false
+
 # enable upgrade workarounds
 upgrade_workarounds: false
 
 # enable update workarounds
 updates_workarounds: false
+
+# enable ffu workarounds
+ffu_upgrade_workarounds: false
 
 # use oooq
 use_oooq: false
@@ -136,3 +144,15 @@ upgrade_hci: false
 upgrade_init_command_template: upgrade_init_command.yaml.j2
 upgrade_init_command_dest: "{{working_dir}}/UpgradeInitCommand.yaml"
 upgrade_init_command: false
+
+# ffu undercloud upgrade
+ffu_undercloud_releases: ['ocata', 'pike', 'queens']
+ffu_undercloud_repo_type: tripleo-repos
+ffu_undercloud_repo_args:
+  tripleo_repos:
+    - release: ocata
+      args: -b ocata current
+    - release: pike
+      args: -b pike current
+    - release: queens
+      args: current

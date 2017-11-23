@@ -1,0 +1,5 @@
+---
+- name: run fast_forward_upgrade_playbook playbook
+  shell: |
+    source {{ undercloud_rc }}
+    ansible-playbook -i /usr/bin/tripleo-ansible-inventory {{ overcloud_config_dir }}/fast_forward_upgrade_playbook.yaml

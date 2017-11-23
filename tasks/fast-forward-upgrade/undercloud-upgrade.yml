@@ -1,0 +1,14 @@
+- include_role:
+    name: rhos-release
+  vars:
+    director_build: "{{ install.get('director', {}).build|default(omit) }}"
+    build: "{{ install.build | default(omit) }}"
+    mirror: "{{ install.mirror | default(omit) }}"
+    rr_distro_version: "{{ install.osrelease|default(omit) }}"
+    rhos_release_rpm: "https://url.corp.redhat.com/rhos-release-latest-rpm"
+  become: true
+  become_user: root
+  when: ffu_undercloud_repo_type == 'rhos-release'
+
+- name: Upgrade undercloud to {{ release }}
+  command: "{{ working_dir }}/undercloud_upgrade_{{ release }}.sh"
