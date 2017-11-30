@@ -143,6 +143,15 @@
         - '\1\n  networks:\n    - InternalApi'
         - '\1\n  description: |\n    Standalone messaging role with RabbitMQ being managed via Pacemaker'
 
+    - name: Assigns new attributes to Monitor role
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: Monitor.*)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  networks:\n    - Storage'
+        - '\1\n  description: |\n    Ceph Monitor role'
+
     - name: Add services common to all roles introduced in Pike
       replace:
         dest: '{{ custom_roles_file.stdout }}'
