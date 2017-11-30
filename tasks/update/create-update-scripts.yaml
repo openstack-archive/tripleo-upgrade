@@ -4,12 +4,14 @@
     src: "{{ undercloud_update_template }}"
     dest: "{{ undercloud_update_script }}"
     mode: 0775
+    force: true
 
 - name: create scripts with workarounds
   template:
     src: "{{ update_workarounds_template }}"
     dest: "{{ working_dir }}/{{ item.script }}"
     mode: 0755
+    force: true
   with_items:
     - '{{ pre_undercloud_update_workarounds|default([]) }}'
     - '{{ post_undercloud_update_workarounds|default([]) }}'
@@ -21,7 +23,7 @@
   shell: |
     source {{ undercloud_rc }} ;
     tripleo-ansible-inventory --static-inventory /tmp/fake-oc-hosts ;
-    grep role_name /tmp/fake-oc-hosts | awk -F '=' '{ print $2 }' 2>/dev/null | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//'
+    grep role_name /tmp/fake-oc-hosts | awk -F '=' '{ print $2 }' 2>/dev/null | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//' -e 's/\([Cc]ontroller\)/00-\1/' | sort
   register: oc_roles
 
 - name: store roles
@@ -33,11 +35,13 @@
     src: "{{ overcloud_update_setup_template }}"
     dest: "{{ overcloud_update_setup_script }}"
     mode: 0775
+    force: true
 
 - name: create overcloud update script
   template:
     src: "{{ overcloud_update_template }}"
     dest: "{{ overcloud_update_script_base }}-{{ item }}.sh"
     mode: 0775
+    force: true
   with_items:
     - "{{ oc_roles.stdout_lines|default('all') }}"

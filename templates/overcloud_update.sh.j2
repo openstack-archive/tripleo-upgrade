@@ -7,6 +7,7 @@ set -euo pipefail
 echo "Running minor update of all overcloud nodes"
 openstack overcloud update stack 2>&1
 {% else %}
-echo "Runing update of {{ item }}"
-openstack overcloud update stack --nodes {{ item }} 2>&1
+{% set tmp_role_name = item.split('-', 1)[-1] %}
+echo "Runing update of {{ tmp_role_name }}"
+openstack overcloud update stack --nodes {{ tmp_role_name }} 2>&1
 {% endif %}
