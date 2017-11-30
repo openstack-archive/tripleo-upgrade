@@ -146,6 +146,12 @@
     dest: "{{ working_dir }}/remove-packages.yaml"
   when: upgrade_remove_rpm|bool
 
+- name: create environment file for hci upgrade
+  template:
+    src: "upgrade_hci.yaml.j2"
+    dest: "{{ working_dir }}/upgrade_hci.yaml"
+  when: upgrade_hci|bool
+
 - name: create composable upgrade scripts
   include: step_upgrade.yml
   loop_control:
@@ -170,6 +176,14 @@
         - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
         - "{% if dpdk_env|succeeded %}{{working_dir}}/dpdk-upgrade-env.yaml{% endif %}"
+        - "{% if upgrade_hci|bool %}{{ working_dir }}/upgrade_hci.yaml{% endif %}"
+
+- name: replace storage-environment with puppet-ceph for hci use case
+  replace:
+    dest: "{{ overcloud_composable_upgrade_script }}"
+    regexp: environments/storage-environment.yaml
+    replace: environments/puppet-ceph.yaml
+  when: upgrade_hci|bool
 
 - name: adjust ssh config to skip host key check
   copy:

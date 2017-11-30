@@ -118,3 +118,6 @@ need_ssh_config: true
 
 # Remove packages which get migrated to containers during upgrade
 upgrade_remove_rpm: false
+
+# Enable HCI upgrade
+upgrade_hci: false

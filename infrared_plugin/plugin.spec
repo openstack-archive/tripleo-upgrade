@@ -87,6 +87,12 @@ subparsers:
                       type: Bool
                       help: Remove packages which get migrated to containers during upgrade
                       default: false
+                  upgrade-hci:
+                      type: Bool
+                      help: |
+                          The upgrade workflow for HCI deployments is slightly different.
+                          This option accomdates HCI upgrade.
+                      default: false
             - title: TripleO Update
               options:
                   overcloud-update:
