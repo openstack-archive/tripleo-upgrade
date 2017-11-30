@@ -103,5 +103,10 @@
          force_reboot: true
       when: install.upgrade.reboot.force
 
+    - name: Set upgrade remove packages
+      set_fact:
+         upgrade_remove_rpm: true
+      when: install.upgrade.remove.rpm
+
   roles:
     - tripleo-upgrade

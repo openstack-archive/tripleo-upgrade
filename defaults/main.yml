@@ -115,3 +115,6 @@ controller_upgrade_post: false
 
 # Provide a custom ssh-config file
 need_ssh_config: true
+
+# Remove packages which get migrated to containers during upgrade
+upgrade_remove_rpm: false

@@ -140,6 +140,12 @@
   register: deployment_with_ha
   ignore_errors: True
 
+- name: create environment file to remove rpm packages
+  template:
+    src: "remove-packages.yaml.j2"
+    dest: "{{ working_dir }}/remove-packages.yaml"
+  when: upgrade_remove_rpm|bool
+
 - name: create composable upgrade scripts
   include: step_upgrade.yml
   loop_control:
@@ -154,6 +160,7 @@
         - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
         - "{% if dpdk_env|succeeded %}{{working_dir}}/dpdk-upgrade-env.yaml{% endif %}"
+        - "{% if upgrade_remove_rpm|bool %}{{ working_dir }}/remove-packages.yaml{% endif %}"
     - step: "Docker containers converge upgrade"
       script: "{{ overcloud_converge_upgrade_script }}"
       environment_file:

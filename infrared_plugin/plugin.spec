@@ -83,6 +83,10 @@ subparsers:
                       type: Value
                       help: The alternative docker registry to use for deployment.
                       default: 'registry.example.local'
+                  upgrade-remove-rpm:
+                      type: Bool
+                      help: Remove packages which get migrated to containers during upgrade
+                      default: false
             - title: TripleO Update
               options:
                   overcloud-update:
