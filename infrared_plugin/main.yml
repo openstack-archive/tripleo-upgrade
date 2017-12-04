@@ -24,6 +24,11 @@
          workload_memory: "{{ install.upgrade.workloadmemory }}"
       when: install.upgrade.workload
 
+    - name: Set upgrade workload post_composable_upgrade launch
+      set_fact:
+         workload_launch_post_composable_upgrade: true
+      when: install.upgrade.postcomposableupgrade.workload
+
     - name: Set undercloud upgrade
       set_fact:
          undercloud_upgrade: true

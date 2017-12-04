@@ -42,6 +42,10 @@
     - include: docker_composable_upgrade.yml
       tags: docker_composable_upgrade
 
+    - name: launch workload
+      command: "{{ workload_launch_script }}"
+      when: workload_launch_post_composable_upgrade|bool
+
     - name: apply pre nova compute upgrade workarounds
       command: "{{working_dir}}/pre_nova_compute_upgrade_workarounds.sh"
       when: upgrade_workarounds

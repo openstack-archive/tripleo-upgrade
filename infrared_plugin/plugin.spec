@@ -93,6 +93,11 @@ subparsers:
                           The upgrade workflow for HCI deployments is slightly different.
                           This option accomdates HCI upgrade.
                       default: false
+                  upgrade-postcomposable-workload:
+                      type: Bool
+                      help: |
+                          Launch workload after major composable upgrade step
+                      default: false
             - title: TripleO Update
               options:
                   overcloud-update:

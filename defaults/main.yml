@@ -35,6 +35,7 @@ workload_launch: false
 external_network_name: "public"
 workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
 workload_memory: "512"
+workload_launch_post_composable_upgrade: false
 
 # upgrade jinja template name:
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
