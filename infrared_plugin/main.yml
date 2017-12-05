@@ -27,7 +27,7 @@
     - name: Set upgrade workload post_composable_upgrade launch
       set_fact:
          workload_launch_post_composable_upgrade: true
-      when: install.upgrade.postcomposableupgrade.workload
+      when: install.upgrade.postcomposable.workload
 
     - name: Set undercloud upgrade
       set_fact:
