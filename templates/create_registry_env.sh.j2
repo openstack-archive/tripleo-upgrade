@@ -5,10 +5,11 @@ set -euo pipefail
 
 {% if upstream_container_images  %}
 {% if use_local_docker_registry  %}
-echo > {{ containers_default_parameters }} 'parameter_defaults:
+cat > {{ containers_default_parameters }} <<EOF
+parameter_defaults:
   DockerNamespace: {{ ansible_br_ctlplane.ipv4.address }}:8787/tripleoupstream
   DockerNamespaceIsRegistry: true
-'
+EOF
 {% endif %}
 {% else %}
 REPO="$(find /etc/yum.repos.d/ -iname 'rhos-release-??.*')"
