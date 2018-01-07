@@ -1,10 +1,5 @@
 ---
-- name: Kill SSH
-  shell: sleep 1; pkill -u {{ ansible_ssh_user }} sshd
-  async: 3
-  poll: 2
-  tags: reload_ssh
-  when: not tripleo_ci
+- include: kill_ssh.yaml
 
 - name: download container images
   shell: "bash {{ container_images_download_script }}"
