@@ -35,7 +35,6 @@ REGISTRY='{{ docker_registry_url }}'
 openstack overcloud container image prepare \
     --env-file={{ containers_default_parameters }} \
     --prefix=openstack- \
-    --suffix=-docker \
     --tag="$TAG" \
     --set ceph_image=rhceph-2-rhel7 \
     --set ceph_tag=latest \
