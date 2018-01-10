@@ -1,3 +1,5 @@
 ---
+- include: kill_ssh.yaml
+
 - name: create local registry environment file
   shell: "bash {{ local_docker_registry_env_script }}"
