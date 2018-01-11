@@ -78,6 +78,15 @@ use_local_docker_registry: true
 # create local docker registry env file
 create_docker_registry: true
 
+# create script to download container images.
+# When set to true the template to download the
+# containers will be rendered in the file name
+# defined in container_images_download_script
+# If you want to use an existing file, pass the
+# name in container_images_download_script and
+# set this variable to false.
+create_container_images_download_script: true
+
 # url of the remote docker registry to be used
 docker_registry_url: 'registry.example.local'
 
