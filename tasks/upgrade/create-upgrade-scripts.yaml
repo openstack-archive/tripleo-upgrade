@@ -126,7 +126,7 @@
     src: "{{ container_images_download_template }}"
     dest: "{{ container_images_download_script }}"
     mode: 0775
-  when: use_local_docker_registry
+  when: create_container_images_download_script
 
 - name: create registry environment file script
   template:
