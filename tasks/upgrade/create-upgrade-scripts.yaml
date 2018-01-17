@@ -179,7 +179,7 @@
       script: "{{ overcloud_converge_upgrade_script }}"
       environment_file:
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{% if upstream_container_images and (deployment_with_ha.rc == 0) %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ tht_directory }}/environments/major-upgrade-converge-docker.yaml"
         - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
