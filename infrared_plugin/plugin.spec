@@ -120,3 +120,9 @@ subparsers:
                       help: |
                           Directory containing the templates of the overcloud deployment.
                       default: virt
+            - title: TripleO Options
+              options:
+                  overcloud-stack:
+                      type: Value
+                      help: Overcloud stack name
+                      default: "overcloud"

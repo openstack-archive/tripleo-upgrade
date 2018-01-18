@@ -118,5 +118,9 @@
          upgrade_hci: true
       when: install.upgrade.hci
 
+    - name: Set overcloud credentials file
+      set_fact:
+         overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
+
   roles:
     - tripleo-upgrade
