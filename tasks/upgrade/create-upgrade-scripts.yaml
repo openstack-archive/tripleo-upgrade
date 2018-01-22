@@ -133,8 +133,14 @@
         mode: 0775
 
 - name: register used service environment files
+  # Find all environment files matching which include one of the
+  # listed patterns. Supports even when there's many of them on one
+  # line, which is how OOOQ passes env files. The lookahead expression
+  # needs to have fixed width, so remove any extra leading spaces from
+  # results via sed rather than in the grep expression itself.
   shell: |
-    grep '\-e\ \|\-\-environment-file\ ' {{ overcloud_deploy_script }} | awk {'print $2'} | grep -E 'environments/services|environments/storage|environments/ceph-ansible'
+    grep -oP '(^| )(?<=-e |--environment-file ) *[^ ]*(environments/docker|environments/services|environments/storage|environments/ceph-ansible|ci/environments)[^ ]*' {{ overcloud_deploy_script }} \
+        | sed -E 's/^ *//'
   register: services
   ignore_errors: true
 
