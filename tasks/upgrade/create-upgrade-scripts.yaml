@@ -4,6 +4,23 @@
   tags: use_oooq
   when: use_oooq|bool
 
+- name: register is_upstream variable
+  shell: |
+    rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
+  failed_when: false
+  register: is_upstream
+
+- name: Check if overcoud deployed with pacemaker
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show overcloud EnabledServices | grep '"pacemaker"'
+  failed_when: false
+  register: pacemaker_present
+
+- name: set deployment_with_ha fact
+  set_fact:
+    deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
+
 - name: make a copy of the initial overcloud deploy script
   copy:
     remote_src: yes
@@ -135,11 +152,6 @@
     mode: 0775
   when: create_docker_registry
 
-- name: Check if overcoud deployed with pacemaker
-  shell: grep "\-pacemaker" "{{ overcloud_deploy_script }}"
-  register: deployment_with_ha
-  ignore_errors: True
-
 - name: create environment file to remove rpm packages
   template:
     src: "remove-packages.yaml.j2"
@@ -169,7 +181,7 @@
       environment_file:
         - "{% if upgrade_init_command is string %}{{upgrade_init_command_dest}}{% endif %}"
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and (deployment_with_ha.rc == 0)  %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ tht_directory }}/environments/major-upgrade-composable-steps-docker.yaml"
         - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
@@ -179,7 +191,7 @@
       script: "{{ overcloud_converge_upgrade_script }}"
       environment_file:
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and (deployment_with_ha.rc == 0) %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ tht_directory }}/environments/major-upgrade-converge-docker.yaml"
         - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
