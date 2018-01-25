@@ -1,7 +1,7 @@
 - name: list hypervisors in overcloud
   shell: |
     source {{ overcloud_rc }}
-    openstack hypervisor list -f json | jq -r -c '.[] | .["Hypervisor Hostname"]'
+    openstack hypervisor list -f json | jq -r -c '.[] | select(.["Hypervisor Type"] | contains("ironic") | not) | .["Hypervisor Hostname"]'
   register: hypervisors
 
 - name: hosts running nova-compute
