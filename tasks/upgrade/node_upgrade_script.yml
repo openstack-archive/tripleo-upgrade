@@ -11,7 +11,7 @@
         src: node_upgrade_pre.sh.j2
         dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_pre.sh"
         mode: 0775
-  when: "'compute' in node_name"
+  when: "node_name in hypervisors.stdout_lines"
 
 - name: create script for upgrading {{ node_name }}
   template:
