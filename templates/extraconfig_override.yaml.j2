@@ -1,0 +1,11 @@
+parameter_defaults:
+{% if extra_config|length == 1 %}
+    ExtraConfig:  {}
+{% else %}
+    ExtraConfig:
+{% for key, value in extra_config.iteritems() %}
+{% if 'ceph::profile::params::osds' not in key %}
+        {{ key }}: {{ value }}
+{% endif %}
+{% endfor %}
+{% endif %}

@@ -36,6 +36,15 @@
           template:
             src: cephosd.yaml.j2
             dest: "{{working_dir}}/ceph-ansible-env.yaml"
+
+        - set_fact:
+             extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+
+        - name: generate env file to override extraconfig
+          template:
+            src: extraconfig_override.yaml.j2
+            dest: "{{working_dir}}/extraconfig_override.yaml"
+
       when: ceph_env is defined
 
   when: ceph_ansible|succeeded
