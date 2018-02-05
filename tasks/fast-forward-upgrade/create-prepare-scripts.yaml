@@ -75,7 +75,7 @@
       script: "{{ working_dir }}/ffu_update_stack_outputs.sh"
       environment_file:
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and (deployment_with_ha.rc == 0)  %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ containers_default_parameters }}"
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
         - "{{ tht_directory }}/environments/noop-deploy-steps.yaml"
