@@ -22,17 +22,6 @@
   when: ffu_undercloud_upgrade|bool
 
 - block:
-    # TODO: move this out of upgrade
-    - name: download container images
-      include: ../upgrade/container_images.yaml
-      when: use_local_docker_registry|bool
-      tags: container_images
-
-    - name: create local docker registry environment file
-      include: ../upgrade/docker_registry_images_env.yaml
-      when: create_docker_registry|bool
-      tags: docker_registry_images_env
-
     - name: apply pre ffu update stack outputs workarounds
       command: "{{working_dir}}/pre_ffu_update_stack_outputs_workarounds.sh"
       when: ffu_upgrade_workarounds|bool

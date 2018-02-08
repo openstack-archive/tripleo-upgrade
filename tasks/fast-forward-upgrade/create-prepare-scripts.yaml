@@ -40,32 +40,6 @@
   set_fact:
     deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
 
-- name: register used service environment files
-  # Find all environment files matching which include one of the
-  # listed patterns. Supports even when there's many of them on one
-  # line, which is how OOOQ passes env files. The lookahead expression
-  # needs to have fixed width, so remove any extra leading spaces from
-  # results via sed rather than in the grep expression itself.
-  shell: |
-    grep -oP '(^| )(?<=-e |--environment-file ) *[^ ]*(environments/docker|environments/services|environments/storage|environments/ceph-ansible|ci/environments)[^ ]*' {{ overcloud_deploy_script }} \
-        | sed -E 's/^ *//'
-  register: services
-  ignore_errors: true
-
-- name: create container images download script
-  template:
-    src: "{{ container_images_download_template }}"
-    dest: "{{ container_images_download_script }}"
-    mode: 0775
-  when: use_local_docker_registry
-
-- name: create registry environment file script
-  template:
-    src: "{{ local_docker_registry_env_template }}"
-    dest: "{{ local_docker_registry_env_script }}"
-    mode: 0775
-  when: create_docker_registry
-
 - name: create ffu overcloud upgrade scripts
   include: ../upgrade/step_upgrade.yml
   loop_control:
@@ -76,6 +50,6 @@
       environment_file:
         - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
         - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ containers_default_parameters }}"
+        - "{{ working_dir}}/{{ container_registry_file }}"
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
         - "{{ tht_directory }}/environments/noop-deploy-steps.yaml"
