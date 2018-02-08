@@ -1,0 +1,25 @@
+- name: list hypervisors in overcloud
+  shell: |
+    source {{ overcloud_rc }}
+    openstack hypervisor list -f json | jq -r -c '.[] | .["Hypervisor Hostname"]'
+  register: hypervisors
+
+- name: hosts running nova-compute
+  shell: |
+    source {{ overcloud_rc }}
+    openstack compute service list --service nova-compute -c Host -f value
+  register: nova_compute_hosts
+
+- name: hosts running nova-scheduller
+  shell: |
+    source {{ overcloud_rc }}
+    openstack compute service list --service nova-scheduler -c Host -f value
+  register: nova_scheduler_hosts
+
+- name: controller hosts acting as all-in-one
+  set_fact:
+    all_in_one: "{{ nova_compute_hosts.stdout_lines | default([]) | intersect(nova_scheduler_hosts.stdout_lines | default([])) }}"
+
+- name: Filter out only compute nodes
+  set_fact:
+    compute_nodes: "{{ hypervisors.stdout_lines | default([]) | difference(all_in_one) }}"
