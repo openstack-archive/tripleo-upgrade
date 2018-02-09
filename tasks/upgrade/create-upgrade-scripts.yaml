@@ -13,7 +13,7 @@
 - name: Check if overcoud deployed with pacemaker
   shell: |
     source {{ undercloud_rc }}
-    openstack stack output show overcloud EnabledServices | grep '"pacemaker"'
+    openstack stack output show overcloud EnabledServices | grep 'pacemaker'
   failed_when: false
   register: pacemaker_present
 
