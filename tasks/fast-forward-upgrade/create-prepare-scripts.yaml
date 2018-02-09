@@ -78,4 +78,4 @@
         - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ containers_default_parameters }}"
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
-        - "{{ tht_directory }}/environments/noop-deploy-steps.yaml"
+        - "{{ tht_directory }}/environments/config-download-environment.yaml"
