@@ -5,8 +5,8 @@ set -euo pipefail
 
 {% if upstream_container_images  %}
 openstack overcloud container image prepare \
-    --namespace tripleoupstream \
-    --tag latest \
+    --namespace tripleomaster \
+    --tag current-tripleo \
     --push-destination {{ ansible_br_ctlplane.ipv4.address }}:8787 \
     --images-file {{ container_images_location }}
 source {{ undercloud_rc }}

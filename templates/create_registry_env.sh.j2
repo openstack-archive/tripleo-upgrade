@@ -5,20 +5,20 @@ set -euo pipefail
 
 {% if upstream_container_images  %}
 openstack overcloud container image prepare \
-    --tag latest \
+    --tag current-tripleo \
     --env-file {{ containers_default_parameters }} \
 {% if use_local_docker_registry  %}
-    --namespace={{ ansible_br_ctlplane.ipv4.address }}:8787/tripleoupstream
+    --namespace={{ ansible_br_ctlplane.ipv4.address }}:8787/tripleomaster
 cat > {{ containers_default_parameters }} <<EOF
 parameter_defaults:
-  DockerNamespace: {{ ansible_br_ctlplane.ipv4.address }}:8787/tripleoupstream
+  DockerNamespace: {{ ansible_br_ctlplane.ipv4.address }}:8787/tripleomaster
   DockerNamespaceIsRegistry: true
 EOF
 {% else %}
 {% if docker_registry_url != 'registry.example.local' %}
-    --namespace {{ docker_registry_url }}/tripleoupstream
+    --namespace {{ docker_registry_url }}/tripleomaster
 {% else %}
-    --namespace tripleoupstream
+    --namespace tripleomaster
 {% endif %}
 {% endif %}
 {% else %}
