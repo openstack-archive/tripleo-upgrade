@@ -69,6 +69,10 @@ post_overcloud_update_workarounds_script: "{{ working_dir }}/post_overcloud_upda
 overcloud_update_setup_script: "{{ working_dir }}/overcloud_update_setup.sh"
 overcloud_update_script_base: "{{ working_dir }}/overcloud_update"
 
+overcloud_validate_images_template: validate_docker_images_versions.sh.j2
+overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_versions.sh"
+
+
 # container registry file
 container_registry_file: "docker-images.yaml"
 

@@ -1,0 +1,71 @@
+#!/bin/env bash
+set -euo pipefail
+
+function assert_image_in_file {
+    #
+    # Assert image used by running container is present in the registry
+    # Arg 1 - container-registry file
+    # Arg 2 - image to check
+    #
+
+    local _image_file=${1}
+    local _image_name=${2}
+
+    if [[ -z ${_image_file} || -z ${_image_name} ]] ; then
+        echo "ERROR: Fuction assert_image_in_file requires 2 arguments"
+        exit 2
+    fi
+
+    set +e
+    grep -q "${_image_name}" "${_image_file}"
+
+    if [[ ${?} -ne 0 ]] ; then
+        echo "Image ${_image_name} not present in ${_image_file}"
+        exit 2
+    else
+        set -e
+        echo "Image ${_image_name} present in ${_image_file}"
+    fi
+
+}
+
+source {{ undercloud_rc }}
+for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $2 }' ) ; do
+    echo "================================================================================"
+    echo "Validate docker images at host ${_ip}"
+    echo "================================================================================"
+    CONTAINERS=$( ssh -q -o StrictHostKeyChecking=no heat-admin@${_ip} \
+                    "sudo docker ps 2>&1 | grep -v -e pcmk -e ID | awk '{ print \$2 }'" )
+    for _container in ${CONTAINERS} ; do
+        # non pcs managed containers
+        assert_image_in_file {{ working_dir}}/{{ container_registry_file }} ${_container}
+    done
+
+    CONTAINERS_PCMK=$( ssh -q -o StrictHostKeyChecking=no heat-admin@${_ip} \
+                        "sudo docker images 2>&1 | grep pcmk | awk '{ print \$3 }'" )
+
+    if [[ -z ${CONTAINERS_PCMK} ]] ; then
+        echo "PCMKLATEST images not found on ${_ip}"
+    else
+        echo "================================================================================"
+        echo "Validate PCMKLATEST docker images at host ${_ip}"
+        echo "================================================================================"
+        for _img_id in ${CONTAINERS_PCMK} ; do
+            _pcmk_image=$( ssh -q -o StrictHostKeyChecking=no heat-admin@${_ip} \
+                            "sudo docker images 2>&1 | grep ${_img_id} | grep -v pcmklatest | awk '{ print \$1\":\"\$2}'" )
+            assert_image_in_file {{ working_dir }}/{{ container_registry_file }} ${_pcmk_image}
+
+            _pcmk_container=$( ssh -q -o StrictHostKeyChecking=no heat-admin@${_ip} \
+                                "sudo docker ps --filter ancestor=${_img_id} | grep pcmklatest | awk '{print \$2}'" )
+            if [[ -z ${_pcmk_container} ]] ; then
+                echo "PCMKLATEST container for image '${_pcmk_image}' is not running"
+                echo "Running container is '${_pcmk_container}'"
+                exit 2
+            else
+                echo "PCMKLATES container ${_pcmk_container} usese image ${_pcmk_image}"
+            fi
+
+        done
+    fi
+
+done
