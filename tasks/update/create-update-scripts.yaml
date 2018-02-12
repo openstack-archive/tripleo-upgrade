@@ -45,3 +45,10 @@
     force: true
   with_items:
     - "{{ oc_roles.stdout_lines|default('all') }}"
+
+- name: create docker container/images validate scripts
+  template:
+    src: "{{ overcloud_validate_images_template }}"
+    dest: "{{ overcloud_validate_images_script }}"
+    mode: 0755
+    force: true
