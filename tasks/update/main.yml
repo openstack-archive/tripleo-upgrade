@@ -65,6 +65,13 @@
           bash {{ post_overcloud_update_workarounds_script }} &> {{ working_dir }}/post_overcloud_update_workarounds.log
       when: updates_workarounds|bool
 
+    - name: validate overcloud docker images/containers
+      shell: |
+          source {{ undercloud_rc }}
+          bash {{ overcloud_validate_images_script }} &> {{ working_dir}}/validate_oc_images_containers.log
+      tags:
+          - overcloud_update
+
     - name: stop l3 agent connectivity check
       shell: |
         source {{ overcloud_rc }}
