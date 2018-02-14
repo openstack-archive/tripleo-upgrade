@@ -44,6 +44,10 @@ tripleo_ci: false
 undercloud_rc: "{{ working_dir }}/stackrc"
 overcloud_rc: "{{ working_dir }}/{{ overcloud_stack_name }}rc"
 
+# required for logstash indexing
+timestamper_cmd: >-
+    | awk '{ print strftime("%Y-%m-%d %H:%M:%S |"), $0; fflush(); }'
+
 # launch workload before update/upgrade
 workload_launch: false
 external_network_name: "public"
@@ -52,7 +56,9 @@ workload_memory: "512"
 workload_user: "cirros"
 workload_launch_post_composable_upgrade: false
 
+# note that both UC upgrade and update use the same template
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
+undercloud_update_template:  undercloud_upgrade.sh.j2
 overcloud_upgrade_prepare_template: overcloud_upgrade_prepare.sh.j2
 overcloud_upgrade_run_template: overcloud_upgrade_run.sh.j2
 overcloud_upgrade_converge_template: overcloud_upgrade_converge.sh.j2
