@@ -1,5 +1,0 @@
----
-- name: run upgrade_steps_playbook playbook
-  shell: |
-    source {{ undercloud_rc }}
-    ansible-playbook -i /usr/bin/tripleo-ansible-inventory -M /usr/share/ansible-modules/ {{ overcloud_config_dir }}/upgrade_steps_playbook.yaml

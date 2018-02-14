@@ -38,12 +38,23 @@
     - include: ffu_download_config.yaml
       tags: ffu_download_config
 
+    - name: Create FFU ugrade playbooks scripts
+      template:
+        src: fast-forward-upgrade/ffu_upgrade_playbook.sh.j2
+        dest: "{{working_dir}}/{{ item }}.sh"
+        mode: 0775
+      with_items:
+         - 'ffu_upgrade_playbook_script'
+         - 'ffu_upgrade_steps_playbook_script'
+         - 'ffu_deploy_steps_playbook_script'
+
     - name: apply pre fast forward upgrade playbook workarounds
       command: "{{working_dir}}/pre_ffu_upgrade_playbook_workarounds.sh"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_upgrade_playbook
 
-    - include: ffu_upgrade_playbook.yaml
+    - name: Run FFU fast_forward_upgrade_playbook.yaml
+      command: "{{working_dir}}/ffu_upgrade_playbook_script.sh"
       tags: ffu_upgrade_playbook
 
     - name: apply pre ffu upgrade steps playbook workarounds
@@ -51,7 +62,8 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_upgrade_steps_playbook
 
-    - include: ffu_upgrade_steps_playbook.yaml
+    - name: Run upgrade_steps_playbook.yaml
+      command: "{{working_dir}}/ffu_upgrade_steps_playbook_script.sh"
       tags: ffu_upgrade_steps_playbook
 
     - name: apply pre ffu deploy steps playbook workarounds
@@ -59,7 +71,8 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_deploy_steps_playbook
 
-    - include: ffu_deploy_steps_playbook.yaml
+    - name: Run deploy_steps_playbook.yaml
+      command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
       tags: ffu_deploy_steps_playbook
 
   when: ffu_overcloud_upgrade|bool
