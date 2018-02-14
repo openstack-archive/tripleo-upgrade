@@ -9,8 +9,9 @@
 
 - name: run docker upgrade converge step
   shell: |
+    set -o pipefail
     source {{ undercloud_rc }}
-    bash {{ overcloud_converge_upgrade_script }} &> overcloud_converge_upgrade.log
+    bash {{ overcloud_converge_upgrade_script }} 2>&1 {{ timestamper_cmd }} > overcloud_converge_upgrade.log
   register: overcloud_converge_upgrade
   ignore_errors: yes
 

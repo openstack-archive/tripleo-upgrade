@@ -6,11 +6,19 @@
 
 - block:
     - name: apply pre undercloud upgrade workarounds
-      command: "{{working_dir}}/pre_undercloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
 
     - name: upgrade undercloud
-      shell: "bash {{ undercloud_upgrade_script }} &> {{ working_dir }}/undercloud_upgrade.log"
+      shell: |
+        set -o pipefail
+        bash {{ undercloud_upgrade_script }} 2>&1 {{ timestamper_cmd }} > undercloud_upgrade.log
+      args:
+        chdir: "{{working_dir}}"
       tags: undercloud_upgrade
 
     - name: validate undercloud upgrade
@@ -18,7 +26,11 @@
       tags: undercloud_upgrade_validate
 
     - name: apply post undercloud upgrade workarounds
-      command: "{{working_dir}}/post_undercloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
   when: undercloud_upgrade|bool
 
@@ -48,11 +60,19 @@
       tags: docker_composable_upgrade
 
     - name: launch workload
-      command: "{{ workload_launch_script }}"
+      shell: |
+        set -o pipefail
+        {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+      args:
+        chdir: "{{working_dir}}"
       when: workload_launch_post_composable_upgrade|bool
 
     - name: apply pre nova compute upgrade workarounds
-      command: "{{working_dir}}/pre_nova_compute_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: nova_compute_upgrade
 
@@ -65,7 +85,11 @@
       tags: swift_storage_upgrade
 
     - name: apply pre docker upgrade converge workarounds
-      command: "{{working_dir}}/pre_docker_converge_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: docker_converge_upgrade
 
@@ -73,7 +97,11 @@
       tags: docker_converge_upgrade
 
     - name: apply post docker upgrade converge workarounds
-      command: "{{working_dir}}/post_docker_converge_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: docker_converge_upgrade
 

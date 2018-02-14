@@ -9,21 +9,27 @@
 
 - name: run docker upgrade composable step
   shell: |
+    set -o pipefail
     source {{ undercloud_rc }}
-    bash {{ overcloud_composable_upgrade_script }} &> {{ working_dir }}/overcloud_composable_upgrade.log
+    bash {{ overcloud_composable_upgrade_script }} 2>&1 {{ timestamper_cmd }} > \
+    {{ working_dir }}/overcloud_composable_upgrade.log
   register: overcloud_composable_upgrade
   ignore_errors: yes
 
 - name: print stack failures
   shell: |
+    set -o pipefail
     source {{ undercloud_rc }}
-    openstack stack failures list --long overcloud | tee {{ working_dir}}/overcloud_composable_failed_upgrade.log
+    openstack stack failures list --long overcloud 2>&1 {{ timestamper_cmd }} | \
+    tee {{ working_dir}}/overcloud_composable_failed_upgrade.log
   when: overcloud_composable_upgrade.rc != 0
 
 - name: print resource list
   shell: |
+    set -o pipefail
     source {{ undercloud_rc }}
-    openstack stack resource list --filter status=FAILED --nested-depth 5 overcloud | tee {{ working_dir}}/overcloud_composable_failed_resources.log
+    openstack stack resource list --filter status=FAILED --nested-depth 5 overcloud 2>&1 {{ timestamper_cmd }} | \
+    tee {{ working_dir}}/overcloud_composable_failed_resources.log
   when: overcloud_composable_upgrade.rc != 0
 
 - fail: msg="Overcloud upgrade composable step failed... :("
