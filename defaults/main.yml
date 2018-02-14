@@ -159,4 +159,4 @@ ffu_undercloud_repo_args:
     - release: pike
       args: -b pike current
     - release: queens
-      args: current
+      args: -b queens current
