@@ -6,11 +6,19 @@
 
 - block:
     - name: apply pre undercloud upgrade workarounds
-      command: "{{working_dir}}/pre_undercloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
 
     - name: upgrade undercloud
-      shell: "bash {{ undercloud_upgrade_script }} &> {{ working_dir }}/undercloud_upgrade.log"
+      shell: |
+        set -o pipefail
+        bash {{ undercloud_upgrade_script }} 2>&1 {{ timestamper_cmd }} > undercloud_upgrade.log
+      args:
+        chdir: "{{working_dir}}"
       tags: undercloud_upgrade
 
     - name: validate undercloud upgrade
@@ -18,7 +26,11 @@
       tags: undercloud_upgrade_validate
 
     - name: apply post undercloud upgrade workarounds
-      command: "{{working_dir}}/post_undercloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
   when: undercloud_upgrade|bool
 
@@ -29,7 +41,11 @@
 
 - block:
     - name: apply pre overcloud upgrade prepare workarounds
-      command: "{{working_dir}}/pre_overcloud_upgrade_prepare_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_prepare_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
@@ -37,7 +53,11 @@
       tags: overcloud_upgrade_prepare
 
     - name: apply post overcloud upgrade prepare workarounds
-      command: "{{working_dir}}/post_overcloud_upgrade_prepare_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_prepare_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
@@ -48,19 +68,31 @@
       become: true
 
     - name: apply pre overcloud upgrade workarounds
-      command: "{{working_dir}}/pre_overcloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_run
 
     - name: launch workload
-      command: "{{ workload_launch_script }}"
+      shell: |
+        set -o pipefail
+        {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+      args:
+        chdir: "{{working_dir}}"
       when: workload_launch_post_composable_upgrade|bool
 
     - include: overcloud_upgrade_run.yml
       tags: overcloud_upgrade_run
 
     - name: apply post overcloud upgrade workarounds
-      command: "{{working_dir}}/post_overcloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_run
 
@@ -69,7 +101,11 @@
       when: ceph_osd_enabled|bool
 
     - name: apply pre overcloud upgrade converge workarounds
-      command: "{{working_dir}}/pre_overcloud_upgrade_converge_workarounds.sh"
+      shell: |
+        set -o pipefail
+        pre_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 
@@ -77,7 +113,11 @@
       tags: overcloud_upgrade_converge
 
     - name: apply post overcloud upgrade converge workarounds
-      command: "{{working_dir}}/post_overcloud_upgrade_converge_workarounds.sh"
+      shell: |
+        set -o pipefail
+        post_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{working_dir}}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 
