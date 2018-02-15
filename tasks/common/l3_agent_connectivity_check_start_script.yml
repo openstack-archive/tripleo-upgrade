@@ -1,0 +1,8 @@
+---
+- name: start l3 agent connectivity check
+  shell: |
+    source {{ overcloud_rc }}
+    {{ l3_agent_connectivity_check_start_script }}
+  when: l3_agent_connectivity_check
+  async: 21660
+  poll: 0

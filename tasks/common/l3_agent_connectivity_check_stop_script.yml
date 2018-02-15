@@ -1,0 +1,6 @@
+---
+- name: stop l3 agent connectivity check
+  shell: |
+    source {{ overcloud_rc }}
+    {{ l3_agent_connectivity_check_stop_script }}
+  when: l3_agent_connectivity_check
