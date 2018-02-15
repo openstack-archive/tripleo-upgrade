@@ -1,0 +1,6 @@
+- name: Adjust ssh config to skip host key check
+  copy:
+    src: ssh_config
+    dest: "~/.ssh/config"
+    mode: 0600
+  when: need_ssh_config|bool
