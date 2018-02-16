@@ -90,7 +90,7 @@
 
     - name: Set deployment-files base
       set_fact:
-         container_registry_file: "{{ install.deployment.files }}/docker-images.yaml"
+         container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"
       when: install.deployment.files
 
     - name: Set upgrade controller reboot
