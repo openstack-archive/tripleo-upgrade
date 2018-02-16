@@ -5,5 +5,5 @@
 set -euo pipefail
 
 echo "Setting up HEAT's output for minor update"
-openstack overcloud update stack --init-update \
+openstack overcloud update stack --init-update --templates \
     --container-registry-file {{ working_dir}}/{{ container_registry_file }} 2>&1
