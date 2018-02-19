@@ -71,6 +71,7 @@
           bash {{ overcloud_validate_images_script }} &> {{ working_dir}}/validate_oc_images_containers.log
       tags:
           - overcloud_update
+          - overcloud_images_validate
 
     - name: stop l3 agent connectivity check
       shell: |
