@@ -3,6 +3,9 @@
 # main vars:
 working_dir: "{{ (ansible_env|default({})).HOME|default('/home/stack') }}"
 
+# overcloud stack name
+overcloud_stack_name: "overcloud"
+
 # TODO: those variable can be changed for the explicit keyword in tag
 # when https://github.com/ansible/ansible/issues/11045 is merged.
 
@@ -28,7 +31,7 @@ tripleo_ci: false
 
 #rc files:
 undercloud_rc: "{{ working_dir }}/stackrc"
-overcloud_rc: "{{ working_dir }}/overcloudrc"
+overcloud_rc: "{{ working_dir }}/{{ overcloud_stack_name }}rc"
 
 # launch workload before update/upgrade
 workload_launch: false
