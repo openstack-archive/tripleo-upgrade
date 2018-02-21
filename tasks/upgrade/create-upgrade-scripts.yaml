@@ -213,12 +213,7 @@
     replace: environments/puppet-ceph.yaml
   when: upgrade_hci|bool
 
-- name: adjust ssh config to skip host key check
-  copy:
-    src: ssh_config
-    dest: "~/.ssh/config"
-    mode: 0600
-  when: need_ssh_config|bool
+- include: ../common/ssh_config_skip_host.yml
 
 - name: Create upgrade scripts for non controller nodes
   include: non_controller_upgrade_scripts.yml

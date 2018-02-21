@@ -53,3 +53,5 @@
         - "{{ working_dir}}/{{ container_registry_file }}"
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
         - "{{ tht_directory }}/environments/config-download-environment.yaml"
+
+- include: ../common/ssh_config_skip_host.yml
