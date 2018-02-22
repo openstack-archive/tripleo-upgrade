@@ -122,5 +122,9 @@
       set_fact:
          overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
 
+    - name: Set overcloud stack name
+      set_fact:
+         overcloud_stack_name: "{{ install.overcloud.stack }}"
+
   roles:
     - tripleo-upgrade
