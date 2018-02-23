@@ -167,3 +167,9 @@ ffu_undercloud_repo_args:
 # Tripleo OOOQ variables.
 composable_scenario: False
 upgrade_composable_scenario: False
+
+## ffu overcloud upgrade
+ffu_overcloud_releases: ['ocata', 'pike', 'queens']
+
+## ffu overcloud to use custom scripts instead of tripleo-repos
+ffu_overcloud_repo_type: tripleo-repos

@@ -155,3 +155,20 @@ subparsers:
                       help: |
                           Apply FFU upgrade workarounds
                       default: false
+                  overcloud-ffu-releases:
+                      type: ListValue
+                      help: |
+                          Overcloud FFU upgrade releases
+                      default: 11,12,13
+                  overcloud-ffu-repo:
+                      type: Value
+                      help: |
+                          Overcloud FFU upgrade repository method
+                      default: 'rhos-release'
+            - title: Set up FFU packages
+              options:
+                  mirror:
+                      type: Value
+                      help: |
+                          Enable usage of specified mirror (for rpm, pip etc) [brq,qeos,tlv - or hostname].
+                          (Specified mirror needs to proxy multiple rpm source hosts and pypi packages.)

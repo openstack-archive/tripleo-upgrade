@@ -1,0 +1,4 @@
+parameter_defaults:
+  FastForwardRepoType: custom-script
+  FastForwardCustomRepoScriptContent: |
+    {{ ffu_repo_script | default('') |  indent(4) }}
