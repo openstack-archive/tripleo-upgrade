@@ -1,5 +1,6 @@
 - name: create upgrade prepare scripts
   include: create-prepare-scripts.yaml
+  tags: create_ffu_prepare_scripts
 
 - name: create fast forward upgrade scripts
   include: create-ffu-scripts.yaml
@@ -39,6 +40,7 @@
       tags: ffu_download_config
 
     - name: Create FFU ugrade playbooks scripts
+      tags: ffu_upgrade_playbooks_scripts
       template:
         src: fast-forward-upgrade/ffu_upgrade_playbook.sh.j2
         dest: "{{working_dir}}/{{ item }}.sh"
