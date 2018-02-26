@@ -29,7 +29,7 @@
   failed_when: false
   register: is_upstream
 
-- name: Check if overcoud deployed with pacemaker
+- name: Check if overcloud deployed with pacemaker
   shell: |
     source {{ undercloud_rc }}
     openstack stack output show overcloud EnabledServices | grep 'pacemaker'
