@@ -161,8 +161,6 @@ one)
 
 This will only create the file (without running the actual upgrade):
  - undercloud_upgrade.sh
- - container_images_download.sh
- - local_docker_registry_env.sh
  - composable_docker_upgrade.sh
  - overcloud-compute-*_upgrade_pre.sh
  - overcloud-compute-*_upgrade.sh

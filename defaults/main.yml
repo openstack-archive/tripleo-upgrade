@@ -51,18 +51,18 @@ workload_launch_post_composable_upgrade: false
 # upgrade jinja template name:
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
 undercloud_update_template: undercloud_update.sh.j2
-container_images_download_template: download_images.sh.j2
-local_docker_registry_env_template: create_registry_env.sh.j2
+overcloud_upgrade_prepare_template: overcloud_upgrade_prepare.sh.j2
+overcloud_upgrade_run_template: overcloud_upgrade_run.sh.j2
+overcloud_upgrade_converge_template: overcloud_upgrade_converge.sh.j2
 workload_launch_template: workload_launch.sh.j2
 
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"
 undercloud_update_script: "{{ working_dir }}/undercloud_update.sh"
 overcloud_deploy_script: "{{ working_dir }}/overcloud_deploy.sh"
-overcloud_composable_upgrade_script: "{{ working_dir }}/composable_docker_upgrade.sh"
-overcloud_converge_upgrade_script: "{{ working_dir }}/converge_docker_upgrade.sh"
-container_images_download_script: "{{ working_dir }}/container_images_download.sh"
-local_docker_registry_env_script: "{{ working_dir }}/local_docker_registry_env.sh"
+overcloud_upgrade_prepare_script: "{{ working_dir }}/overcloud_upgrade_prepare.sh"
+overcloud_upgrade_run_script_base: "{{ working_dir }}/overcloud_upgrade_run"
+overcloud_upgrade_converge_script: "{{ working_dir }}/overcloud_upgrade_converge.sh"
 workload_launch_script: "{{ working_dir }}/workload_launch.sh"
 
 # overcloud jinja template name
@@ -86,12 +86,6 @@ overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_vers
 
 # container registry file
 container_registry_file: "docker-images.yaml"
-
-# enable local docker registry
-use_local_docker_registry: true
-
-# create local docker registry env file
-create_docker_registry: true
 
 # create script to download container images.
 # When set to true the template to download the
@@ -141,11 +135,13 @@ controller_upgrade_post: false
 # Provide a custom ssh-config file
 need_ssh_config: true
 
-# Remove packages which get migrated to containers during upgrade
-upgrade_remove_rpm: false
-
-# Enable HCI upgrade
-upgrade_hci: false
+# Extra environment files to pass into upgrade prepare command appending them
+# in a list.
+# Format: ['env_file1', 'env_file2', 'env_file3']
+# It will be rendered joining each file with ' -e ' when running the command
+# 'openstack overcloud upgrade prepare', so it will be possible to add
+# extra parameters in a flexible way
+upgrade_prepare_extra_params: []
 
 # No upgrade_init_command by default
 upgrade_init_command_template: upgrade_init_command.yaml.j2
@@ -173,3 +169,21 @@ ffu_overcloud_repo_type: tripleo-repos
 
 ## overcloud ssh user
 overcloud_ssh_user: ''
+
+# when set to True it allows running most of the
+# openstack overcloud commands with the --debug flag
+tripleo_upgrade_debug: false
+
+# when set to True it will append the flag --validation-errors-nonfatal
+# into the "overcloud <action> prepare" and "overcloud <action> converge"
+# commands. This means that the execution of the command will continue
+# independently in spite of validation errors.
+tripleo_upgrade_skip_validations: false
+
+## If set to true, overcloud upgrade will be run for each of the
+# playbooks defined in 'overcloud_upgrade_playbooks', otherwise
+# 'all' will be passed into --playbooks option.
+overcloud_upgrade_multibooks: false
+
+# Ansible playbooks executed during "overcloud upgrade run"
+overcloud_upgrade_playbooks: ['upgrade_steps_playbook.yaml', 'deploy_steps_playbook.yaml', 'post_upgrade_steps_playbook.yaml']

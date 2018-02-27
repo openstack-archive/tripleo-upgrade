@@ -1,0 +1,31 @@
+#!/bin/env bash
+#
+# Run major upgrade on overcloud nodes
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+
+{% if overcloud_upgrade_multibooks|bool %}
+
+    {%- for playbook in overcloud_upgrade_playbooks -%}
+
+echo "Runing major upgrade {{ playbook }} playbook for {{ item }} role"
+openstack overcloud upgrade run \
+        {% if tripleo_upgrade_debug|bool %}
+        --debug \
+        {% endif %}
+        --nodes {{ item }} --playbook {{ playbook }} 2>&1
+
+    {%- endfor -%}
+
+{% else %}
+
+echo "Runing major upgrade for {{ item }} role"
+openstack overcloud upgrade run \
+        {% if tripleo_upgrade_debug|bool %}
+        --debug \
+        {% endif %}
+        --nodes {{ item }} --playbook all 2>&1
+
+{% endif %}

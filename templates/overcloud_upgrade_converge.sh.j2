@@ -1,0 +1,16 @@
+#!/bin/env bash
+#
+# Run major upgrade converge step on overcloud nodes
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+echo "Running major upgrade converge step"
+openstack overcloud upgrade \
+{% if tripleo_upgrade_debug|bool %}
+        --debug \
+{% endif %}
+{% if tripleo_upgrade_skip_validations|bool %}
+        --validation-errors-nonfatal \
+{% endif %}
+        converge 2>&1

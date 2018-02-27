@@ -1,0 +1,18 @@
+---
+- include: ../common/l3_agent_connectivity_check_start_script.yml
+
+- name: run major upgrade converge step
+  shell: "bash {{ overcloud_upgrade_converge_script }} &> {{ working_dir }}/overcloud_upgrade_converge.log"
+  register: overcloud_converge_upgrade
+  ignore_errors: yes
+
+- block:
+    - name: print stack failures
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_composable_failed_converge.log
+
+    - fail: msg="Overcloud upgrade converge step failed... :("
+  when: overcloud_converge_upgrade.rc != 0
+
+- include: ../common/l3_agent_connectivity_check_stop_script.yml
