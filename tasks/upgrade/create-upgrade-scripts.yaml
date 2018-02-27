@@ -1,89 +1,9 @@
 ---
-- name: create a comptatible deployment scripts from oooq
-  include: use_oooq.yaml
-  tags: use_oooq
-  when: use_oooq|bool
-
 - name: register is_upstream variable
   shell: |
     rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
   failed_when: false
   register: is_upstream
-
-- name: Check if overcloud deployed with pacemaker
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show overcloud EnabledServices | grep 'pacemaker'
-  failed_when: false
-  register: pacemaker_present
-
-- name: set deployment_with_ha fact
-  set_fact:
-    deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
-
-- name: make a copy of the initial overcloud deploy script
-  copy:
-    remote_src: yes
-    src: "{{ overcloud_deploy_script }}"
-    dest: "{{ overcloud_deploy_script }}.orig.sh"
-
-- name: replace services environment files with services-docker correspondents
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: environments/services/
-    replace: environments/services-docker/
-  when: upstream_container_images|bool
-
-- name: replace storage environment with ceph ansible environment
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: environments/storage-environment.yaml
-    replace: environments/ceph-ansible/ceph-ansible.yaml
-  when: upstream_container_images|bool
-
-- name: replace ceph radosgw with ceph ansible radosgw environment
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: environments/ceph-radosgw.yaml
-    replace: environments/ceph-ansible/ceph-rgw.yaml
-
-- name: replace external ceph environment with ceph ansible environment
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: environments/puppet-ceph-external.yaml
-    replace: environments/ceph-ansible/ceph-ansible-external.yaml
-  when: upstream_container_images|bool
-
-- name: replace external ceph environment with new external ceph environment
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: environments/puppet-ceph-external.yaml
-    replace: environments/storage-environment-external.yaml
-  when: not upstream_container_images|bool
-
-- name: Replace baremetal environment file to containerized used in OOOQ
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: ci/environments/(\w+).yaml
-    replace: ci/environments/\1-containers.yaml
-  when: tripleo_ci
-
-- name: Convert Ceph parameters to ceph ansible
-  include: convert_ceph_params.yaml
-
-- name: Adjust custom roles data file during upgrade
-  include: convert_roles_data.yaml
-
-- name: check if dpdk is enabled
-  command: "grep -Fq environments/neutron-ovs-dpdk.yaml {{ overcloud_deploy_script }}"
-  register: dpdk_env
-  ignore_errors: true
-
-- name: create dpdk env required for upgrade
-  template:
-    src: "dpdk-upgrade-env.yaml.j2"
-    dest: "{{working_dir}}/dpdk-upgrade-env.yaml"
-  when: dpdk_env|succeeded
 
 - name: check if undercloud is ssl enabled
   command: "grep -Fq OS_AUTH_URL=https {{ undercloud_rc }}"
@@ -92,6 +12,19 @@
 
 - include: undercloud_ssl_camap.yaml
   when: undercloud_ssl|succeeded
+
+- name: generate inventory file
+  shell: |
+    source {{ undercloud_rc }} ;
+    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} --static-yaml-inventory /tmp/fake-oc-hosts.yaml ;
+    grep role_name /tmp/fake-oc-hosts.yaml | awk -F ': ' '{ print $2 }' 2>/dev/null
+  register: oc_roles
+
+- name: store roles
+  vars:
+    controller_role_name: "{{ oc_roles.stdout|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
+  set_fact:
+    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name]) }}"
 
 - name: create workload launch script
   template:
@@ -113,10 +46,12 @@
   with_items:
      - 'pre_undercloud_upgrade_workarounds'
      - 'post_undercloud_upgrade_workarounds'
-     - 'pre_docker_composable_upgrade_workarounds'
-     - 'pre_nova_compute_upgrade_workarounds'
-     - 'pre_docker_converge_upgrade_workarounds'
-     - 'post_docker_converge_upgrade_workarounds'
+     - 'pre_overcloud_upgrade_prepare_workarounds'
+     - 'post_overcloud_upgrade_prepare_workarounds'
+     - 'pre_overcloud_upgrade_workarounds'
+     - 'post_overcloud_upgrade_workarounds'
+     - 'pre_overcloud_converge_workarounds'
+     - 'post_overcloud_converge_workarounds'
   when: upgrade_workarounds
 
 - block:
@@ -132,44 +67,6 @@
         dest: "{{ l3_agent_connectivity_check_stop_script }}"
         mode: 0775
 
-- name: register used service environment files
-  # Find all environment files matching which include one of the
-  # listed patterns. Supports even when there's many of them on one
-  # line, which is how OOOQ passes env files. The lookahead expression
-  # needs to have fixed width, so remove any extra leading spaces from
-  # results via sed rather than in the grep expression itself.
-  shell: |
-    grep -oP '(^| )(?<=-e |--environment-file ) *[^ ]*(environments/docker|environments/services|environments/storage|environments/ceph-ansible|ci/environments)[^ ]*' {{ overcloud_deploy_script }} \
-        | sed -E 's/^ *//'
-  register: services
-  ignore_errors: true
-
-- name: create container images download script
-  template:
-    src: "{{ container_images_download_template }}"
-    dest: "{{ container_images_download_script }}"
-    mode: 0775
-  when: create_container_images_download_script
-
-- name: create registry environment file script
-  template:
-    src: "{{ local_docker_registry_env_template }}"
-    dest: "{{ local_docker_registry_env_script }}"
-    mode: 0775
-  when: create_docker_registry
-
-- name: create environment file to remove rpm packages
-  template:
-    src: "remove-packages.yaml.j2"
-    dest: "{{ working_dir }}/remove-packages.yaml"
-  when: upgrade_remove_rpm|bool
-
-- name: create environment file for hci upgrade
-  template:
-    src: "upgrade_hci.yaml.j2"
-    dest: "{{ working_dir }}/upgrade_hci.yaml"
-  when: upgrade_hci|bool
-
 - name: create the custom upgrade init commands
   template:
     src: "{{ upgrade_init_command_template }}"
@@ -177,46 +74,22 @@
     mode: 0775
   when: upgrade_init_command is string
 
-- name: create composable upgrade scripts
-  include: step_upgrade.yml
-  loop_control:
-    loop_var: ugstage
-  with_items:
-    - step: "Docker containers composable upgrade"
-      script: "{{ overcloud_composable_upgrade_script }}"
-      environment_file:
-        - "{% if upgrade_init_command is string %}{{upgrade_init_command_dest}}{% endif %}"
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ tht_directory }}/environments/major-upgrade-composable-steps-docker.yaml"
-        - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
-        - "{% if ceph_env is defined %}{{ working_dir }}/extraconfig_override.yaml{% endif %}"
-        - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
-        - "{% if dpdk_env|succeeded %}{{working_dir}}/dpdk-upgrade-env.yaml{% endif %}"
-        - "{% if upgrade_remove_rpm|bool %}{{ working_dir }}/remove-packages.yaml{% endif %}"
-    - step: "Docker containers converge upgrade"
-      script: "{{ overcloud_converge_upgrade_script }}"
-      environment_file:
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ tht_directory }}/environments/major-upgrade-converge-docker.yaml"
-        - "{% if ceph_env is defined %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
-        - "{% if ceph_env is defined %}{{ working_dir }}/extraconfig_override.yaml{% endif %}"
-        - "{% if not upstream_container_images or (upstream_container_images and use_local_docker_registry) %}{{ containers_default_parameters }}{% endif %}"
-        - "{% if dpdk_env|succeeded %}{{working_dir}}/dpdk-upgrade-env.yaml{% endif %}"
-        - "{% if upgrade_hci|bool %}{{ working_dir }}/upgrade_hci.yaml{% endif %}"
 
-- name: replace storage-environment with puppet-ceph for hci use case
-  replace:
-    dest: "{{ overcloud_composable_upgrade_script }}"
-    regexp: environments/storage-environment.yaml
-    replace: environments/puppet-ceph.yaml
-  when: upgrade_hci|bool
+- name: create overcloud upgrade script
+  template:
+    src: "{{ overcloud_upgrade_run_template }}"
+    dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
+    mode: 0775
+    force: true
+  with_items:
+    - "{{ oc_roles|default('all') }}"
+
+- name: create overcloud converge script
+  template:
+    src: "{{ overcloud_upgrade_converge_template }}"
+    dest: "{{ overcloud_upgrade_converge_script }}"
+    mode: 0775
+    force: true
 
 - include: ../common/ssh_config_skip_host.yml
 
-- name: Create upgrade scripts for non controller nodes
-  include: non_controller_upgrade_scripts.yml
-
-- name: Create post upgrade scripts for controller nodes
-  include: ../common/controller_post_scripts.yml

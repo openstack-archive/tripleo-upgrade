@@ -23,54 +23,48 @@
   when: undercloud_upgrade|bool
 
 - block:
-    # TODO: move this out of upgrade
-    - name: download container images
-      include: container_images.yaml
-      when: use_local_docker_registry
-      tags: container_images
-
-    - name: create local docker registry environment file
-      include: docker_registry_images_env.yaml
-      when: create_docker_registry
-      tags: docker_registry_images_env
-
-    - name: apply pre docker composable upgrade workarounds
-      command: "{{working_dir}}/pre_docker_composable_upgrade_workarounds.sh"
+    - name: apply pre overcloud upgrade prepare workarounds
+      command: "{{working_dir}}/pre_overcloud_upgrade_prepare_workarounds.sh"
       when: upgrade_workarounds
-      tags: docker_composable_upgrade
+      tags: overcloud_upgrade_prepare
 
-    - include: docker_composable_upgrade.yml
-      tags: docker_composable_upgrade
+    - include: overcloud_upgrade_prepare.yml
+      tags: overcloud_upgrade_prepare
+
+    - name: apply post overcloud upgrade prepare workarounds
+      command: "{{working_dir}}/post_overcloud_upgrade_prepare_workarounds.sh"
+      when: upgrade_workarounds
+      tags: overcloud_upgrade_prepare
+
+    - name: apply pre overcloud upgrade workarounds
+      command: "{{working_dir}}/pre_overcloud_upgrade_workarounds.sh"
+      when: upgrade_workarounds
+      tags: overcloud_upgrade_run
 
     - name: launch workload
       command: "{{ workload_launch_script }}"
       when: workload_launch_post_composable_upgrade|bool
 
-    - name: apply pre nova compute upgrade workarounds
-      command: "{{working_dir}}/pre_nova_compute_upgrade_workarounds.sh"
+    - include: overcloud_upgrade_run.yml
+      tags: overcloud_upgrade_run
+
+    - name: apply post overcloud upgrade workarounds
+      command: "{{working_dir}}/post_overcloud_upgrade_workarounds.sh"
       when: upgrade_workarounds
-      tags: nova_compute_upgrade
+      tags: overcloud_upgrade_run
 
-    - name: upgrade nova compute nodes
-      include: compute_upgrade.yml
-      tags: nova_compute_upgrade
-
-    - name: upgrade swift storage nodes
-      include: swiftstorage_upgrade.yml
-      tags: swift_storage_upgrade
-
-    - name: apply pre docker upgrade converge workarounds
-      command: "{{working_dir}}/pre_docker_converge_upgrade_workarounds.sh"
+    - name: apply pre overcloud upgrade converge workarounds
+      command: "{{working_dir}}/pre_overcloud_converge_workarounds.sh"
       when: upgrade_workarounds
-      tags: docker_converge_upgrade
+      tags: overcloud_upgrade_converge
 
-    - include: docker_converge_upgrade.yml
-      tags: docker_converge_upgrade
+    - include: overcloud_upgrade_converge.yml
+      tags: overcloud_upgrade_converge
 
-    - name: apply post docker upgrade converge workarounds
-      command: "{{working_dir}}/post_docker_converge_upgrade_workarounds.sh"
+    - name: apply post overcloud upgrade converge workarounds
+      command: "{{working_dir}}/post_overcloud_converge_workarounds.sh"
       when: upgrade_workarounds
-      tags: docker_converge_upgrade
+      tags: overcloud_upgrade_converge
 
     - name: run controller post upgrade steps
       include: controller_post_upgrade.yml

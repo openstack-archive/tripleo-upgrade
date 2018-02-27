@@ -1,0 +1,33 @@
+---
+- name: add upgrade init script to upgrade prepare params
+  set_fact:
+    upgrade_prepare_extra_params: "{{ upgrade_prepare_extra_params + [upgrade_init_command_dest] }}"
+  when: upgrade_init_command is string
+
+# Render it now so it takes all additions in upgrade_prepare_extra_params
+- name: create overcloud upgrade prepare script
+  template:
+    src: "{{ overcloud_upgrade_prepare_template }}"
+    dest: "{{ overcloud_upgrade_prepare_script }}"
+    mode: 0775
+    force: true
+
+- name: setup HEAT outputs via upgrade prepare
+  shell: "bash {{ overcloud_upgrade_prepare_script }} &> {{ working_dir }}/overcloud_upgrade_prepare.log"
+  register: overcloud_upgrade_prepare
+  ignore_errors: yes
+
+- block:
+    - name: print stack failures
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_failed_upgrade_prepare.log
+
+    - name: print resource list
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_failed_prepare_resources.log
+
+    - fail: msg="Overcloud upgrade preparation step failed... :("
+  when: overcloud_upgrade_prepare.rc != 0
+
