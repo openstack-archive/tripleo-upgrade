@@ -163,3 +163,7 @@ ffu_undercloud_repo_args:
       args: -b pike current
     - release: queens
       args: -b queens current
+
+# Tripleo OOOQ variables.
+composable_scenario: False
+upgrade_composable_scenario: False
