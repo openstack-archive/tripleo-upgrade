@@ -6,3 +6,17 @@
   vars:
     query: "tripleo_repos[?release=='{{release}}'].args"
     cmd_args: "{{ ffu_undercloud_repo_args | json_query(query) }}"
+
+- name: create {{ release }} pre undercloud upgrade workaround script
+  template:
+    src: fast-forward-upgrade/undercloud_workarounds_pre.sh.j2
+    dest: "{{ working_dir }}/pre_undercloud_upgrade_{{ release }}_workarounds.sh"
+    mode: 0775
+  when: ffu_upgrade_workarounds
+
+- name: create {{ release }} post undercloud upgrade workaround script
+  template:
+    src: fast-forward-upgrade/undercloud_workarounds_post.sh.j2
+    dest: "{{ working_dir }}/post_undercloud_upgrade_{{ release }}_workarounds.sh"
+    mode: 0775
+  when: ffu_upgrade_workarounds

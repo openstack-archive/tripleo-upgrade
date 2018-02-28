@@ -1,3 +1,7 @@
+- name: Run pre undercloud {{ release }} upgrade workarounds
+  command: "{{ working_dir }}/pre_undercloud_upgrade_{{ release }}_workarounds.sh"
+  when: ffu_upgrade_workarounds
+
 - include_role:
     name: rhos-release
   vars:
@@ -12,3 +16,7 @@
 
 - name: Upgrade undercloud to {{ release }}
   command: "{{ working_dir }}/undercloud_upgrade_{{ release }}.sh"
+
+- name: Run post undercloud {{ release }} upgrade workarounds
+  command: "{{ working_dir }}/post_undercloud_upgrade_{{ release }}_workarounds.sh"
+  when: ffu_upgrade_workarounds
