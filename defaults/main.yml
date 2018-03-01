@@ -165,8 +165,8 @@ ffu_undercloud_repo_args:
       args: -b queens current
 
 # Tripleo OOOQ variables.
-composable_scenario: False
-upgrade_composable_scenario: False
+composable_scenario: ""
+upgrade_composable_scenario: ""
 
 ## ffu overcloud upgrade
 ffu_overcloud_releases: ['ocata', 'pike', 'queens']

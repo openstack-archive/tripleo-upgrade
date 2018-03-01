@@ -67,8 +67,8 @@
     regexp: "{{composable_scenario}}"
     replace: "{{upgrade_composable_scenario}}"
   when:
-    - tripleo_ci
-    - upgrade_composable_scenario
-    - composable_scenario
+    - tripleo_ci|bool
+    - upgrade_composable_scenario != ""
+    - composable_scenario != ""
 
 - include: ../common/ssh_config_skip_host.yml
