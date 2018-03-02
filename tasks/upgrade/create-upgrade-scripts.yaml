@@ -25,7 +25,7 @@
   copy:
     remote_src: yes
     src: "{{ overcloud_deploy_script }}"
-    dest: "{{ overcloud_deploy_script }}.orig"
+    dest: "{{ overcloud_deploy_script }}.orig.sh"
 
 - name: replace services environment files with services-docker correspondents
   replace:
