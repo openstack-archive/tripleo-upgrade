@@ -149,5 +149,12 @@
          ffu_overcloud_upgrade: true
       when: install.overcloud.ffu.upgrade
 
+    - name: Set overcloud FFU upgrade releases
+      set_fact:
+         ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
+
+    - name: Set overcloud FFU upgrade repo
+      set_fact:
+         ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
   roles:
     - tripleo-upgrade

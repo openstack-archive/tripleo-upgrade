@@ -40,6 +40,12 @@
   set_fact:
     deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
 
+- name: Create FFU custom repos environment
+  template:
+    src: fast-forward-upgrade/ffu_repos.yaml.j2
+    dest: "{{working_dir}}/ffu_repos.yaml"
+  when: "'tripleo-repos' not in ffu_overcloud_repo_type"
+
 - name: create ffu overcloud upgrade scripts
   include: ../upgrade/step_upgrade.yml
   loop_control:
@@ -52,6 +58,7 @@
         - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
         - "{{ working_dir}}/{{ container_registry_file }}"
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
+        - "{% if 'tripleo-repos' not in ffu_overcloud_repo_type %}{{working_dir}}/ffu_repos.yaml{% endif %}"
         - "{{ tht_directory }}/environments/config-download-environment.yaml"
 
 - name: Adjust ffu scenario file.
