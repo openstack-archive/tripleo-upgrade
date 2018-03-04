@@ -6,6 +6,12 @@
       mode: 0755
       remote_src: true
 
+- name: Remove extra empty lines
+  lineinfile:
+      path: "{{ ugstage.script }}"
+      state: absent
+      regexp: '^$'
+
 - name: Store last deploy command line
   command: "tail -1 {{ ugstage.script }}"
   register: deploy_lastline
