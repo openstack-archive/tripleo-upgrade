@@ -7,7 +7,7 @@ set -euo pipefail
 source {{ undercloud_rc }}
 
 echo "Generate inventory for stack {{ overcloud_stack_name }}"
-tripleo-ansible-inventory --plan {{ overcloud_stack_name }} \
+tripleo-ansible-inventory --plan {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %}\
     --static-inventory {{ working_dir }}/{{ overcloud_stack_name }}-inventory
 
 {% if  item|string == 'all' %}

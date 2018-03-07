@@ -22,7 +22,7 @@
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
-    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} --static-inventory /tmp/fake-oc-hosts ;
+    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-inventory /tmp/fake-oc-hosts ;
     grep role_name /tmp/fake-oc-hosts | awk -F '=' '{ print $2 }' 2>/dev/null | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//' -e 's/\([Cc]ontroller\)/00-\1/' | sort
   register: oc_roles
 
