@@ -1,0 +1,22 @@
+---
+- name: setup HEAT outputs via update prepare
+  shell: |
+    source {{ undercloud_rc }}
+    bash {{ overcloud_update_prepare_script }} &> {{ working_dir }}/overcloud_update_prepare.log
+  register: overcloud_update_prepare
+  ignore_errors: yes
+
+- block:
+    - name: print stack failures
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_failed_update_prepare.log
+
+    - name: print resource list
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_failed_prepare_resources.log
+
+    - fail: msg="Overcloud minor update preparation step failed..."
+  when: overcloud_update_prepare.rc != 0
+
