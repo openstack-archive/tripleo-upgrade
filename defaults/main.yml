@@ -157,12 +157,9 @@ ffu_undercloud_releases: ['ocata', 'pike', 'queens']
 ffu_undercloud_repo_type: tripleo-repos
 ffu_undercloud_repo_args:
   tripleo_repos:
-    - release: ocata
-      args: -b ocata current
-    - release: pike
-      args: -b pike current
-    - release: queens
-      args: -b queens current
+    ocata: "-b ocata current"
+    pike: "-b pike current"
+    queens: "-b queens current"
 
 # Tripleo OOOQ variables.
 composable_scenario: ""

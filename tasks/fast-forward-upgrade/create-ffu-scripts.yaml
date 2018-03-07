@@ -4,8 +4,7 @@
     dest: "{{ working_dir }}/undercloud_upgrade_{{ release }}.sh"
     mode: 0775
   vars:
-    query: "tripleo_repos[?release=='{{release}}'].args"
-    cmd_args: "{{ ffu_undercloud_repo_args | json_query(query) }}"
+    cmd_args: "{{ ffu_undercloud_repo_args['tripleo_repos'][release]|default('') }}"
 
 - name: create {{ release }} pre undercloud upgrade workaround script
   template:

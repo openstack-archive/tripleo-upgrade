@@ -7,7 +7,7 @@ set -euo pipefail
 TRIPLEO_REPOS_RPM=$(curl -L --silent https://trunk.rdoproject.org/centos7/current/ | grep python2-tripleo-repos | awk -F "href" {'print $2'} | awk -F '"' {'print $2'})
 sudo yum localinstall -y https://trunk.rdoproject.org/centos7/current/${TRIPLEO_REPOS_RPM}
 
-sudo tripleo-repos {{ cmd_args | join(' ') }} ceph
+sudo tripleo-repos {{ cmd_args }} ceph
 {% endif %}
 
 {% if release == 'ocata' or release == '11' %}
