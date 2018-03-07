@@ -1,21 +1,21 @@
-- name: create {{ release }} undercloud upgrade script
+- name: create {{ current_release }} undercloud upgrade script
   template:
     src: templates/fast-forward-upgrade/undercloud_upgrade.sh.j2
-    dest: "{{ working_dir }}/undercloud_upgrade_{{ release }}.sh"
+    dest: "{{ working_dir }}/undercloud_upgrade_{{ current_release }}.sh"
     mode: 0775
   vars:
-    cmd_args: "{{ ffu_undercloud_repo_args['tripleo_repos'][release]|default('') }}"
+    cmd_args: "{{ ffu_undercloud_repo_args['tripleo_repos'][current_release]|default('') }}"
 
-- name: create {{ release }} pre undercloud upgrade workaround script
+- name: create {{ current_release }} pre undercloud upgrade workaround script
   template:
     src: fast-forward-upgrade/undercloud_workarounds_pre.sh.j2
-    dest: "{{ working_dir }}/pre_undercloud_upgrade_{{ release }}_workarounds.sh"
+    dest: "{{ working_dir }}/pre_undercloud_upgrade_{{ current_release }}_workarounds.sh"
     mode: 0775
   when: ffu_upgrade_workarounds
 
-- name: create {{ release }} post undercloud upgrade workaround script
+- name: create {{ current_release }} post undercloud upgrade workaround script
   template:
     src: fast-forward-upgrade/undercloud_workarounds_post.sh.j2
-    dest: "{{ working_dir }}/post_undercloud_upgrade_{{ release }}_workarounds.sh"
+    dest: "{{ working_dir }}/post_undercloud_upgrade_{{ current_release }}_workarounds.sh"
     mode: 0775
   when: ffu_upgrade_workarounds

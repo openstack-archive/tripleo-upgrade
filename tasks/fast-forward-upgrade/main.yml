@@ -6,7 +6,7 @@
   include: create-ffu-scripts.yaml
   tags: create_ffu_scripts
   loop_control:
-    loop_var: release
+    loop_var: current_release
   with_items: "{{ ffu_undercloud_releases }}"
   when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
 
@@ -14,7 +14,7 @@
     - name: ffu undercloud upgrade
       include: undercloud-upgrade.yml
       loop_control:
-        loop_var: release
+        loop_var: current_release
       with_items: "{{ ffu_undercloud_releases }}"
 
     - name: apply post ffu undercloud upgrade workarounds
