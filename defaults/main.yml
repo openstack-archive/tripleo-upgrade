@@ -173,3 +173,6 @@ ffu_overcloud_releases: ['ocata', 'pike', 'queens']
 
 ## ffu overcloud to use custom scripts instead of tripleo-repos
 ffu_overcloud_repo_type: tripleo-repos
+
+## overcloud ssh user
+overcloud_ssh_user: ''

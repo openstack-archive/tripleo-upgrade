@@ -39,6 +39,11 @@
     - include: ffu_download_config.yaml
       tags: ffu_download_config
 
+    - name: generate overcloud ansible static yaml inventory file
+      shell: |
+        source {{ undercloud_rc }}
+        /usr/bin/tripleo-ansible-inventory {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory-static.yaml
+
     - name: Create FFU ugrade playbooks scripts
       tags: ffu_upgrade_playbooks_scripts
       template:
