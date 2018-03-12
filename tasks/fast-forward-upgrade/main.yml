@@ -82,4 +82,13 @@
       command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
       tags: ffu_deploy_steps_playbook
 
+    - name: apply pre ffu ceph upgrade workarounds
+      command: "{{working_dir}}/pre_ffu_upgrade_ceph_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_upgrade_ceph
+
+    - include: ffu_upgrade_ceph.yaml
+      when: ceph_ansible|succeeded
+      tags: ffu_upgrade_ceph
+
   when: ffu_overcloud_upgrade|bool

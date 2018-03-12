@@ -1,0 +1,20 @@
+- name: upgrade ceph post ffu
+  shell: |
+    source {{ undercloud_rc }}
+    {{ working_dir }}/ffu_upgrade_ceph_script.sh &> {{ working_dir }}/ffu_upgrade_ceph.log
+  register: ffu_upgrade_ceph
+  ignore_errors: yes
+
+- block:
+    - name: print stack failures
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_ceph_failed.log
+
+    - name: print resource list
+      shell: |
+        source {{ undercloud_rc }}
+        openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_ceph_failed_resources.log
+
+    - fail: msg="FFU upgrade ceph step failed... :("
+  when: ffu_upgrade_ceph|failed
