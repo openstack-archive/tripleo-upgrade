@@ -9,6 +9,9 @@
     src: "{{ overcloud_deploy_script }}"
     dest: "{{ overcloud_deploy_script }}.orig.sh"
 
+- name: Convert Ceph parameters to ceph ansible
+  include: ../common/convert_ceph_params.yaml
+
 - name: create ffu upgrade workaround scripts
   template:
     src: fast-forward-upgrade/workarounds.sh.j2
@@ -21,6 +24,7 @@
      - 'pre_ffu_upgrade_playbook_workarounds'
      - 'pre_ffu_upgrade_steps_playbook_workarounds'
      - 'pre_ffu_deploy_steps_playbook_workarounds'
+     - 'pre_ffu_upgrade_ceph_workarounds'
   when: ffu_upgrade_workarounds
 
 - name: register is_upstream variable
@@ -60,6 +64,17 @@
         - "{{ tht_directory }}/environments/fast-forward-upgrade.yaml"
         - "{% if 'tripleo-repos' not in ffu_overcloud_repo_type %}{{working_dir}}/ffu_repos.yaml{% endif %}"
         - "{{ tht_directory }}/environments/config-download-environment.yaml"
+        - "{% if ceph_ansible|succeeded %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
+        - "{% if deployed_server|default(false)|bool %}{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml{% endif %}"
+
+    - step: "FFU post deploy Ceph upgrade"
+      script: "{{ working_dir }}/ffu_upgrade_ceph_script.sh"
+      environment_file:
+        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
+        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
+        - "{{ working_dir}}/{{ container_registry_file }}"
+        - "{{ tht_directory }}/environments/updates/update-from-ceph-newton.yaml"
+        - "{% if ceph_ansible|succeeded %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
         - "{% if deployed_server|default(false)|bool %}{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml{% endif %}"
 
 - name: Adjust ffu scenario file.
