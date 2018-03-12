@@ -1,7 +1,9 @@
 ---
 - name: create undercloud update script
+  vars:
+    log_prefix: "update"
   template:
-    src: "{{ undercloud_update_template }}"
+    src: "{{ undercloud_upgrade_template }}"
     dest: "{{ undercloud_update_script }}"
     mode: 0775
     force: true

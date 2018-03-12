@@ -22,7 +22,7 @@
       when: updates_workarounds|bool
 
     - name: validate undercloud update
-      include: ../upgrade/undercloud_validate_upgrade.yaml
+      include: ../common/undercloud_validate_upgrade.yaml
       tags: undercloud_update_validate
 
   when: undercloud_update|bool

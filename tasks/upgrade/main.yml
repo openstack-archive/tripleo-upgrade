@@ -14,7 +14,7 @@
       tags: undercloud_upgrade
 
     - name: validate undercloud upgrade
-      include: undercloud_validate_upgrade.yaml
+      include: ../common/undercloud_validate_upgrade.yaml
       tags: undercloud_upgrade_validate
 
     - name: apply post undercloud upgrade workarounds
