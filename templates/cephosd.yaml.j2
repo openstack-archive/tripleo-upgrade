@@ -1,4 +1,7 @@
 parameter_defaults:
+{% if  ceph_osds_pg is defined %}
+    CephPoolDefaultPgNum:  {{ceph_osds_pg}}
+{% endif %}
     CephAnsibleDisksConfig:
         devices:
 {% for key, value in ceph_osds.iteritems()|sort %}
