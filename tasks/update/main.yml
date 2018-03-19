@@ -28,13 +28,7 @@
   when: undercloud_update|bool
 
 - block:
-    - name: start l3 agent connectivity check
-      shell: |
-        source {{ overcloud_rc }}
-        {{ l3_agent_connectivity_check_start_script }}
-      when: l3_agent_connectivity_check
-      async: 21660
-      poll: 0
+    - include: ../common/l3_agent_connectivity_check_start_script.yml
 
     - name: overcloud pre-update workarounds
       shell: |
@@ -73,10 +67,6 @@
           - overcloud_update
           - overcloud_images_validate
 
-    - name: stop l3 agent connectivity check
-      shell: |
-        source {{ overcloud_rc }}
-        {{ l3_agent_connectivity_check_stop_script }}
-      when: l3_agent_connectivity_check
+    - include: ../common/l3_agent_connectivity_check_stop_script.yml
 
   when: overcloud_update|bool
