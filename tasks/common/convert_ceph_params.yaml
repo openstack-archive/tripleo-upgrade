@@ -47,6 +47,10 @@
             ceph_osds_pg: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
           ignore_errors: true
 
+        - set_fact:
+            ceph_osds_non_collocated: true
+          when: "'journal' in ceph_puppet.stdout"
+
         - name: generate new environment file
           template:
             src: cephosd.yaml.j2
@@ -63,6 +67,11 @@
             - "ceph::profile::params::osd_pool_default_pg_num"
             - "ceph::profile::params::osd_pool_default_pgp_num"
             - "ceph::profile::params::osds"
+
+        - lineinfile:
+            path: "{{ ceph_env }}"
+            regexp: "journal"
+            state: absent
 
         - lineinfile:
             path: "{{ ceph_env }}"
