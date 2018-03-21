@@ -2,5 +2,11 @@
 #
 # Script which start an ICMP connectivity check on the first in use
 # floating IP during upgrade
-FIP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1)
+
+if [ -f {{ working_dir }}/fip.sh ]; then
+    source {{ working_dir }}/fip.sh
+else
+    echo export FIP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1) > {{ working_dir }}/fip.sh
+    source {{ working_dir }}/fip.sh
+fi
 ping -D ${FIP} >> ~/ping_results_$(date +%Y%m%d%H%M).log &
