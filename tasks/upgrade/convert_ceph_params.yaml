@@ -4,6 +4,11 @@
   register: ceph_ansible
   ignore_errors: true
 
+- name: check if ceph osd hieradata has already been removed
+  stat:
+    path: "{{ working_dir}}/pre_upgrade_ceph_osd_hieradata_env.yaml"
+  register: ceph_osd_adjusted
+
 - block:
     - name: register environment files
       shell: |
@@ -25,12 +30,22 @@
         - "{{ osd_env.results }}"
 
     - block:
+        - name: make a copy of the initial environment file
+          copy:
+            src: "{{ ceph_env }}"
+            dest: "{{ working_dir}}/pre_upgrade_ceph_osd_hieradata_env.yaml"
+            remote_src: yes
+
         - name: register environment file
           command: "cat {{ ceph_env }}"
           register: ceph_puppet
 
         - set_fact:
-            ceph_osds: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osds'] }}"
+            ceph_osds: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osds'] | default([]) }}"
+
+        - set_fact:
+            ceph_osds_pg: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
+          ignore_errors: true
 
         - name: generate new environment file
           template:
@@ -40,11 +55,36 @@
         - set_fact:
              extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
 
-        - name: generate env file to override extraconfig
-          template:
-            src: extraconfig_override.yaml.j2
-            dest: "{{working_dir}}/extraconfig_override.yaml"
+        - lineinfile:
+            path: "{{ ceph_env }}"
+            regexp: "{{ item }}"
+            state: absent
+          with_items:
+            - "ceph::profile::params::osd_pool_default_pg_num"
+            - "ceph::profile::params::osd_pool_default_pgp_num"
+            - "ceph::profile::params::osds"
+
+        - lineinfile:
+            path: "{{ ceph_env }}"
+            regexp: "{{ item }}"
+            state: absent
+          with_items: "{{ ceph_osds }}"
+
+        - name: register new environment file
+          command: "cat {{ ceph_env }}"
+          register: ceph_puppet
+
+        - set_fact:
+           extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+
+        - name: replace empty extraconfig
+          replace:
+            path: "{{ ceph_env }}"
+            regexp: 'ExtraConfig:'
+            replace: 'ExtraConfig: {}'
+          when:
+            - extra_config | length | int == 0
 
       when: ceph_env is defined
 
-  when: ceph_ansible|succeeded
+  when: ceph_ansible|succeeded and not ceph_osd_adjusted.stat.exists
