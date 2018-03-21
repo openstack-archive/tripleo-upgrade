@@ -68,6 +68,7 @@
       yum: name=ansible-pacemaker state=latest
       when: tripleo_ci|default(false)|bool
       tags: ffu_upgrade_playbook
+      become: true
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
 
