@@ -64,6 +64,11 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_upgrade_playbook
 
+    - name: Ensure ansible-pacemaker module is present in CI.
+      yum: name=ansible-pacemaker state=latest
+      when: tripleo_ci|default(false)|bool
+      tags: ffu_upgrade_playbook
+
     - include: ../common/l3_agent_connectivity_check_start_script.yml
 
     - name: Run FFU fast_forward_upgrade_playbook.yaml
