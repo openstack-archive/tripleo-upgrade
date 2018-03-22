@@ -7,3 +7,12 @@ parameter_defaults:
 {% for key, value in ceph_osds.iteritems()|sort %}
             - '{{ key }}'
 {% endfor %}
+{% if ceph_osds_non_collocated|default(false) %}
+         dedicated_devices:
+{% for key, value in ceph_osds.iteritems()|sort %}
+            - '{{ value.journal }}'
+{% endfor %}
+        osd_scenario: non-collocated
+{% else %}
+        osd_scenario: collocated
+{% endif %}
