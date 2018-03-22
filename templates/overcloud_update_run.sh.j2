@@ -1,0 +1,31 @@
+#!/bin/env bash
+#
+# Run minor update on overcloud nodes
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+
+{% if overcloud_update_multibooks|bool %}
+
+    {%- for playbook in overcloud_update_playbooks -%}
+
+echo "Running minor update {{ playbook }} playbook for {{ item }} role"
+openstack overcloud update run \
+    {% if tripleo_upgrade_debug|bool %}
+    --debug \
+    {% endif %}
+    --nodes {{ item }} --playbook {{ playbook }} 2>&1
+
+    {%- endfor -%}
+
+{% else %}
+
+echo "Running minor update all playbooks for {{ item }} role"
+openstack overcloud update run \
+    {% if tripleo_upgrade_debug|bool %}
+    --debug \
+    {% endif %}
+    --nodes {{ item }} --playbook all 2>&1
+
+{% endif %}
