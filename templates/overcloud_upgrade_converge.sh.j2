@@ -10,7 +10,7 @@ openstack overcloud upgrade \
 {% if tripleo_upgrade_debug|bool %}
         --debug \
 {% endif %}
-{% if tripleo_upgrade_skip_validations|bool %}
+{% if tripleo_upgrade_validations_non_fatal|bool %}
         --validation-errors-nonfatal \
 {% endif %}
         converge 2>&1
