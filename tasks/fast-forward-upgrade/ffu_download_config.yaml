@@ -1,7 +1,7 @@
 - name: overcloud config download
   shell: |
     source {{ undercloud_rc }}
-    openstack overcloud config download
+    openstack overcloud config download --name {{ overcloud_stack_name }}
   register: config_download
 
 - set_fact:

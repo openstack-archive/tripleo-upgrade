@@ -48,7 +48,10 @@
     - name: generate overcloud ansible static yaml inventory file
       shell: |
         source {{ undercloud_rc }}
-        /usr/bin/tripleo-ansible-inventory {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory-static.yaml
+        /usr/bin/tripleo-ansible-inventory \
+            --plan {{ overcloud_stack_name }} \
+            {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
+            --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory-static.yaml
 
     - name: Create FFU ugrade playbooks scripts
       tags: ffu_upgrade_playbooks_scripts
