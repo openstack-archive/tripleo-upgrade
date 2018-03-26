@@ -24,6 +24,7 @@
 
 - block:
     - include: ../common/l3_agent_connectivity_check_start_script.yml
+      tags: ffu_update_stack_outputs
 
     - name: apply pre ffu update stack outputs workarounds
       command: "{{working_dir}}/pre_ffu_update_stack_outputs_workarounds.sh"
@@ -34,6 +35,7 @@
       tags: ffu_update_stack_outputs
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      tags: ffu_update_stack_outputs
 
     - name: apply pre ffu download config workarounds
       command: "{{working_dir}}/pre_ffu_download_config_workarounds.sh"
@@ -71,12 +73,14 @@
       become: true
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
+      tags: ffu_upgrade_playbook
 
     - name: Run FFU fast_forward_upgrade_playbook.yaml
       command: "{{working_dir}}/ffu_upgrade_playbook_script.sh"
       tags: ffu_upgrade_playbook
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      tags: ffu_upgrade_playbook
 
     - name: apply pre ffu upgrade steps playbook workarounds
       command: "{{working_dir}}/pre_ffu_upgrade_steps_playbook_workarounds.sh"
@@ -84,12 +88,14 @@
       tags: ffu_upgrade_steps_playbook
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
+      tags: ffu_upgrade_steps_playbook
 
     - name: Run upgrade_steps_playbook.yaml
       command: "{{working_dir}}/ffu_upgrade_steps_playbook_script.sh"
       tags: ffu_upgrade_steps_playbook
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      tags: ffu_upgrade_steps_playbook
 
     - name: apply pre ffu deploy steps playbook workarounds
       command: "{{working_dir}}/pre_ffu_deploy_steps_playbook_workarounds.sh"
@@ -97,12 +103,14 @@
       tags: ffu_deploy_steps_playbook
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
+      tags: ffu_deploy_steps_playbook
 
     - name: Run deploy_steps_playbook.yaml
       command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
       tags: ffu_deploy_steps_playbook
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      tags: ffu_deploy_steps_playbook
 
     - name: apply pre ffu ceph upgrade workarounds
       command: "{{working_dir}}/pre_ffu_upgrade_ceph_workarounds.sh"
@@ -110,11 +118,13 @@
       tags: ffu_upgrade_ceph
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
+      tags: ffu_upgrade_ceph
 
     - include: ffu_upgrade_ceph.yaml
       when: ceph_ansible|succeeded
       tags: ffu_upgrade_ceph
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      tags: ffu_upgrade_ceph
 
   when: ffu_overcloud_upgrade|bool
