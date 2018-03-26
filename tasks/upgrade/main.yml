@@ -36,6 +36,12 @@
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
+    - name: Ensure ansible-pacemaker module is present in CI.
+      yum: name=ansible-pacemaker state=latest
+      when: tripleo_ci|default(false)|bool
+      tags: overcloud_upgrade_run
+      become: true
+
     - name: apply pre overcloud upgrade workarounds
       command: "{{working_dir}}/pre_overcloud_upgrade_workarounds.sh"
       when: upgrade_workarounds

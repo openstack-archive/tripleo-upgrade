@@ -45,6 +45,12 @@
           bash {{ post_overcloud_update_prepare_workarounds_script }} &> {{ working_dir }}/post_overcloud_update_prepare_workarounds.log
       when: updates_workarounds|bool
 
+    - name: Ensure ansible-pacemaker module is present in CI.
+      yum: name=ansible-pacemaker state=latest
+      when: tripleo_ci|default(false)|bool
+      tags: overcloud_update
+      become: true
+
     - name: overcloud pre-update run workarounds
       shell: |
           source {{ undercloud_rc }}
