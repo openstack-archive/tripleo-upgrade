@@ -156,5 +156,15 @@
     - name: Set overcloud FFU upgrade repo
       set_fact:
          ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
+
+    - name: Set overcloud FFU bulk
+      set_fact:
+         ffu_bulk: false
+      when: not install.overcloud.ffu.bulk
+
+    - name: Set overcloud FFU compute rolling
+      set_fact:
+         ffu_computes_rolling: true
+      when: install.overcloud.ffu.compute.rolling
   roles:
     - tripleo-upgrade

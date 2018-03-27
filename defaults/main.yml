@@ -21,6 +21,8 @@ overcloud_update: false
 ffu_undercloud_upgrade: false
 ffu_overcloud_upgrade: false
 ffu_noop: false
+ffu_bulk: true
+ffu_computes_rolling: false
 
 # enable upgrade workarounds
 upgrade_workarounds: false
