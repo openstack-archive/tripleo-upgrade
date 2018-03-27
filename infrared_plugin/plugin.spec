@@ -165,6 +165,16 @@ subparsers:
                       help: |
                           Overcloud FFU upgrade repository method
                       default: 'rhos-release'
+                  overcloud-ffu-bulk:
+                      type: Bool
+                      help: |
+                          Fast Forward Upgrade all overcloud nodes at once
+                      default: false
+                  overcloud-ffu-compute-rolling:
+                      type: Bool
+                      help: |
+                          Fast Forward Upgrade compute nodes one by one
+                      default: false
             - title: Set up FFU packages
               options:
                   mirror:

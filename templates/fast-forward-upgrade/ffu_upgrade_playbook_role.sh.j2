@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+{% if 'ffu_upgrade_steps_playbook_script' in item[1] %}
+ansible-playbook --module-path /usr/share/ansible-modules/ -i {{ working_dir }}/tripleo-ansible-inventory-static.yaml -b {{ overcloud_config_dir }}/upgrade_steps_playbook.yaml --skip-tags=validation --limit={{ item[0] }} | tee {{ working_dir}}/{{ item[1] }}_{{ item[0] }}.log
+{% elif 'ffu_deploy_steps_playbook_script' in item[1] %}
+ansible-playbook --module-path /usr/share/ansible-modules/ -i {{ working_dir }}/tripleo-ansible-inventory-static.yaml -b {{ overcloud_config_dir }}/deploy_steps_playbook.yaml --limit={{ item[0] }} | tee {{ working_dir}}/{{ item[1] }}_{{ item[0] }}.log
+{% endif %}

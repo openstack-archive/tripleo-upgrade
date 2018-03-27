@@ -61,8 +61,6 @@
         mode: 0775
       with_items:
          - 'ffu_upgrade_playbook_script'
-         - 'ffu_upgrade_steps_playbook_script'
-         - 'ffu_deploy_steps_playbook_script'
 
     - name: apply pre fast forward upgrade playbook workarounds
       command: "{{working_dir}}/pre_ffu_upgrade_playbook_workarounds.sh"
@@ -85,49 +83,31 @@
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_upgrade_playbook
 
-    - name: apply pre ffu upgrade steps playbook workarounds
-      command: "{{working_dir}}/pre_ffu_upgrade_steps_playbook_workarounds.sh"
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_upgrade_steps_playbook
+    ## we can either upgrade all overcloud nodes at one or per role/node
+    - name: upgrade all overcloud nodes at once
+      include: overcloud_bulk.yaml
+      tags: ffu_upgrade_overcloud_bulk
+      when: ffu_bulk|bool
 
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
-      tags: ffu_upgrade_steps_playbook
+    - name: upgrade overcloud nodes per roles
+      include: overcloud_role.yaml
+      tags: ffu_upgrade_overcloud_role
+      when: not ffu_bulk|bool
 
-    - name: Run upgrade_steps_playbook.yaml
-      command: "{{working_dir}}/ffu_upgrade_steps_playbook_script.sh"
-      tags: ffu_upgrade_steps_playbook
+    - block:
+      - name: apply pre ffu ceph upgrade workarounds
+        command: "{{working_dir}}/pre_ffu_upgrade_ceph_workarounds.sh"
+        when: ffu_upgrade_workarounds|bool
+        tags: ffu_upgrade_ceph
 
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
-      tags: ffu_upgrade_steps_playbook
+      - include: ../common/l3_agent_connectivity_check_start_script.yml
+        tags: ffu_upgrade_ceph
 
-    - name: apply pre ffu deploy steps playbook workarounds
-      command: "{{working_dir}}/pre_ffu_deploy_steps_playbook_workarounds.sh"
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_deploy_steps_playbook
+      - include: ffu_upgrade_ceph.yaml
+        tags: ffu_upgrade_ceph
 
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
-      tags: ffu_deploy_steps_playbook
-
-    - name: Run deploy_steps_playbook.yaml
-      command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
-      tags: ffu_deploy_steps_playbook
-
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
-      tags: ffu_deploy_steps_playbook
-
-    - name: apply pre ffu ceph upgrade workarounds
-      command: "{{working_dir}}/pre_ffu_upgrade_ceph_workarounds.sh"
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_upgrade_ceph
-
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
-      tags: ffu_upgrade_ceph
-
-    - include: ffu_upgrade_ceph.yaml
+      - include: ../common/l3_agent_connectivity_check_stop_script.yml
+        tags: ffu_upgrade_ceph
       when: ceph_ansible|succeeded
-      tags: ffu_upgrade_ceph
-
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
-      tags: ffu_upgrade_ceph
 
   when: ffu_overcloud_upgrade|bool
