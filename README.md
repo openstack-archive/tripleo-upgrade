@@ -47,6 +47,10 @@ Only create update scripts without running them
 
 Run undercloud upgrade
 
+    containerized_undercloud_upgrade: false
+
+Run containerized undercloud upgrade
+
     overcloud_upgrade: false
 
 Run overcloud upgrade
