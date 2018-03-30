@@ -1,0 +1,18 @@
+#!/bin/env bash
+#
+# Setup HEAT's output
+#
+set -euo pipefail
+
+# FIXME: Remove --validation-errors-nonfatal. In local testing it was
+# not necessary but in RDO cloud validations seem to produce errors.
+echo "Setting up HEAT's output for minor update"
+openstack overcloud update prepare --templates {{ tht_directory }} \
+    --stack {{ overcloud_stack_name }} \
+    {% if tripleo_upgrade_debug|bool %}
+    --debug \
+    {% endif %}
+    {% if tripleo_upgrade_validations_non_fatal|bool %}
+    --validation-errors-nonfatal \
+    {% endif %}
+    --container-registry-file {{ working_dir }}/{{ container_registry_file }} 2>&1

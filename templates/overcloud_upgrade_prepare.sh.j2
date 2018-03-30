@@ -11,7 +11,7 @@ openstack overcloud upgrade prepare --templates --stack {{ overcloud_stack_name 
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
-    {% if tripleo_upgrade_skip_validations|bool %}
+    {% if tripleo_upgrade_validations_non_fatal|bool %}
     --validation-errors-nonfatal \
     {% endif %}
     --container-registry-file {{ working_dir }}/{{ container_registry_file }} \

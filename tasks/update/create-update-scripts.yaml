@@ -15,36 +15,40 @@
   with_items:
     - '{{ pre_undercloud_update_workarounds|default([]) }}'
     - '{{ post_undercloud_update_workarounds|default([]) }}'
-    - '{{ pre_overcloud_update_workarounds|default([]) }}'
-    - '{{ post_overcloud_update_workarounds|default([]) }}'
+    - '{{ pre_overcloud_update_prepare_workarounds|default([]) }}'
+    - '{{ post_overcloud_update_prepare_workarounds|default([]) }}'
+    - '{{ pre_overcloud_update_run_workarounds|default([]) }}'
+    - '{{ post_overcloud_update_run_workarounds|default([]) }}'
   when: updates_workarounds|bool
 
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
-    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-inventory /tmp/fake-oc-hosts ;
-    grep role_name /tmp/fake-oc-hosts | awk -F '=' '{ print $2 }' 2>/dev/null | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//' -e 's/\([Cc]ontroller\)/00-\1/' | sort
+    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-yaml-inventory /tmp/fake-oc-hosts.yaml ;
+    grep role_name /tmp/fake-oc-hosts.yaml | awk -F ': ' '{ print $2 }' 2>/dev/null
   register: oc_roles
 
 - name: store roles
+  vars:
+    controller_role_name: "{{ oc_roles.stdout|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
   set_fact:
-    oc_roles: "{{ oc_roles }}"
+    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name]) }}"
 
-- name: create overcloud update setup script
+- name: create overcloud update prepare script
   template:
-    src: "{{ overcloud_update_setup_template }}"
-    dest: "{{ overcloud_update_setup_script }}"
+    src: "{{ overcloud_update_prepare_template }}"
+    dest: "{{ overcloud_update_prepare_script }}"
     mode: 0775
     force: true
 
 - name: create overcloud update script
   template:
-    src: "{{ overcloud_update_template }}"
-    dest: "{{ overcloud_update_script_base }}-{{ item }}.sh"
+    src: "{{ overcloud_update_run_template }}"
+    dest: "{{ overcloud_update_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
   with_items:
-    - "{{ oc_roles.stdout_lines|default('all') }}"
+    - "{{ oc_roles|default('all') }}"
 
 - name: create docker container/images validate scripts
   template:

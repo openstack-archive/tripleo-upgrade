@@ -68,17 +68,19 @@ workload_launch_script: "{{ working_dir }}/workload_launch.sh"
 # overcloud jinja template name
 overcloud_pre_update_workarounds_template: overcloud_pre_update_workarounds.sh.j2
 update_workarounds_template: update_workarounds.sh.j2
-overcloud_update_setup_template: overcloud_update_setup.sh.j2
-overcloud_update_template: overcloud_update.sh.j2
+overcloud_update_prepare_template: overcloud_update_prepare.sh.j2
+overcloud_update_run_template: overcloud_update_run.sh.j2
 
 # overcloud update scripts
 pre_undercloud_update_workarounds_script: "{{ working_dir }}/pre_undercloud_update_workarounds.sh"
 post_undercloud_update_workarounds_script: "{{ working_dir }}/post_undercloud_update_workarounds.sh"
-pre_overcloud_update_workarounds_script: "{{ working_dir }}/pre_overcloud_update_workarounds.sh"
-post_overcloud_update_workarounds_script: "{{ working_dir }}/post_overcloud_update_workarounds.sh"
+pre_overcloud_update_prepare_workarounds_script: "{{ working_dir }}/pre_overcloud_update_prepare_workarounds.sh"
+post_overcloud_update_prepare_workarounds_script: "{{ working_dir }}/post_overcloud_update_prepare_workarounds.sh"
+pre_overcloud_update_run_workarounds_script: "{{ working_dir }}/pre_overcloud_update_run_workarounds.sh"
+post_overcloud_update_run_workarounds_script: "{{ working_dir }}/post_overcloud_update_run_workarounds.sh"
 
-overcloud_update_setup_script: "{{ working_dir }}/overcloud_update_setup.sh"
-overcloud_update_script_base: "{{ working_dir }}/overcloud_update"
+overcloud_update_prepare_script: "{{ working_dir }}/overcloud_update_prepare.sh"
+overcloud_update_run_script_base: "{{ working_dir }}/overcloud_update_run"
 
 overcloud_validate_images_template: validate_docker_images_versions.sh.j2
 overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_versions.sh"
@@ -178,12 +180,20 @@ tripleo_upgrade_debug: false
 # into the "overcloud <action> prepare" and "overcloud <action> converge"
 # commands. This means that the execution of the command will continue
 # independently in spite of validation errors.
-tripleo_upgrade_skip_validations: false
+tripleo_upgrade_validations_non_fatal: false
 
 ## If set to true, overcloud upgrade will be run for each of the
 # playbooks defined in 'overcloud_upgrade_playbooks', otherwise
 # 'all' will be passed into --playbooks option.
 overcloud_upgrade_multibooks: false
 
+## If set to true, overcloud update will be run for each of the
+# playbooks defined in 'overcloud_update_playbooks', otherwise
+# 'all' will be passed into --playbooks option.
+overcloud_update_multibooks: false
+
 # Ansible playbooks executed during "overcloud upgrade run"
 overcloud_upgrade_playbooks: ['upgrade_steps_playbook.yaml', 'deploy_steps_playbook.yaml', 'post_upgrade_steps_playbook.yaml']
+
+# Ansible playbooks executed during "overcloud update run"
+overcloud_update_playbooks: ['update_steps_playbook.yaml', 'deploy_steps_playbook.yaml' ]

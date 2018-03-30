@@ -1,0 +1,16 @@
+---
+- include: ../common/l3_agent_connectivity_check_start_script.yml
+
+- name: run overcloud minor update in each of the roles/hostgroups
+  shell: "bash {{ overcloud_update_run_script_base }}-{{ item }}.sh &> {{ working_dir}}/overcloud_update_run_{{ item }}.log"
+  with_items:
+      - "{{ oc_roles|default('all') }}"
+  register: overcloud_update_nodes
+  ignore_errors: yes
+
+- fail: msg="Overcloud minor update execution step failed..."
+  with_items: "{{ overcloud_update_nodes.results }}"
+  when: item.rc != 0
+
+- include: ../common/l3_agent_connectivity_check_stop_script.yml
+
