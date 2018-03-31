@@ -1,0 +1,161 @@
+- name: Register roles data file location if exists
+  shell: "grep '\\-r\\ \\|\\-\\-roles' {{ overcloud_deploy_script }} | awk {'print $2'}"
+  register: custom_roles_file
+  ignore_errors: true
+
+- name: Check if roles data has already been adjusted
+  stat:
+    path: "{{ custom_roles_file.stdout }}.pre_queens_ffu_upgrade"
+  register: custom_roles_adjusted
+
+- block:
+    - name: Make a copy of the custom roles data file
+      copy:
+        src: "{{ custom_roles_file.stdout }}"
+        dest: "{{ custom_roles_file.stdout }}.pre_queens_ffu_upgrade"
+        remote_src: true
+
+    - name: Clear removed service for roles_data.yaml file
+      lineinfile:
+          dest: '{{ custom_roles_file.stdout }}'
+          regexp: "{{ item }}"
+          state: absent
+      with_items:
+          - 'OS::TripleO::Services::Core'
+          - 'OS::TripleO::Services::VipHosts'
+          - 'OS::TripleO::Services::FluentdClient'
+          - 'OS::TripleO::Services::ManilaBackendGeneric'
+
+    - name: Assigns deprecated params to Controller role
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: "^(- name: Controller( # the 'primary' role goes first)?$)"
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  deprecated_param_image: "controllerImage"'
+        - '\1\n  deprecated_param_flavor: "OvercloudControlFlavor"'
+        - '\1\n  deprecated_param_extraconfig: "controllerExtraConfig"'
+        - '\1\n  uses_deprecated_params: True'
+
+    - name: Assigns network attributes to Controller role or custom controller roles
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: Controller.*)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  networks:\n    - External\n    - InternalApi\n    - Storage\n    - StorageMgmt\n    - Tenant'
+        - '\1\n  tags:\n    - primary\n    - controller'
+        - '\1\n  description: |\n    Controller role that has all the controler services loaded and handles\n    Database, Messaging and Network functions.'
+
+    - name: Assigns deprecated params to Compute role
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: Compute$)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  deprecated_server_resource_name: "NovaCompute"'
+        - '\1\n  deprecated_param_ips: "NovaComputeIPs"'
+        - '\1\n  deprecated_param_scheduler_hints: "NovaComputeSchedulerHints"'
+        - '\1\n  deprecated_param_metadata: "NovaComputeServerMetadata"'
+        - '\1\n  deprecated_param_extraconfig: "NovaComputeExtraConfig"'
+        - '\1\n  deprecated_param_image: "NovaImage"'
+        - '\1\n  uses_deprecated_params: True'
+
+    - name: Assigns network attributes to Compute role or custom compute roles
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: Compute.*)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  networks:\n    - InternalApi\n    - Storage\n    - Tenant'
+        - '\1\n  description: |\n    Basic Compute Node role'
+
+    - name: Add disable_upgrade_deployment to Compute and ObjectStorage roles
+      replace:
+          dest: '{{ custom_roles_file.stdout }}'
+          regexp: '^(- name: (Compute|ObjectStorage).*$)'
+          replace: '\1\n  disable_upgrade_deployment: True'
+
+    - name: Assigns new attributes to CephStorage role
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: CephStorage.*)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  networks:\n    - Storage\n    - StorageMgmt'
+        - '\1\n  description: |\n    Ceph OSD Storage node role'
+
+    - name: Assigns new attributes to Networker role
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: Networker.*)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n  networks:\n    - InternalApi\n    - Tenant'
+        - '\1\n  description: |\n    Standalone networking role to run Neutron agents'
+
+    - name: Add services common to all roles introduced after Newton
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::Timezone)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n    - OS::TripleO::Services::AuditD'
+        - '\1\n    - OS::TripleO::Services::Collectd'
+        - '\1\n    - OS::TripleO::Services::MySQLClient'
+        - '\1\n    - OS::TripleO::Services::CertmongerUser'
+        - '\1\n    - OS::TripleO::Services::Docker'
+        - '\1\n    - OS::TripleO::Services::Securetty'
+        - '\1\n    - OS::TripleO::Services::Tuned'
+        - '\1\n    - OS::TripleO::Services::ContainersLogrotateCrond'
+        - '\1\n    - OS::TripleO::Services::Rhsm'
+        - '\1\n    - OS::TripleO::Services::RsyslogSidecar'
+
+    - name: Add Nova services introduced in Ocata
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::NovaApi$)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n    - OS::TripleO::Services::NovaPlacement'
+        - '\1\n    - OS::TripleO::Services::Ec2Api'
+
+    - name: Add Ceph services introduced after Newton
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::CephMon$)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n    - OS::TripleO::Services::CephMgr'
+        - '\1\n    - OS::TripleO::Services::CephMds'
+        - '\1\n    - OS::TripleO::Services::CephRbdMirror'
+
+    - name: Add Telemetry services introduced in Ocata
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::CeilometerApi$)'
+        replace: "{{ item }}"
+      with_items:
+        - '\1\n    - OS::TripleO::Services::PankoApi'
+
+    - name: Add Clustercheck service introduced in Pike
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::MySQL$)'
+        replace: '\1\n    - OS::TripleO::Services::Clustercheck'
+
+    - name: Add Iscsid service introduced in Pike
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: "{{ item }}"
+        replace: '\1\n    - OS::TripleO::Services::Iscsid'
+      with_items:
+        - '(- .*CinderVolume)'
+        - '(- OS::TripleO::Services::NovaCompute)'
+
+    - name: Add NovaMigrationTarget service introduced in Pike
+      replace:
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '(- OS::TripleO::Services::NovaCompute)'
+        replace: '\1\n    - OS::TripleO::Services::NovaMigrationTarget'
+  when: custom_roles_file.stdout|length > 0 and not custom_roles_adjusted.stat.exists
