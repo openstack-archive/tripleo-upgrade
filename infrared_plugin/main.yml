@@ -166,5 +166,9 @@
       set_fact:
          ffu_computes_rolling: true
       when: install.overcloud.ffu.compute.rolling
+
+    - name: Set overcloud ssh user name
+      set_fact:
+         overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
   roles:
     - tripleo-upgrade
