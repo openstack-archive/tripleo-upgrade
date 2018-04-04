@@ -16,8 +16,8 @@
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
-    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} --static-yaml-inventory /tmp/fake-oc-hosts.yaml ;
-    grep role_name /tmp/fake-oc-hosts.yaml | awk -F ': ' '{ print $2 }' 2>/dev/null
+    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} --static-inventory /tmp/fake-oc-hosts ;
+    awk -F'=' '/role_name/ {gsub(/^[ \t]/, "", $2); print $2}' /tmp/fake-oc-hosts
   register: oc_roles
 
 - name: store roles
