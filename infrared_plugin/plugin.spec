@@ -126,6 +126,10 @@ subparsers:
                       type: Value
                       help: Overcloud stack name
                       default: "overcloud"
+                  overcloud-ssh-user:
+                      type: Value
+                      help: Overcloud ssh user name name
+                      default: ''
             - title: TripleO Fast Forward Upgrade
               options:
                   overcloud-ffu-upgrade:
