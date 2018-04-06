@@ -1,0 +1,6 @@
+---
+- name: run l3 agent failover pre script
+  shell: |
+    source {{ overcloud_rc }}
+    {{ working_dir }}/l3_agent_failover_pre.sh
+  when: l3_agent_failover_check|bool

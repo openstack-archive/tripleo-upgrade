@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Script which checks the active agent hosting a neutron router
+
+FIRST_ROUTER=$(openstack router list -f json | jq -r -c '[.[]|select(.State=="UP")][0].ID')
+echo export ROUTER_ID="${FIRST_ROUTER}" > {{ working_dir }}/router_active_agent.sh
+echo export ROUTER_HOST_PRE=$(neutron l3-agent-list-hosting-router ${FIRST_ROUTER} -f json |  jq -r -c '.[]|select(.ha_state=="active")|.host') >> {{ working_dir }}/router_active_agent.sh

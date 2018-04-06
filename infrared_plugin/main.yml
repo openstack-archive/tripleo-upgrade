@@ -126,5 +126,10 @@
       set_fact:
          overcloud_stack_name: "{{ install.overcloud.stack }}"
 
+    - name: Set upgrade l3 agent failover check
+      set_fact:
+         l3_agent_failover_check: true
+      when: install.upgrade.l3agent.failover.check
+
   roles:
     - tripleo-upgrade
