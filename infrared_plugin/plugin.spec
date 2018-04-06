@@ -98,6 +98,12 @@ subparsers:
                       help: |
                           Launch workload after major composable upgrade step
                       default: false
+                  upgrade-l3agent-failover-check:
+                      type: Bool
+                      help: |
+                          Check l3 agent does not failover during upgrade.
+                          Existing neutron router is required.
+                      default: false
             - title: TripleO Update
               options:
                   overcloud-update:

@@ -129,6 +129,7 @@ l3_agent_connectivity_check_start_script: "{{ working_dir }}/l3_agent_start_ping
 l3_agent_connectivity_check_stop_script: "{{ working_dir }}/l3_agent_stop_ping.sh"
 l3_agent_connectivity_check_start_template: l3_agent_start_ping.sh.j2
 l3_agent_connectivity_check_stop_template: l3_agent_stop_ping.sh.j2
+l3_agent_failover_check: false
 
 # migrate instances between compute nodes during upgrade
 compute_evacuate: false

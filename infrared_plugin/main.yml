@@ -170,5 +170,10 @@
     - name: Set overcloud ssh user name
       set_fact:
          overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
+
+    - name: Set upgrade l3 agent failover check
+      set_fact:
+         l3_agent_failover_check: true
+      when: install.upgrade.l3agent.failover.check
   roles:
     - tripleo-upgrade

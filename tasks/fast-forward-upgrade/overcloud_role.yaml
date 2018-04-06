@@ -51,7 +51,10 @@
   command: "{{working_dir}}//ffu_deploy_steps_playbook_script_non_Compute.sh"
   tags: ffu_upgrade_non_compute
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
+- include: "{{ item }}"
+  with_items:
+    - '../common/l3_agent_connectivity_check_stop_script.yml'
+    - '../common/l3_agent_failover_check_post_script.yml'
   tags: ffu_upgrade_non_compute
 
 - include: ../common/l3_agent_connectivity_check_start_script.yml

@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Script which validates that the active agent hosting a neutron router
+# has not failed over during upgrade. Used with l3_agent_failover_check.
+
+source {{ working_dir }}/router_active_agent.sh
+
+ROUTER_HOST_POST=$(neutron l3-agent-list-hosting-router ${ROUTER_ID} -f json |  jq -r -c '.[]|select(.ha_state=="active")|.host')
+
+if [ "$ROUTER_HOST_PRE" != "$ROUTER_HOST_POST" ]; then
+    echo "Neutron router failover detected."
+    echo "Router $ROUTER_ID previously hosted by $ROUTER_HOST_PRE and now hosted by $ROUTER_HOST_POST"
+    exit 1
+fi
