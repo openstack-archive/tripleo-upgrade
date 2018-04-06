@@ -46,5 +46,7 @@
   command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
   tags: ffu_deploy_steps_playbook
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
-
+- include: "{{ item }}"
+  with_items:
+    - '../common/l3_agent_connectivity_check_stop_script.yml'
+    - '../common/l3_agent_failover_check_post_script.yml'

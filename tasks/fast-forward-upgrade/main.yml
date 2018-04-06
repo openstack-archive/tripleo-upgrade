@@ -23,7 +23,10 @@
   when: ffu_undercloud_upgrade|bool
 
 - block:
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
+    - include: "{{ item }}"
+      with_items:
+        - '../common/l3_agent_connectivity_check_start_script.yml'
+        - '../common/l3_agent_failover_check_pre_script.yml'
       tags: ffu_update_stack_outputs
 
     - name: apply pre ffu update stack outputs workarounds
@@ -34,7 +37,10 @@
     - include: ffu_update_stack_outputs.yaml
       tags: ffu_update_stack_outputs
 
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
+    - include: "{{ item }}"
+      with_items:
+        - '../common/l3_agent_connectivity_check_stop_script.yml'
+        - '../common/l3_agent_failover_check_post_script.yml'
       tags: ffu_update_stack_outputs
 
     - name: apply pre ffu download config workarounds
@@ -106,7 +112,10 @@
       - include: ffu_upgrade_ceph.yaml
         tags: ffu_upgrade_ceph
 
-      - include: ../common/l3_agent_connectivity_check_stop_script.yml
+      - include: "{{ item }}"
+        with_items:
+          - '../common/l3_agent_connectivity_check_stop_script.yml'
+          - '../common/l3_agent_failover_check_post_script.yml'
         tags: ffu_upgrade_ceph
       when: ceph_ansible|succeeded
 

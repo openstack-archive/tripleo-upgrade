@@ -90,3 +90,5 @@
 - include: ../common/ssh_config_skip_host.yml
 
 - include: ../common/create_l3_agent_connectivity_check_script.yml
+
+- include: ../common/create_l3_agent_failover_check_script.yml

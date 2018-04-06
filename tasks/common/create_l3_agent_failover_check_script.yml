@@ -1,0 +1,13 @@
+- block:
+    - name: create l3 agent failover check pre script
+      template:
+        src: "l3_agent_failover_pre.sh.j2"
+        dest: "{{ working_dir }}/l3_agent_failover_pre.sh"
+        mode: 0775
+
+    - name: create l3 agent failover check post scripts
+      template:
+        src: "l3_agent_failover_post.sh.j2"
+        dest: "{{ working_dir }}/l3_agent_failover_post.sh"
+        mode: 0775
+  when: l3_agent_failover_check|bool
