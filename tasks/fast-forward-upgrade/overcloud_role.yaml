@@ -81,7 +81,7 @@
         src: fast-forward-upgrade/ffu_upgrade_playbook_role.sh.j2
         dest: "{{ working_dir }}/{{ item[1] }}_{{ item[0] }}.sh"
         mode: 0775
-      tags: ffu_upgrade_roles_prepare
+      tags: ffu_upgrade_compute
       with_nested:
          - '{{ tripleo_compute_nodes.stdout_lines }}'
          - [ 'ffu_upgrade_steps_playbook_script', 'ffu_deploy_steps_playbook_script' ]
