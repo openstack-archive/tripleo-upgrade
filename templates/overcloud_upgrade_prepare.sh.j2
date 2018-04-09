@@ -15,7 +15,12 @@ openstack overcloud upgrade prepare --templates --stack {{ overcloud_stack_name 
     --validation-errors-nonfatal \
     {% endif %}
     --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
+    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
+    {% for _env in initial_env_file.stdout_lines %}
+        -e {{ _env }} \
+    {% endfor %}
+    {% endif %}
     {% if upgrade_prepare_extra_params %}
     -e {{ upgrade_prepare_extra_params | join(' -e ') }} \
     {% endif %}
-    -e {{ tht_directory }}/environments/noop-deploy-steps.yaml 2>&1
+    --roles-file {{ roles_data }} 2>&1

@@ -1,0 +1,21 @@
+---
+- name: get env files used during deploy
+  shell: |
+    awk '/-e\s|--environment-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+  register: initial_env_file
+
+- name: set initial_env_file fact
+  set_fact:
+    initial_env_file: "{{ initial_env_file }}"
+
+- name: fetch roles-data file referenced in initial deploy script
+  shell: |
+    awk '/-r\s|--roles-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+  register: roles_data_file
+
+- name: set roles-data fact
+  vars:
+    default_roles_data: "{{ tht_directory }}/roles_data.yaml"
+    roles_data: "{{ roles_data_file.stdout }}"
+  set_fact:
+    roles_data: "{{ (roles_data_file.stdout|length > 0) | ternary(roles_data, default_roles_data)}}"

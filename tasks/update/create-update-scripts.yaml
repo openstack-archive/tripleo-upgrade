@@ -1,4 +1,12 @@
 ---
+- name: create a comptatible deployment scripts from oooq
+  include: ../upgrade/use_oooq.yaml
+  tags: use_oooq
+  when: use_oooq|bool
+
+- name: get auxiliary facts for major upgrades
+  include: ../common/auxilary-facts.yaml
+
 - name: create undercloud update script
   vars:
     log_prefix: "update"
