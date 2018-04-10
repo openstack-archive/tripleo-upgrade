@@ -15,6 +15,9 @@ openstack overcloud update run \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
+    {% if overcloud_ssh_user %}
+    --ssh-user {{ overcloud_ssh_user }} \
+    {% endif %}
     --nodes {{ item }} --playbook {{ playbook }} 2>&1
 
     {%- endfor -%}
@@ -25,6 +28,9 @@ echo "Running minor update all playbooks for {{ item }} role"
 openstack overcloud update run \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
+    {% endif %}
+    {% if overcloud_ssh_user %}
+    --ssh-user {{ overcloud_ssh_user }} \
     {% endif %}
     --nodes {{ item }} --playbook all 2>&1
 
