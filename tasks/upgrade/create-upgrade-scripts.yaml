@@ -33,10 +33,13 @@
     mode: 0775
 
 - name: create undercloud upgrade script
+  vars:
+    log_prefix: "upgrade"
   template:
     src: "{{ undercloud_upgrade_template }}"
     dest: "{{ undercloud_upgrade_script }}"
     mode: 0775
+    force: true
 
 - name: create upgrade workaround scripts
   template:
