@@ -15,7 +15,7 @@
 
 - name: set roles-data fact
   vars:
-    default_roles_data: "{{ tht_directory }}/roles_data.yaml"
     roles_data: "{{ roles_data_file.stdout }}"
   set_fact:
     roles_data: "{{ (roles_data_file.stdout|length > 0) | ternary(roles_data, default_roles_data)}}"
+    custom_roles_used: "{{ (roles_data_file.stdout|length > 0) | ternary(true, false)}}"
