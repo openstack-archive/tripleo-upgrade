@@ -3,8 +3,5 @@
 # Perform undercloud upgrade and related steps
 set -euo pipefail
 
-# ceph-ansible needs to be installed manually
-sudo yum install -y ceph-ansible
-
 sudo yum update -y python-tripleoclient
-openstack undercloud upgrade &> undercloud_upgrade.log
+openstack undercloud upgrade &> undercloud_{{ log_prefix }}.log
