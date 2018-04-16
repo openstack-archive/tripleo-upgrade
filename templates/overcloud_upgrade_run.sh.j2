@@ -8,19 +8,19 @@ source {{ undercloud_rc }}
 
 {% if overcloud_upgrade_multibooks|bool %}
 
-    {%- for playbook in overcloud_upgrade_playbooks -%}
+    {% for playbook in overcloud_upgrade_playbooks %}
 
 echo "Runing major upgrade {{ playbook }} playbook for {{ item }} role"
 openstack overcloud upgrade run \
-        {% if tripleo_upgrade_debug|bool %}
+        {% if tripleo_upgrade_debug|bool -%}
         --debug \
-        {% endif %}
-        {% if overcloud_ssh_user %}
+        {% endif -%}
+        {% if overcloud_ssh_user -%}
         --ssh-user {{ overcloud_ssh_user }} \
-        {% endif %}
+        {% endif -%}
         --nodes {{ item }} --playbook {{ playbook }} 2>&1
 
-    {%- endfor -%}
+    {% endfor -%}
 
 {% else %}
 
