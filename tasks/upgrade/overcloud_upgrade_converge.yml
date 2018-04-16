@@ -12,7 +12,8 @@
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_composable_failed_converge.log
 
-    - fail: msg="Overcloud upgrade converge step failed... :("
+    - name: was the overcloud upgrade converge successful.
+      fail: msg="Overcloud upgrade converge step failed... :("
   when: overcloud_converge_upgrade.rc != 0
 
 - include: ../common/l3_agent_connectivity_check_stop_script.yml

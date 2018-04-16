@@ -2,7 +2,8 @@
   command: "{{ working_dir }}/pre_undercloud_upgrade_{{ current_release }}_workarounds.sh"
   when: ffu_upgrade_workarounds
 
-- include_role:
+- name: Include rhos-release role.
+  include_role:
     name: rhos-release
   vars:
     director_build: "{{ install.get('director', {}).build|default(omit) }}"

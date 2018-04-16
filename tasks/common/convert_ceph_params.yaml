@@ -23,7 +23,8 @@
       with_items:
         - "{{ envs.stdout_lines }}"
 
-    - set_fact:
+    - name: set ceph_env fact
+      set_fact:
         ceph_env: "{{ item.item }}"
       when: "{{ item.stdout|length > 0 }}"
       with_items:
@@ -40,14 +41,17 @@
           command: "cat {{ ceph_env }}"
           register: ceph_puppet
 
-        - set_fact:
+        - name: set ceph_osds fact
+          set_fact:
             ceph_osds: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osds'] | default([]) }}"
 
-        - set_fact:
+        - name: set ceph_osds_pg fact
+          set_fact:
             ceph_osds_pg: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
           ignore_errors: true
 
-        - set_fact:
+        - name: set ceph_osds_non_collocated fact
+          set_fact:
             ceph_osds_non_collocated: true
           when: "'journal' in ceph_puppet.stdout"
 
@@ -56,10 +60,12 @@
             src: cephosd.yaml.j2
             dest: "{{working_dir}}/ceph-ansible-env.yaml"
 
-        - set_fact:
+        - name: set extra_config fact
+          set_fact:
              extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
 
-        - lineinfile:
+        - name: remove unused ceph parameters.
+          lineinfile:
             path: "{{ ceph_env }}"
             regexp: "{{ item }}"
             state: absent
@@ -68,12 +74,14 @@
             - "ceph::profile::params::osd_pool_default_pgp_num"
             - "ceph::profile::params::osds"
 
-        - lineinfile:
+        - name: remove journal from ceph_env
+          lineinfile:
             path: "{{ ceph_env }}"
             regexp: "journal"
             state: absent
 
-        - lineinfile:
+        - name: remove ceph_osd from ceph env.
+          lineinfile:
             path: "{{ ceph_env }}"
             regexp: "{{ item }}"
             state: absent
@@ -83,7 +91,8 @@
           command: "cat {{ ceph_env }}"
           register: ceph_puppet
 
-        - set_fact:
+        - name: set extra_config from ceph puppet.
+          set_fact:
            extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
 
         - name: replace empty extraconfig

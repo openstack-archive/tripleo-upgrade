@@ -18,5 +18,6 @@
     openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_update_stack_outputs_failed_resources.log
   when: ffu_stack_output|failed
 
-- fail: msg="FFU update stack outputs step failed... :("
+- name: was the ffu update stack outputs successful.
+  fail: msg="FFU update stack outputs step failed... :("
   when: ffu_stack_output|failed

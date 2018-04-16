@@ -16,5 +16,6 @@
         source {{ undercloud_rc }}
         openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_ceph_failed_resources.log
 
-    - fail: msg="FFU upgrade ceph step failed... :("
+    - name: was the ffu update ceph successful.
+      fail: msg="FFU upgrade ceph step failed... :("
   when: ffu_upgrade_ceph|failed
