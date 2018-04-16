@@ -4,5 +4,6 @@
     openstack overcloud config download --name {{ overcloud_stack_name }}
   register: config_download
 
-- set_fact:
+- name: set overcloud_config_dir fact.
+  set_fact:
     overcloud_config_dir: "{{ config_download.stdout | regex_search('(/.*tripleo.*)')}}"

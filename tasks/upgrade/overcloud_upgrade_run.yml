@@ -8,7 +8,8 @@
   register: overcloud_upgrade_nodes
   ignore_errors: yes
 
-- fail: msg="Overcloud upgrade composable step failed... :("
+- name: was the overcloud upgrade composable step successful.
+  fail: msg="Overcloud upgrade composable step failed... :("
   with_items: "{{ overcloud_upgrade_nodes.results }}"
   when: item.rc != 0
 
