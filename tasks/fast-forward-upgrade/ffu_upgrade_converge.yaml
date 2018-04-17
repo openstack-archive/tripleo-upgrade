@@ -1,0 +1,23 @@
+---
+- name: run ffu converge step
+  shell: |
+    source {{ undercloud_rc }}
+    {{ working_dir }}/ffu_upgrade_converge_script.sh &> {{ working_dir }}/ffu_upgrade_converge.log
+  register: ffu_converge
+  ignore_errors: yes
+
+- name: print stack failures
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_converge_failed.log
+  when: ffu_converge|failed
+
+- name: print resource list
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_converge_failed_resources.log
+  when: ffu_converge|failed
+
+- name: was the ffu converge successful.
+  fail: msg="FFU converge step failed... :("
+  when: ffu_converge|failed
