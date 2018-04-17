@@ -1,4 +1,8 @@
 ---
+- name: adjust role-data for P->Q upgrade
+  include: adjust-roles-data.yaml
+  when: custom_roles_used|bool
+
 - name: add upgrade init script to upgrade prepare params
   set_fact:
     upgrade_prepare_extra_params: "{{ upgrade_prepare_extra_params + [upgrade_init_command_dest] }}"

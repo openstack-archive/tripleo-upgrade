@@ -1,0 +1,14 @@
+---
+- name: rename FluentdClient to Fluentd
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1540546
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)- OS::TripleO::Services::FluentdClient$'
+    replace: '\1- OS::TripleO::Services::Fluentd'
+
+- name: remove ManilaBackendGeneric resource
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1541382
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)- OS::TripleO::Services::ManilaBackendGeneric$'
+    replace: ''
