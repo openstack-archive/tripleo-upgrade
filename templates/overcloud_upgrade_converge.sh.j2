@@ -6,11 +6,18 @@ set -euo pipefail
 
 source {{ undercloud_rc }}
 echo "Running major upgrade converge step"
-openstack overcloud upgrade \
+openstack overcloud upgrade converge \
 {% if tripleo_upgrade_debug|bool %}
         --debug \
 {% endif %}
 {% if tripleo_upgrade_validations_non_fatal|bool %}
         --validation-errors-nonfatal \
 {% endif %}
-        converge 2>&1
+    --templates {{ tht_directory }} \
+    --stack {{ overcloud_stack_name }} \
+    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
+    {% for _env in initial_env_file.stdout_lines %}
+        -e {{ _env }} \
+    {% endfor %}
+    {% endif %}
+    --roles-file {{ roles_data }} 2>&1
