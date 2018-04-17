@@ -125,4 +125,17 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
+{% elif 'pre_ffu_upgrade_converge_workarounds' in item %}
+{% for bugs in pre_ffu_upgrade_converge_workarounds|default([]) %}
+{% for key, value in bugs.items() %}
+echo {{ key }}
+{% if value.patch %}
+apply_patch {{ value.basedir }} {{ value.id }}
+{% else %}
+{{ value.command }}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
 {% endif %}
