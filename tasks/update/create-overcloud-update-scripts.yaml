@@ -21,6 +21,8 @@
     - '{{ post_overcloud_update_prepare_workarounds|default([]) }}'
     - '{{ pre_overcloud_update_run_workarounds|default([]) }}'
     - '{{ post_overcloud_update_run_workarounds|default([]) }}'
+    - '{{ pre_overcloud_update_converge_workarounds|default([]) }}'
+    - '{{ post_overcloud_update_converge_workarounds|default([]) }}'
   when: updates_workarounds|bool
 
 - name: generate inventory file
@@ -51,6 +53,13 @@
     force: true
   with_items:
     - "{{ oc_roles|default('all') }}"
+
+- name: create overcloud update converge script
+  template:
+    src: "{{ overcloud_update_converge_template }}"
+    dest: "{{ overcloud_update_converge_script }}"
+    mode: 0775
+    force: true
 
 - name: create docker container/images validate scripts
   template:

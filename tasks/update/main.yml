@@ -72,6 +72,19 @@
           bash {{ post_overcloud_update_run_workarounds_script }} &> {{ working_dir }}/post_overcloud_update_run_workarounds.log
       when: updates_workarounds|bool
 
+    - name: apply pre overcloud update converge workarounds
+      command: "{{working_dir}}/pre_overcloud_update_converge_workarounds.sh"
+      when: updates_workarounds
+      tags: overcloud_update_converge
+
+    - include: overcloud_update_converge.yml
+      tags: overcloud_update_converge
+
+    - name: apply post overcloud update converge workarounds
+      command: "{{working_dir}}/post_overcloud_update_converge_workarounds.sh"
+      when: updates_workarounds
+      tags: overcloud_update_converge
+
     - name: validate overcloud docker images/containers
       shell: |
           source {{ undercloud_rc }}
