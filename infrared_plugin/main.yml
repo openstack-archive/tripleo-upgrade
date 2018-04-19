@@ -24,6 +24,10 @@
          workload_memory: "{{ install.upgrade.workloadmemory }}"
       when: install.upgrade.workload
 
+    - name: Set upgrade workload user
+      set_fact:
+         workload_user: "{{ install.upgrade.workloaduser }}"
+
     - name: Set upgrade workload post_composable_upgrade launch
       set_fact:
          workload_launch_post_composable_upgrade: true
@@ -175,5 +179,10 @@
       set_fact:
          l3_agent_failover_check: true
       when: install.upgrade.l3agent.failover.check
+
+    - name: Set upgrade nova_actions_check
+      set_fact:
+         nova_actions_check: true
+      when: install.upgrade.nova.actions.check
   roles:
     - tripleo-upgrade

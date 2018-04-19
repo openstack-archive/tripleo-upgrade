@@ -119,4 +119,6 @@
         tags: ffu_upgrade_ceph
       when: ceph_ansible|succeeded
 
+    - include: ../common/nova_actions_check.yml
+
   when: ffu_overcloud_upgrade|bool

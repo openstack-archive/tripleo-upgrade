@@ -49,6 +49,7 @@ workload_launch: false
 external_network_name: "public"
 workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
 workload_memory: "512"
+workload_user: "cirros"
 workload_launch_post_composable_upgrade: false
 
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
@@ -199,3 +200,6 @@ overcloud_upgrade_playbooks: ['upgrade_steps_playbook.yaml', 'deploy_steps_playb
 
 # Ansible playbooks executed during "overcloud update run"
 overcloud_update_playbooks: ['update_steps_playbook.yaml', 'deploy_steps_playbook.yaml' ]
+
+# Post upgrade/update nova actions tests
+nova_actions_check: false
