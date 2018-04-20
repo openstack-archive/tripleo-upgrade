@@ -19,11 +19,18 @@
   import_tasks: ../common/build_extra_template.yaml
   when: not use_oooq|bool
 
-- name: create update workaround scripts
+- name: create undercloud update script
   template:
-    src: workarounds.sh.j2
-    dest: "{{ working_dir }}/{{ item }}.sh"
+    src: "undercloud_upgrade.sh.j2"
+    dest: "{{ undercloud_update_script }}"
     mode: 0775
+    force: true
+
+- name: create scripts with workarounds
+  template:
+    src: "update_workarounds.sh.j2"
+    dest: "{{ working_dir }}/{{ item.script }}"
+    mode: 0755
     force: true
   loop:
     - 'pre_overcloud_update_prepare_workarounds'
@@ -42,7 +49,7 @@
 
 - name: create overcloud update prepare script
   template:
-    src: "{{ overcloud_update_prepare_template }}"
+    src: "overcloud_update_prepare.sh.j2"
     dest: "{{ overcloud_update_prepare_script }}"
     mode: 0775
     force: true
@@ -56,7 +63,7 @@
 
 - name: create overcloud update script
   template:
-    src: "{{ overcloud_update_run_template }}"
+    src: "overcloud_update_run.sh.j2"
     dest: "{{ overcloud_update_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
@@ -71,14 +78,14 @@
 
 - name: create overcloud update converge script
   template:
-    src: "{{ overcloud_update_converge_template }}"
+    src: "overcloud_update_converge.sh.j2"
     dest: "{{ overcloud_update_converge_script }}"
     mode: 0775
     force: true
 
 - name: create docker container/images validate scripts
   template:
-    src: "{{ overcloud_validate_images_template }}"
+    src: "validate_docker_images_versions.sh.j2"
     dest: "{{ overcloud_validate_images_script }}"
     mode: 0755
     force: true

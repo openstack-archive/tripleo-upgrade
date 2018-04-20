@@ -30,7 +30,7 @@
 
 - name: create workload launch script
   template:
-    src: "{{ workload_launch_template }}"
+    src: "workload_launch.sh.j2"
     dest: "{{ workload_launch_script }}"
     mode: 0775
 
@@ -58,7 +58,7 @@
 
 - name: create the custom upgrade init commands
   template:
-    src: "{{ upgrade_init_command_template }}"
+    src: "upgrade_init_command.yaml.j2"
     dest: "{{ upgrade_init_command_dest }}"
     mode: 0775
   when: upgrade_init_command is string
@@ -72,7 +72,7 @@
 
 - name: create overcloud upgrade script
   template:
-    src: "{{ overcloud_upgrade_run_template }}"
+    src: "overcloud_update_run.sh.j2"
     dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
@@ -89,7 +89,7 @@
   vars:
     old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
-    src: "{{ overcloud_upgrade_converge_template }}"
+    src: "overcloud_upgrade_converge.sh.j2"
     dest: "{{ overcloud_upgrade_converge_script }}"
     mode: 0775
     force: true
