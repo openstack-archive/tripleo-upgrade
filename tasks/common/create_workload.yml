@@ -1,18 +1,18 @@
 ---
 - name: create workload launch script
   template:
-    src: "{{ workload_launch_template }}"
+    src: "workload_launch.sh.j2"
     dest: "{{ workload_launch_script }}"
     mode: 0775
 
 - name: create start l3 agent connectivity check scripts
   template:
-    src: "{{ l3_agent_connectivity_check_start_template }}"
+    src: "l3_agent_start_ping.sh.j2"
     dest: "{{ l3_agent_connectivity_check_start_script }}"
     mode: 0775
 
 - name: create stop l3 agent connectivity check scripts
   template:
-    src: "{{ l3_agent_connectivity_check_stop_template }}"
+    src: "l3_agent_stop_ping.sh.j2"
     dest: "{{ l3_agent_connectivity_check_stop_script }}"
     mode: 0775

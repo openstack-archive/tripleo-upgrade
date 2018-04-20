@@ -29,7 +29,7 @@
   vars:
     old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
-    src: "{{ overcloud_upgrade_prepare_template }}"
+    src: "overcloud_upgrade_prepare.sh.j2"
     dest: "{{ overcloud_upgrade_prepare_script }}"
     mode: 0775
     force: true
