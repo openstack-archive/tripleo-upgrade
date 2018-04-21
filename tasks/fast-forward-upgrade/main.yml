@@ -100,6 +100,14 @@
       tags: ffu_upgrade_overcloud_role
       when: not ffu_bulk|bool
 
+    - name: apply pre fast forward upgrade converge workarounds
+      command: "{{working_dir}}/pre_ffu_upgrade_converge_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_upgrade_converge
+
+    - include: ffu_upgrade_converge.yaml
+      tags: ffu_upgrade_converge
+
     - block:
       - name: apply pre ffu ceph upgrade workarounds
         command: "{{working_dir}}/pre_ffu_upgrade_ceph_workarounds.sh"
