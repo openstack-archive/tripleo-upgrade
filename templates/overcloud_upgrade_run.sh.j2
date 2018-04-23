@@ -18,7 +18,7 @@ openstack overcloud upgrade run \
         {% if overcloud_ssh_user -%}
         --ssh-user {{ overcloud_ssh_user }} \
         {% endif -%}
-        --nodes {{ item }} --playbook {{ playbook }} 2>&1
+        --roles {{ item }} --playbook {{ playbook }} 2>&1
 
     {% endfor -%}
 
@@ -32,6 +32,6 @@ openstack overcloud upgrade run \
         {% if overcloud_ssh_user %}
         --ssh-user {{ overcloud_ssh_user }} \
         {% endif %}
-        --nodes {{ item }} --playbook all 2>&1
+        --roles {{ item }} --playbook all 2>&1
 
 {% endif %}
