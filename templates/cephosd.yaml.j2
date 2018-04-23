@@ -1,4 +1,5 @@
 parameter_defaults:
+    CephAnsibleVerbosity: 3
 {% if  ceph_osds_pg is defined %}
     CephPoolDefaultPgNum:  {{ceph_osds_pg}}
 {% endif %}
