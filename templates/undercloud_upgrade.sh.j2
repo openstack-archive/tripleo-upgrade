@@ -5,6 +5,8 @@ set -euo pipefail
 
 sudo yum update -y python-tripleoclient
 {% if containerized_undercloud_upgrade|bool %}
+# can be removed when https://review.rdoproject.org/r/#/c/13508/ is merged
+sudo yum update -y openstack-heat-agents
 # Add --use-heat until it becomes the default, hopefully in Rocky.
 openstack undercloud upgrade --use-heat &> undercloud_{{ log_prefix }}.log
 {% else %}
