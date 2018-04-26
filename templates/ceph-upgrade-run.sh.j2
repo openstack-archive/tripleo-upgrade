@@ -1,0 +1,17 @@
+#!/bin/env bash
+
+source {{ undercloud_rc }}
+
+echo "[$(date)] Started CEPH upgrade"
+
+openstack overcloud ceph-upgrade run \
+    --templates {{ tht_directory }} \
+    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
+    {% for _env in initial_env_file.stdout_lines %}
+        -e {{ _env }} \
+    {% endfor %}
+    {% endif %}
+    --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
+    --roles-file {{ roles_data }} 2>&1
+
+echo "[$(date)] Finished CEPH upgrade"

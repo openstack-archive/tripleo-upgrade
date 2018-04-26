@@ -72,6 +72,10 @@
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 
+    - name: upgrade Ceph
+      include: ceph_upgrade_run.yml
+      when: ceph_osd_enabled|bool
+
     - name: run controller post upgrade steps
       include: controller_post_upgrade.yml
       tags: controller_post_upgrade
