@@ -19,3 +19,13 @@
   set_fact:
     roles_data: "{{ (roles_data_file.stdout|length > 0) | ternary(roles_data, default_roles_data)}}"
     custom_roles_used: "{{ (roles_data_file.stdout|length > 0) | ternary(true, false)}}"
+
+- name: assert CephOSD is enabled
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices | awk '/\s+- ceph_osd/'
+  register: ceph_osd_service
+
+- name: set ceph_osd_enabled fact
+  set_fact:
+    ceph_osd_enabled: "{{ (ceph_osd_service.stdout|length > 0) | ternary(true, false) }}"

@@ -205,3 +205,6 @@ overcloud_update_playbooks: ['update_steps_playbook.yaml', 'deploy_steps_playboo
 
 # Post upgrade/update nova actions tests
 nova_actions_check: false
+
+# Ceph OSD service present in overcloud
+ceph_osd_enabled: false
