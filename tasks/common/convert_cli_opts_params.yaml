@@ -1,0 +1,98 @@
+- name: register control-scale opts
+  shell: |
+    grep -oP "control-scale\ \d+"  {{ overcloud_deploy_script }}
+  register: control_scale
+  ignore_errors: true
+
+- name: remove control-scale opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ control_scale.stdout }}"
+    state: absent
+  when: control_scale|succeeded
+
+- name: register compute-scale opts
+  shell: |
+    grep -oP "compute-scale\ \d+"  {{ overcloud_deploy_script }}
+  register: compute_scale
+  ignore_errors: true
+
+- name: remove compute-scale opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ compute_scale.stdout }}"
+    state: absent
+  when: compute_scale|succeeded
+
+- name: register ceph-storage-scale opts
+  shell: |
+    grep -oP "ceph-storage-scale\ \d+"  {{ overcloud_deploy_script }}
+  register: ceph_scale
+  ignore_errors: true
+
+- name: remove ceph-storage-scale opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ ceph_scale.stdout }}"
+    state: absent
+  when: ceph_scale|succeeded
+
+- name: register control-flavor opts
+  shell: |
+    grep -oP "control-flavor\ .*\ "  {{ overcloud_deploy_script }}
+  register: control_flavor
+  ignore_errors: true
+
+- name: remove control-flavor opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ control_flavor.stdout }}"
+    state: absent
+  when: control_flavor|succeeded
+
+- name: register compute-flavor opts
+  shell: |
+    grep -oP "compute-flavor\ .*\ "  {{ overcloud_deploy_script }}
+  register: compute_flavor
+  ignore_errors: true
+
+- name: remove compute-flavor opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ compute_flavor.stdout }}"
+    state: absent
+  when: compute_flavor|succeeded
+
+- name: register ceph-flavor opts
+  shell: |
+    grep -oP "ceph-storage-flavor\ .*\ "  {{ overcloud_deploy_script }}
+  register: ceph_flavor
+  ignore_errors: true
+
+- name: remove ceph-flavor opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ ceph_flavor.stdout }}"
+    state: absent
+  when: ceph_flavor|succeeded
+
+- name: register ntp-server opts
+  shell: |
+    grep -oP "ntp-server\ .*\ "  {{ overcloud_deploy_script }}
+  register: ntp_server
+  ignore_errors: true
+
+- name: remove ntp-server opts from deploy command
+  lineinfile:
+    path: "{{ overcloud_deploy_script }}"
+    regexp: "{{ ntp_server.stdout }}"
+    state: absent
+  when: ntp_server|succeeded
+
+- name: convert cli options into parameters
+  template:
+    src: fast-forward-upgrade/cli_opts_params.yaml.j2
+    dest: "{{working_dir}}/cli_opts_params.yaml"
+    force: no
+  when:
+    - control_scale|succeeded or compute_scale|succeeded or ceph_scale|succeeded or control_flavor|succeeded or compute_flavor|succeeded or ceph_flavor|succeeded or ntp_server|succeeded

@@ -1,0 +1,22 @@
+parameter_defaults:
+{% if control_scale|succeeded %}
+    ControllerCount: {{ control_scale.stdout|regex_search('\d+')}}
+{% endif %}
+{% if compute_scale|succeeded %}
+    ComputeCount: {{ compute_scale.stdout|regex_search('\d+')}}
+{% endif %}
+{% if ceph_scale|succeeded %}
+    CephStorageCount: {{ ceph_scale.stdout|regex_search('\d+')}}
+{% endif %}
+{% if control_flavor|succeeded %}
+    OvercloudControlFlavor: {{ control_flavor.stdout.split()[1]}}
+{% endif %}
+{% if compute_flavor|succeeded %}
+    OvercloudComputeFlavor: {{ compute_flavor.stdout.split()[1]}}
+{% endif %}
+{% if ceph_flavor|succeeded %}
+    OvercloudCephStorageFlavor: {{ ceph_flavor.stdout.split()[1]}}
+{% endif %}
+{% if ntp_server|succeeded %}
+    NtpServer: {{ ntp_server.stdout.split()[1] }}
+{% endif %}

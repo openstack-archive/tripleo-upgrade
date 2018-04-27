@@ -19,6 +19,12 @@
     - upgrade_composable_scenario != ""
     - composable_scenario != ""
 
+- name: Convert CLI options to parameters
+  include: ../common/convert_cli_opts_params.yaml
+
+- name: get auxiliary facts for upgrade
+  include: ../common/auxilary-facts.yaml
+
 - name: Convert Ceph parameters to ceph ansible
   include: ../common/convert_ceph_params.yaml
 
@@ -29,13 +35,11 @@
     mode: 0775
   with_items:
      - 'post_ffu_undercloud_upgrade_workarounds'
-     - 'pre_ffu_update_stack_outputs_workarounds'
-     - 'pre_ffu_download_config_workarounds'
-     - 'pre_ffu_upgrade_playbook_workarounds'
-     - 'pre_ffu_upgrade_steps_playbook_workarounds'
-     - 'pre_ffu_deploy_steps_playbook_workarounds'
-     - 'pre_ffu_upgrade_converge_workarounds'
-     - 'pre_ffu_upgrade_ceph_workarounds'
+     - 'pre_ffu_overcloud_prepare_workarounds'
+     - 'pre_ffu_overcloud_run_workarounds'
+     - 'pre_ffu_overcloud_upgrade_workarounds'
+     - 'pre_ffu_overcloud_converge_workarounds'
+     - 'pre_ffu_overcloud_ceph_workarounds'
   when: ffu_upgrade_workarounds
 
 - name: register is_upstream variable
@@ -61,41 +65,25 @@
     dest: "{{working_dir}}/ffu_repos.yaml"
   when: "'tripleo-repos' not in ffu_overcloud_repo_type"
 
-- name: create ffu overcloud upgrade scripts
-  include: ../upgrade/step_upgrade.yml
-  loop_control:
-    loop_var: ugstage
-  with_items:
-    - step: "FFU update stack outputs"
-      script: "{{ working_dir }}/ffu_update_stack_outputs.sh"
-      environment_file:
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ working_dir}}/{{ container_registry_file }}"
-        - "{{ tht_directory }}/environments/lifecycle/ffwd-upgrade-prepare.yaml"
-        - "{% if 'tripleo-repos' not in ffu_overcloud_repo_type %}{{working_dir}}/ffu_repos.yaml{% endif %}"
-        - "{% if deployed_server|default(false)|bool %}{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml{% endif %}"
+- name: create overcloud ffwd run script
+  template:
+    src: "fast-forward-upgrade/overcloud_upgrade_run.sh.j2"
+    dest: "{{working_dir}}/overcloud_upgrade_run.sh"
+    mode: 0775
+    force: no
 
-    - step: "FFU converge"
-      script: "{{ working_dir }}/ffu_upgrade_converge_script.sh"
-      environment_file:
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ working_dir}}/{{ container_registry_file }}"
-        - "{% if deployed_server|default(false)|bool %}{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml{% endif %}"
-        - "{{ tht_directory }}/environments/lifecycle/ffwd-upgrade-converge.yaml"
-      option:
-        - "update-plan-only"
+- name: create overcloud converge script
+  template:
+    src: "overcloud_upgrade_converge.sh.j2"
+    dest: "{{ working_dir }}/overcloud_upgrade_converge.sh"
+    mode: 0775
+    force: true
 
-    - step: "FFU post deploy Ceph upgrade"
-      script: "{{ working_dir }}/ffu_upgrade_ceph_script.sh"
-      environment_file:
-        - "{% if upstream_container_images %}{{ tht_directory }}/environments/docker.yaml{% endif %}"
-        - "{% if upstream_container_images and deployment_with_ha %}{{ tht_directory }}/environments/docker-ha.yaml{% endif %}"
-        - "{{ working_dir}}/{{ container_registry_file }}"
-        - "{{ tht_directory }}/environments/updates/update-from-ceph-newton.yaml"
-        - "{% if ceph_ansible|succeeded %}{{ working_dir }}/ceph-ansible-env.yaml{% endif %}"
-        - "{% if deployed_server|default(false)|bool %}{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml{% endif %}"
+- name: create ceph upgrade script
+  template:
+    src: "ceph-upgrade-run.sh.j2"
+    dest: "{{ working_dir }}/ceph-upgrade-run.sh"
+    mode: 0755
 
 - include: ../common/ssh_config_skip_host.yml
 

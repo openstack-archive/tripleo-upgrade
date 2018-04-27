@@ -6,7 +6,9 @@
 - name: add upgrade init script to upgrade prepare params
   set_fact:
     upgrade_prepare_extra_params: "{{ upgrade_prepare_extra_params + [upgrade_init_command_dest] }}"
-  when: upgrade_init_command is string
+  when:
+    - upgrade_init_command is string
+    - not ffu_overcloud_upgrade|bool
 
 # Render it now so it takes all additions in upgrade_prepare_extra_params
 - name: create overcloud upgrade prepare script
@@ -37,4 +39,3 @@
     - name: was the overcloud upgrade preparation successful.
       fail: msg="Overcloud upgrade preparation step failed... :("
   when: overcloud_upgrade_prepare.rc != 0
-

@@ -1,104 +1,90 @@
 ---
+- name: generate overcloud ansible static yaml inventory file
+  shell: |
+    source {{ undercloud_rc }}
+    /usr/bin/tripleo-ansible-inventory \
+        --plan {{ overcloud_stack_name }} \
+        {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
+        --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory-static.yaml
+
 - name: register deployed roles list
   shell: |
-    grep role_name {{ working_dir }}/tripleo-ansible-inventory-static.yaml | awk -F ': ' '{ print $2 }' 2>/dev/null
+    awk -F':' '/role_name/ {gsub("[[:space:][:punct:]]", "", $2); print $2}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
   register: oc_roles
 
 - name: store roles
   vars:
     controller_role_name: "{{ oc_roles.stdout|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
   set_fact:
-    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name])|difference('CephStorage') }}"
+    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name]) }}"
 
-- name: create non-compute role FFU ugrades playbooks scripts
+- name: create FFU role ugrades scripts
   template:
-    src: fast-forward-upgrade/ffu_upgrade_playbook_non_compute_role.sh.j2
-    dest: "./{{ item }}_non_Compute.sh"
+    src: fast-forward-upgrade/overcloud_upgrade_role.sh.j2
+    dest: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
     mode: 0775
-  tags: ffu_upgrade_roles_prepare
-  with_items:
-     - 'ffu_upgrade_steps_playbook_script'
-     - 'ffu_deploy_steps_playbook_script'
-
-- name: create compute role FFU ugrades playbooks scripts
-  template:
-    src: fast-forward-upgrade/ffu_upgrade_playbook_role.sh.j2
-    dest: "./{{ item[1] }}_{{ item[0] }}.sh"
-    mode: 0775
-  tags: ffu_upgrade_roles_prepare
-  with_nested:
-     - "{{ oc_roles|intersect(['Compute']) }}"
-     - [ 'ffu_upgrade_steps_playbook_script', 'ffu_deploy_steps_playbook_script' ]
+  tags: ffu_overcloud_upgrade_controller
+  with_items: "{{ oc_roles|default([]) }}"
 
 - include: ../common/l3_agent_connectivity_check_start_script.yml
-  tags: ffu_upgrade_non_compute
+  tags: ffu_overcloud_upgrade_controller
 
-- name: pre non-compute role upgrade steps workarounds
-  command: "{{working_dir}}/pre_ffu_upgrade_steps_playbook_workarounds.sh"
+- name: pre controller role upgrade steps workarounds
+  command: "{{working_dir}}/pre_ffu_overcloud_upgrade_workarounds.sh"
   when: ffu_upgrade_workarounds|bool
-  tags: ffu_upgrade_non_compute
+  tags: ffu_overcloud_upgrade_controller
 
-- name: run non-compute role upgrade steps
-  command: "{{working_dir}}//ffu_upgrade_steps_playbook_script_non_Compute.sh"
-  tags: ffu_upgrade_non_compute
-
-- name: pre non-compute role deploy steps workarounds
-  command: "{{working_dir}}/pre_ffu_deploy_steps_playbook_workarounds.sh"
-  when: ffu_upgrade_workarounds|bool
-  tags: ffu_upgrade_non_compute
-
-- name: run non-compute role deploy steps
-  command: "{{working_dir}}//ffu_deploy_steps_playbook_script_non_Compute.sh"
-  tags: ffu_upgrade_non_compute
+- name: run FFU controller ugrade scripts
+  command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
+  tags: ffu_overcloud_upgrade_controller
+  with_items:
+    - "{{ oc_roles|intersect(['Controller']) }}"
 
 - include: "{{ item }}"
   with_items:
     - '../common/l3_agent_connectivity_check_stop_script.yml'
     - '../common/l3_agent_failover_check_post_script.yml'
-  tags: ffu_upgrade_non_compute
+  tags: ffu_overcloud_upgrade_controller
 
 - include: ../common/l3_agent_connectivity_check_start_script.yml
-  tags: ffu_upgrade_compute
+  tags: ffu_overcloud_upgrade_compute
 
-- name: upgrade compute roles
-  command: "{{working_dir}}/{{ item[1] }}_{{ item[0] }}.sh"
-  tags: ffu_upgrade_compute
-  with_nested:
-     - "{{ oc_roles|intersect('Compute') }}"
-     - [ 'ffu_upgrade_steps_playbook_script', 'ffu_deploy_steps_playbook_script' ]
+- name: run FFU compute ugrade scripts
+  command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
+  tags: ffu_overcloud_upgrade_compute
+  with_items:
+    - "{{ oc_roles|intersect(['Compute','ComputeAlt']) }}"
   when:
     - not ffu_computes_rolling|bool
 
 - include: ../common/l3_agent_connectivity_check_stop_script.yml
-  tags: ffu_upgrade_compute
+  tags: ffu_overcloud_upgrade_compute
 
 - block:
     - name: register compute nodes from tripleo ansible inventory
       shell: |
-        grep compute- {{ working_dir }}/tripleo-ansible-inventory-static.yaml | grep \{\} | awk -F ':' {'print $1'} | sed s/\ //g
+        awk -F':' '/^compute-/ {print $1}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
       register: tripleo_compute_nodes
-      tags: ffu_upgrade_compute
+      tags: ffu_overcloud_upgrade_compute
 
     - name: Create compute nodes FFU ugrade playbooks scripts
       template:
-        src: fast-forward-upgrade/ffu_upgrade_playbook_role.sh.j2
-        dest: "{{ working_dir }}/{{ item[1] }}_{{ item[0] }}.sh"
+        src: fast-forward-upgrade/overcloud_upgrade_nodes.sh.j2
+        dest: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
         mode: 0775
-      tags: ffu_upgrade_compute
-      with_nested:
+      tags: ffu_overcloud_upgrade_compute
+      with_items:
          - '{{ tripleo_compute_nodes.stdout_lines }}'
-         - [ 'ffu_upgrade_steps_playbook_script', 'ffu_deploy_steps_playbook_script' ]
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
-      tags: ffu_upgrade_compute
+      tags: ffu_overcloud_upgrade_compute
 
     - name: Rolling upgrade compute nodes
-      command: "{{ working_dir }}/{{ item[1] }}_{{ item[0] }}.sh"
-      tags: ffu_upgrade_compute
-      with_nested:
-         - "{{ tripleo_compute_nodes.stdout_lines }}"
-         - [ 'ffu_upgrade_steps_playbook_script', 'ffu_deploy_steps_playbook_script' ]
+      command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
+      tags: ffu_overcloud_upgrade_compute
+      with_items:
+         - '{{ tripleo_compute_nodes.stdout_lines }}'
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
-      tags: ffu_upgrade_compute
+      tags: ffu_overcloud_upgrade_compute
   when: ffu_computes_rolling|bool
