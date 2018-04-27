@@ -88,4 +88,6 @@
           - overcloud_update
           - overcloud_images_validate
 
+    - include: ../common/nova_actions_check.yml
+
   when: overcloud_update|bool

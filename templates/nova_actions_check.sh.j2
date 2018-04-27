@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -eux
+
+SERVER_ID=$(openstack server list -f json | jq -r -c '.[0] | .ID')
+SERVER_FIP=$(openstack server show -f json ${SERVER_ID} | jq -r -c '.addresses' | grep -oP ',.*' | sed s/,\ //)
+SERVER_SSH_USER={{ workload_user }}
+
+## reboot
+echo "Rebooting ${SERVER_ID} nova instance"
+timeout 2m openstack server reboot --wait ${SERVER_ID}
+rc=$?
+if [ $rc -eq 124 ]; then
+    echo "Rebooting ${SERVER_ID} nova instance timed out"
+    exit 1
+elif [ $rc -ne 0 ]; then
+    echo "Rebooting ${SERVER_ID} nova instance failed with unknown reason"
+    exit 1
+fi
+
+## wait for instance to be reachable over the floating IP and check uptime
+timeout_seconds=240
+elapsed_seconds=0
+while true; do
+    echo "Waiting for ${SERVER_ID} to be reachable over its floating IP"
+    INSTANCE_UPTIME=$(ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=1 ${SERVER_SSH_USER}@${SERVER_FIP} 'uptime' | awk {'print $3$4'} | sed s/,//)
+    if [ "$INSTANCE_UPTIME" == '0min' ]; then
+        echo "SUCCESS: ${SERVER_ID} nova instance successfully rebooted and is reachable via its floating IP"
+        break
+    fi
+    sleep 3
+    elapsed_seconds=$(expr $elapsed_seconds + 3)
+    if [ $elapsed_seconds -ge $timeout_seconds ]; then
+        echo "FAILURE: ${SERVER_ID} nova instance did not reboot or it's not reachable via its floating IP after reboot"
+        exit 1
+    fi
+done
