@@ -12,3 +12,18 @@
     path: "{{ roles_data }}"
     regexp: '(\s+)- OS::TripleO::Services::ManilaBackendGeneric$'
     replace: ''
+
+- name: check CephMgr service present
+  shell: |
+    grep -q 'OS::TripleO::Services::CephMgr' {{ roles_data }}
+  register: ceph_mgr_found
+  failed_when: false
+
+- name: add CephMgr service
+  lineinfile:
+    path: "{{ roles_data }}"
+    backrefs: true
+    regexp: '(\s+)(- OS::TripleO::Services::CephMon$)'
+    line: '\1- OS::TripleO::Services::CephMgr\n\1\2'
+    insertbefore: '- OS::TripleO::Services::CephMon'
+  when: ceph_mgr_found.rc == 1
