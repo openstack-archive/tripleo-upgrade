@@ -44,8 +44,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
-{% elif 'pre_ffu_update_stack_outputs_workarounds' in item %}
-{% for bugs in pre_ffu_update_stack_outputs_workarounds|default([]) %}
+{% elif 'pre_ffu_overcloud_prepare_workarounds' in item %}
+{% for bugs in pre_ffu_overcloud_prepare_workarounds|default([]) %}
 {% for key, value in bugs.items() %}
 echo {{ key }}
 {% if value.patch %}
@@ -57,8 +57,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
-{% elif 'pre_ffu_download_config_workarounds' in item %}
-{% for bugs in pre_ffu_download_config_workarounds|default([]) %}
+{% elif 'pre_ffu_overcloud_run_workarounds' in item %}
+{% for bugs in pre_ffu_overcloud_run_workarounds|default([]) %}
 {% for key, value in bugs.items() %}
 echo {{ key }}
 {% if value.patch %}
@@ -70,8 +70,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
-{% elif 'pre_ffu_upgrade_playbook_workarounds' in item %}
-{% for bugs in pre_ffu_upgrade_playbook_workarounds|default([]) %}
+{% elif 'pre_ffu_overcloud_upgrade_workaround' in item %}
+{% for bugs in pre_ffu_overcloud_upgrade_workaround|default([]) %}
 {% for key, value in bugs.items() %}
 echo {{ key }}
 {% if value.patch %}
@@ -83,24 +83,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
-{% elif 'pre_ffu_upgrade_steps_playbook_workarounds' in item %}
-{% for bugs in pre_ffu_upgrade_steps_playbook_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-curl -4 https://review.openstack.org/changes/{{ value.id }}/revisions/current/patch?download | \
-     base64 -d | \
-     sudo patch  -d {{ value.basedir }} -p1
-
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_deploy_steps_playbook_workarounds' in item %}
-{% for bugs in pre_ffu_deploy_steps_playbook_workarounds|default([]) %}
+{% elif 'pre_ffu_overcloud_converge_workarounds' in item %}
+{% for bugs in pre_ffu_overcloud_converge_workarounds|default([]) %}
 {% for key, value in bugs.items() %}
 echo {{ key }}
 {% if value.patch %}
@@ -112,21 +96,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor %}
 {% endfor %}
 
-{% elif 'pre_ffu_upgrade_ceph_workarounds' in item %}
-{% for bugs in pre_ffu_upgrade_ceph_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_upgrade_converge_workarounds' in item %}
-{% for bugs in pre_ffu_upgrade_converge_workarounds|default([]) %}
+{% elif 'pre_ffu_overcloud_ceph_workarounds' in item %}
+{% for bugs in pre_ffu_overcloud_ceph_workarounds|default([]) %}
 {% for key, value in bugs.items() %}
 echo {{ key }}
 {% if value.patch %}

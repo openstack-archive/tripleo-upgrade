@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+openstack overcloud upgrade run --roles {{ item }} --skip-tags validation | tee {{ working_dir}}/overcloud_upgrade_{{ item }}.log

@@ -5,8 +5,14 @@
 set -euo pipefail
 
 source {{ undercloud_rc }}
-echo "Running major upgrade converge step"
-openstack overcloud upgrade converge \
+echo "Running {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade converge step"
+openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}converge \
+    {% if ffu_overcloud_upgrade %}
+        --yes \
+    {% endif %}
+    {% if overcloud_ssh_user != '' %}
+    --overcloud-ssh-user {{ overcloud_ssh_user }} \
+    {% endif %}
 {% if tripleo_upgrade_debug|bool %}
         --debug \
 {% endif %}
@@ -20,4 +26,11 @@ openstack overcloud upgrade converge \
         -e {{ _env }} \
     {% endfor %}
     {% endif %}
-    --roles-file {{ roles_data }} 2>&1
+    {% if ffu_overcloud_upgrade %}
+    -e {{working_dir}}/cli_opts_params.yaml \
+    -e {{ working_dir }}/{{ container_registry_file }} \
+    {% if ceph_osd_enabled %}
+    -e {{working_dir}}/ceph-ansible-env.yaml \
+    {% endif %}
+    {% endif %}
+    {% if not ffu_overcloud_upgrade %}--roles-file {{ roles_data }}{% endif %} 2>&1

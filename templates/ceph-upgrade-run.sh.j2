@@ -3,7 +3,7 @@ set -euo pipefail
 
 source {{ undercloud_rc }}
 
-echo "[$(date)] Started CEPH upgrade"
+echo "[$(date)] Started {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade Ceph step"
 
 openstack overcloud ceph-upgrade run \
     --templates {{ tht_directory }} \
@@ -12,7 +12,12 @@ openstack overcloud ceph-upgrade run \
         -e {{ _env }} \
     {% endfor %}
     {% endif %}
+    {% if ffu_overcloud_upgrade %}
+    -e {{working_dir}}/cli_opts_params.yaml \
+    -e {{working_dir}}/ceph-ansible-env.yaml \
+    --ceph-ansible-playbook '/usr/share/ceph-ansible/infrastructure-playbooks/switch-from-non-containerized-to-containerized-ceph-daemons.yml,/usr/share/ceph-ansible/infrastructure-playbooks/rolling_update.yml' \
+    {% endif %}
     --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
-    --roles-file {{ roles_data }} 2>&1
+    {% if not ffu_overcloud_upgrade %}--roles-file {{ roles_data }}{% endif %} 2>&1
 
 echo "[$(date)] Finished CEPH upgrade"

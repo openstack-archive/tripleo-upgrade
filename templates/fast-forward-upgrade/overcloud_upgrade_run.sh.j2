@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+set -euo pipefail
+
+source {{ undercloud_rc }}
+openstack overcloud ffwd-upgrade run --yes {% if overcloud_ssh_user != '' %} --ssh-user {{ overcloud_ssh_user }} {% endif %} | tee {{ working_dir}}/overcloud_upgrade_run.log
+

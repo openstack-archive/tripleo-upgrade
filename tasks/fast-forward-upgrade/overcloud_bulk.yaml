@@ -1,52 +1,27 @@
 ---
-- name: Create FFU ugrade playbooks scripts
-  tags: ffu_upgrade_playbooks_scripts
+- name: create FFU role ugrades scripts
   template:
-    src: fast-forward-upgrade/ffu_upgrade_playbook.sh.j2
-    dest: "{{working_dir}}/{{ item }}.sh"
+    src: fast-forward-upgrade/overcloud_upgrade_role.sh.j2
+    dest: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
     mode: 0775
+  tags: ffu_overcloud_upgrade
   with_items:
-     - 'ffu_upgrade_steps_playbook_script'
-     - 'ffu_deploy_steps_playbook_script'
+    - "all"
 
-- name: apply pre fast forward upgrade playbook workarounds
-  command: "{{working_dir}}/pre_ffu_upgrade_playbook_workarounds.sh"
+- name: apply pre overcloud upgrade run workarounds
+  command: "{{working_dir}}/pre_ffu_overcloud_upgrade_workarounds.sh"
   when: ffu_upgrade_workarounds|bool
-  tags: ffu_upgrade_playbook
+  tags: ffu_overcloud_upgrade
 
 - include: ../common/l3_agent_connectivity_check_start_script.yml
+  tags: ffu_overcloud_upgrade
 
-- name: Run FFU fast_forward_upgrade_playbook.yaml
-  command: "{{working_dir}}/ffu_upgrade_playbook_script.sh"
-  tags: ffu_upgrade_playbook
-
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
-
-- name: apply pre ffu upgrade steps playbook workarounds
-  command: "{{working_dir}}/pre_ffu_upgrade_steps_playbook_workarounds.sh"
-  when: ffu_upgrade_workarounds|bool
-  tags: ffu_upgrade_steps_playbook
-
-- include: ../common/l3_agent_connectivity_check_start_script.yml
-
-- name: Run upgrade_steps_playbook.yaml
-  command: "{{working_dir}}/ffu_upgrade_steps_playbook_script.sh"
-  tags: ffu_upgrade_steps_playbook
-
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
-
-- name: apply pre ffu deploy steps playbook workarounds
-  command: "{{working_dir}}/pre_ffu_deploy_steps_playbook_workarounds.sh"
-  when: ffu_upgrade_workarounds|bool
-  tags: ffu_deploy_steps_playbook
-
-- include: ../common/l3_agent_connectivity_check_start_script.yml
-
-- name: Run deploy_steps_playbook.yaml
-  command: "{{working_dir}}/ffu_deploy_steps_playbook_script.sh"
-  tags: ffu_deploy_steps_playbook
+- name: run all roles upgrade steps
+  command: "{{working_dir}}//overcloud_upgrade_all.sh"
+  tags: ffu_overcloud_upgrade
 
 - include: "{{ item }}"
   with_items:
     - '../common/l3_agent_connectivity_check_stop_script.yml'
     - '../common/l3_agent_failover_check_post_script.yml'
+  tags: ffu_overcloud_upgrade
