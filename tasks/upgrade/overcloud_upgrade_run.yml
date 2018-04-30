@@ -1,5 +1,9 @@
 ---
-- include: ../common/l3_agent_connectivity_check_start_script.yml
+- name: start ping test before major upgrade
+  include: ../common/l3_agent_connectivity_check_start_script.yml
+
+- name: get L3 agent hosting a router
+  include: ../common/l3_agent_failover_check_pre_script.yml
 
 - name: run overcloud major upgrade in each of the roles/hostgroups
   shell: "bash {{ overcloud_upgrade_run_script_base }}-{{ item }}.sh &> {{ working_dir }}/overcloud_upgrade_run_{{ item }}.log"
@@ -13,4 +17,8 @@
   with_items: "{{ overcloud_upgrade_nodes.results }}"
   when: item.rc != 0
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
+- name: check packet loss ratio after major upgrade
+  include: ../common/l3_agent_connectivity_check_stop_script.yml
+
+- name: check if router failover happened
+  include: ../common/l3_agent_failover_check_post_script.yml

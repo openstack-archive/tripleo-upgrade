@@ -95,3 +95,6 @@
 
 - name: Create post upgrade scripts for controller nodes
   include: ../common/controller_post_scripts.yml
+
+- name: Create L3-agent failover scripts
+  include: ../common/create_l3_agent_failover_check_script.yml
