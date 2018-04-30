@@ -10,9 +10,7 @@
     dest: "{{working_dir}}/{{ node_name | splitext | first }}_post/{{ item }}.sh"
     mode: 0775
   with_items:
-    - 'reboot'
     - 'haproxy'
-    - 'rabbitmq'
-    - 'galera'
-    - 'redis'
     - 'haproxy_backend'
+    - 'rabbitmq'
+    - 'redis'
