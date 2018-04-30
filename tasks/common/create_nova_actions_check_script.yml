@@ -1,0 +1,6 @@
+- name: create post nova actions test
+  template:
+    src: "nova_actions_check.sh.j2"
+    dest: "{{ working_dir }}/nova_actions_check.sh"
+    mode: 0775
+  when: nova_actions_check|bool

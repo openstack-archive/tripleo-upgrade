@@ -1,0 +1,6 @@
+---
+- name: run post nova actions test
+  shell: |
+    source {{ overcloud_rc }}
+    {{ working_dir }}/nova_actions_check.sh | tee {{ working_dir }}/nova_actions_check.log
+  when: nova_actions_check|bool

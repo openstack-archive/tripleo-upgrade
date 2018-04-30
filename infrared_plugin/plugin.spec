@@ -55,6 +55,11 @@ subparsers:
                       help: |
                           Memory assigned to the instance spawned before upgrade
                       default: 512
+                  upgrade-workloaduser:
+                      type: Value
+                      help: |
+                          User used for conecting to workload instance via SSH
+                      default: cirros
                   upgrade-compute-evacuate:
                       type: Bool
                       help: |
@@ -103,6 +108,12 @@ subparsers:
                       help: |
                           Check l3 agent does not failover during upgrade.
                           Existing neutron router is required.
+                      default: false
+                  upgrade-nova-actions-check:
+                      type: Bool
+                      help: |
+                          Check Nova actions can be performed to an already existing
+                          instance post upgrade.
                       default: false
             - title: TripleO Update
               options:

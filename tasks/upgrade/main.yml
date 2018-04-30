@@ -76,5 +76,8 @@
       include: controller_post_upgrade.yml
       tags: controller_post_upgrade
       when: controller_upgrade_post|bool
+
+    - include: ../common/nova_actions_check.yml
+
   when: overcloud_upgrade|bool
 
