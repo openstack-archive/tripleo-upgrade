@@ -12,10 +12,4 @@
 #   this requires refactoring roles, skipping for now
 SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016"
 
-# Lin the role.
-ansible-lint -vvv -x $SKIPLIST ./ || lint_error=1
-
-# exit with 1 if we had a least an error or warning.
-if [[ -n "$lint_error" ]]; then
-    exit 1;
-fi
+ansible-lint -vvv -x $SKIPLIST ./ -R -r ./ci-scripts/ansible_rules
