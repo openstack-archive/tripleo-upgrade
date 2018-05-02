@@ -25,6 +25,9 @@
     - '{{ post_overcloud_update_converge_workarounds|default([]) }}'
   when: updates_workarounds|bool
 
+- name: include l3 agent tasks
+  include: ../common/create_l3_agent_connectivity_check_script.yml
+
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
@@ -74,6 +77,9 @@
     dest: "{{ working_dir }}/ceph-update-run.sh"
     mode: 0755
     force: true
+
+- name: Create L3-agent failover scripts
+  include: ../common/create_l3_agent_failover_check_script.yml
 
 - name: create nova actions check script
   include: ../common/create_nova_actions_check_script.yml
