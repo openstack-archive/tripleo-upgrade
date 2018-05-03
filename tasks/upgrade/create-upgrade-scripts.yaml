@@ -100,3 +100,5 @@
 
 - include: ../common/ssh_config_skip_host.yml
 
+- name: Create post upgrade scripts for controller nodes
+  include: ../common/controller_post_scripts.yml
