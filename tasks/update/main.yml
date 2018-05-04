@@ -1,8 +1,8 @@
 ---
-- name: create update scripts
-  include: create-update-scripts.yaml
-  tags: create_update_scripts
-  when: update_noop|bool or undercloud_update|bool or overcloud_update|bool
+- name: create undercloud update scripts
+  include: create-undercloud-update-scripts.yaml
+  tags: create_undercloud_update_scripts
+  when: update_noop|bool or undercloud_update|bool
 
 - block:
     - name: undercloud pre-update workarounds
@@ -26,6 +26,11 @@
       tags: undercloud_update_validate
 
   when: undercloud_update|bool
+
+- name: create overcloud update scripts
+  include: create-overcloud-update-scripts.yaml
+  tags: create_overcloud_update_scripts
+  when: update_noop|bool or overcloud_update|bool
 
 - block:
     - name: overcloud pre-update prepare workarounds
