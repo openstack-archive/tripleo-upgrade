@@ -10,20 +10,6 @@
 - name: get auxiliary facts for major upgrades
   include: ../common/auxilary-facts.yaml
 
-- name: register is_upstream variable
-  shell: |
-    rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
-  failed_when: false
-  register: is_upstream
-
-- name: check if undercloud is ssl enabled
-  command: "grep -Fq OS_AUTH_URL=https {{ undercloud_rc }}"
-  register: undercloud_ssl
-  ignore_errors: true
-
-- include: undercloud_ssl_camap.yaml
-  when: undercloud_ssl|succeeded
-
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
@@ -43,23 +29,12 @@
     dest: "{{ workload_launch_script }}"
     mode: 0775
 
-- name: create undercloud upgrade script
-  vars:
-    log_prefix: "upgrade"
-  template:
-    src: "{{ undercloud_upgrade_template }}"
-    dest: "{{ undercloud_upgrade_script }}"
-    mode: 0775
-    force: true
-
 - name: create upgrade workaround scripts
   template:
     src: workarounds.sh.j2
     dest: "{{working_dir}}/{{ item }}.sh"
     mode: 0775
   with_items:
-     - 'pre_undercloud_upgrade_workarounds'
-     - 'post_undercloud_upgrade_workarounds'
      - 'pre_overcloud_upgrade_prepare_workarounds'
      - 'post_overcloud_upgrade_prepare_workarounds'
      - 'pre_overcloud_upgrade_workarounds'
