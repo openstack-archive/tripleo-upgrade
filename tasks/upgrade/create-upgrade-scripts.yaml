@@ -91,6 +91,13 @@
     mode: 0775
     force: true
 
+- name: create ceph upgrade script
+  template:
+    src: "ceph-upgrade-run.sh.j2"
+    dest: "{{ working_dir }}/ceph-upgrade-run.sh"
+    mode: 0755
+    force: true
+
 - include: ../common/ssh_config_skip_host.yml
 
 - name: Create post upgrade scripts for controller nodes
