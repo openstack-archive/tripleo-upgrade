@@ -75,7 +75,6 @@
 
     - name: Ensure ansible-pacemaker module is present in CI.
       yum: name=ansible-pacemaker state=latest
-      become: true
       when: tripleo_ci|default(false)|bool
       tags: ffu_upgrade_playbook
       become: true
