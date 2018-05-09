@@ -1,0 +1,40 @@
+- name: look for network software config
+  shell: |
+    grep "OS::TripleO::.*::Net::SoftwareConfig" {{ item }}
+  ignore_errors: true
+  register: nic_config_envs
+  with_items:
+    - "{{ initial_env_file.stdout_lines }}"
+
+- name: set nic_config_env fact
+  set_fact:
+    nic_config_env: "{{ item.item }}"
+  when: "{{ item.stdout|length > 0 }}"
+  with_items:
+    - "{{ nic_config_envs.results }}"
+
+- block:
+    - name: register nic templates files defined in the environment file
+      shell: |
+        set -o pipefail
+        awk -F': ' '/OS::TripleO::.*::Net::SoftwareConfig/ {print $2}' {{ nic_config_env }}
+      register: nic_template_files
+
+    - name: adjust nic templates in absolute paths location
+      shell: |
+        set -o pipefail
+        sed -i -E "s/^[ ]{0,}#.*//" {{ item }}
+        echo y | /usr/share/openstack-tripleo-heat-templates/tools/yaml-nic-config-2-script.py {{ item }}
+      when: "item[0] == '/'"
+      with_items:
+        - "{{ nic_template_files.stdout_lines }}"
+
+    - name: adjust nic templates in relative paths location
+      shell: |
+        set -o pipefail
+        sed -i -E "s/^[ ]{0,}#.*//" {{ '/'.join(nic_config_env.split('/')[0:-1]) }}/{{ item }}
+        echo y | /usr/share/openstack-tripleo-heat-templates/tools/yaml-nic-config-2-script.py {{ '/'.join(nic_config_env.split('/')[0:-1]) }}/{{ item }}
+      when: "item[0] != '/'"
+      with_items:
+        - "{{ nic_template_files.stdout_lines }}"
+  when: nic_config_env is defined
