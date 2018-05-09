@@ -126,5 +126,6 @@
 
     - name: run post upgrade actions
       include: ../common/nova_actions_check.yml
+      tags: ffu_overcloud_post
 
   when: ffu_overcloud_upgrade|bool
