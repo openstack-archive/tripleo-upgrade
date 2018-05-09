@@ -121,6 +121,7 @@
     - include: ../upgrade/overcloud_upgrade_converge.yml
       tags: ffu_overcloud_converge
 
-    - include: ../common/nova_actions_check.yml
+    - name: run post upgrade actions
+      include: ../common/nova_actions_check.yml
 
   when: ffu_overcloud_upgrade|bool

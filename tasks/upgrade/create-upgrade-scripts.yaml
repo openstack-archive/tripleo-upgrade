@@ -105,3 +105,6 @@
 
 - name: Create L3-agent failover scripts
   include: ../common/create_l3_agent_failover_check_script.yml
+
+- name: create nova actions check script
+  include: ../common/create_nova_actions_check_script.yml

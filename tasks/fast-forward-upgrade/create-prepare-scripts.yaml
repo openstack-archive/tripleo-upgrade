@@ -90,3 +90,6 @@
 - include: ../common/create_l3_agent_connectivity_check_script.yml
 
 - include: ../common/create_l3_agent_failover_check_script.yml
+
+- name: create nova actions check script
+  include: ../common/create_nova_actions_check_script.yml

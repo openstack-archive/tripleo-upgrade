@@ -66,3 +66,6 @@
     dest: "{{ overcloud_validate_images_script }}"
     mode: 0755
     force: true
+
+- name: create nova actions check script
+  include: ../common/create_nova_actions_check_script.yml
