@@ -7,6 +7,7 @@ echo "[$(date)] Started {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} m
 
 openstack overcloud ceph-upgrade run \
     --templates {{ tht_directory }} \
+    --stack {{ overcloud_stack_name }} \
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
     {% for _env in initial_env_file.stdout_lines %}
         -e {{ _env }} \
