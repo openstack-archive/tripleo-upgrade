@@ -9,13 +9,16 @@ openstack overcloud ceph-upgrade run \
     --templates {{ tht_directory }} \
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
     {% for _env in initial_env_file.stdout_lines %}
-        -e {{ _env }} \
+    -e {{ _env }} \
     {% endfor %}
     {% endif %}
     {% if ffu_overcloud_upgrade %}
     -e {{working_dir}}/cli_opts_params.yaml \
     -e {{working_dir}}/ceph-ansible-env.yaml \
     --ceph-ansible-playbook '/usr/share/ceph-ansible/infrastructure-playbooks/switch-from-non-containerized-to-containerized-ceph-daemons.yml,/usr/share/ceph-ansible/infrastructure-playbooks/rolling_update.yml' \
+    {% endif %}
+    {% if tripleo_upgrade_validations_non_fatal|bool %}
+    --validation-errors-nonfatal \
     {% endif %}
     --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
     {% if not ffu_overcloud_upgrade %}--roles-file {{ roles_data }}{% endif %} 2>&1
