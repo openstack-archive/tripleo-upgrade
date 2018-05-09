@@ -96,3 +96,13 @@
     force: no
   when:
     - control_scale|succeeded or compute_scale|succeeded or ceph_scale|succeeded or control_flavor|succeeded or compute_flavor|succeeded or ceph_flavor|succeeded or ntp_server|succeeded
+
+- name: check "{{working_dir}}/cli_opts_params.yaml" exists
+  stat:
+    path: "{{working_dir}}/cli_opts_params.yaml"
+  register: cli_opts_param_file
+
+- name: set cli_converted_options fact
+  set_fact:
+    cli_converted_options: true
+  when: cli_opts_param_file.stat.exists|bool
