@@ -13,8 +13,10 @@ openstack overcloud ceph-upgrade run \
     -e {{ _env }} \
     {% endfor %}
     {% endif %}
-    {% if ffu_overcloud_upgrade %}
+    {% if cli_converted_options|default(false)|bool %}
     -e {{working_dir}}/cli_opts_params.yaml \
+    {% endif %}
+    {% if ffu_overcloud_upgrade %}
     -e {{working_dir}}/ceph-ansible-env.yaml \
     --ceph-ansible-playbook '/usr/share/ceph-ansible/infrastructure-playbooks/switch-from-non-containerized-to-containerized-ceph-daemons.yml,/usr/share/ceph-ansible/infrastructure-playbooks/rolling_update.yml' \
     {% endif %}
