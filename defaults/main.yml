@@ -187,6 +187,12 @@ tripleo_upgrade_debug: false
 # independently in spite of validation errors.
 tripleo_upgrade_validations_non_fatal: false
 
+# When set to true, the converge operations (update, upgrade, ffwd)
+# will run with --update-plan-only. This does not provide full
+# verification of the process, but might be necessary to fit within a
+# reasonable job run time for gating.
+tripleo_upgrade_converge_plan_only: false
+
 ## If set to true, overcloud upgrade will be run for each of the
 # playbooks defined in 'overcloud_upgrade_playbooks', otherwise
 # 'all' will be passed into --playbooks option.
