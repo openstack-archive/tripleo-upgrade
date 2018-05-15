@@ -1,0 +1,25 @@
+- name: generate inventory file
+  shell: |
+    source {{ undercloud_rc }}
+    /usr/bin/tripleo-ansible-inventory --plan {{ overcloud_stack_name }} \
+        {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
+        --static-yaml-inventory {{working_dir}}//tripleo-ansible-inventory.yaml
+
+- name: load inventory file
+  command: cat {{working_dir}}//tripleo-ansible-inventory.yaml
+  register: upgrade_tripleo_inventory
+
+- name: store roles
+  set_fact:
+    oc_roles: "{{ oc_roles + [item.key] }}"
+  with_dict: "{{ (upgrade_tripleo_inventory.stdout | from_yaml).overcloud.children }}"
+
+- name:  register controller role name
+  set_fact:
+    controller_role_name: "{{ item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
+  when: item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*')
+  with_items: "{{ oc_roles }}"
+
+- name: store sorted roles with controller first
+  set_fact:
+    oc_roles: "{{ oc_roles|intersect([controller_role_name]) + oc_roles|difference([controller_role_name]) }}"
