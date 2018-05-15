@@ -4,13 +4,27 @@
 #
 set -euo pipefail
 
-source {{ undercloud_rc }}
-
 {% if overcloud_upgrade_multibooks|bool %}
 
-    {% for playbook in overcloud_upgrade_playbooks %}
+    {%- for playbook in overcloud_upgrade_playbooks -%}
 
-echo "Runing major upgrade {{ playbook }} playbook for {{ item }} role"
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+source {{ undercloud_rc }}
+
+echo "[$(date)] Runing major upgrade {{ playbook }} playbook for {{ item }} role"
 openstack overcloud upgrade run \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool -%}
@@ -21,19 +35,66 @@ openstack overcloud upgrade run \
         {% endif -%}
         --roles {{ item }} --playbook {{ playbook }} 2>&1
 
-    {% endfor -%}
+echo "[$(date)] Finished major upgrade {{ playbook }} playbook for {{ item }} role"
 
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
+
+    {%- endfor %}
 {% else %}
 
-echo "Runing major upgrade for {{ item }} role"
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+source {{ undercloud_rc }}
+
+echo "[$(date)] Runing major upgrade for {{ item }} role"
+
 openstack overcloud upgrade run \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool %}
         --debug \
-        {% endif %}
-        {% if overcloud_ssh_user %}
+        {% endif -%}
+        {% if overcloud_ssh_user -%}
         --ssh-user {{ overcloud_ssh_user }} \
-        {% endif %}
+        {% endif -%}
         --roles {{ item }} --playbook all 2>&1
 
+echo "[$(date)] Finished major upgrade for {{ item }} role"
+
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
 {% endif %}
