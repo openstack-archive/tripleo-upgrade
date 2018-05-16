@@ -1,0 +1,8 @@
+
+- project:
+    check:
+      jobs:
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
+    gate:
+      jobs:
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
