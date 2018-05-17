@@ -63,7 +63,7 @@
 - block:
     - name: register compute nodes from tripleo ansible inventory
       shell: |
-        awk -F':' '/^compute-/ {print $1}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
+        awk -F':' '/^[^ \n]*compute-/ {print $1}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
       register: tripleo_compute_nodes
       tags: ffu_overcloud_upgrade_compute
 
