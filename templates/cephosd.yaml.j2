@@ -16,3 +16,5 @@ parameter_defaults:
 {% else %}
         osd_scenario: collocated
 {% endif %}
+    CephConfigOverrides:
+      mon_max_pg_per_osd: 300
