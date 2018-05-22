@@ -10,6 +10,14 @@
 - name: get auxiliary facts for major upgrades
   include: ../common/auxilary-facts.yaml
 
+- name: check if undercloud is ssl enabled
+  command: "grep -Fq OS_AUTH_URL=https {{ undercloud_rc }}"
+  register: undercloud_ssl
+  ignore_errors: true
+
+- include: undercloud_ssl_camap.yaml
+  when: undercloud_ssl|succeeded
+
 - name: generate inventory file
   shell: |
     source {{ undercloud_rc }} ;
