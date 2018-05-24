@@ -1,0 +1,17 @@
+---
+- name: create undercloud upgrade script
+  template:
+    src: "{{ undercloud_upgrade_template }}"
+    dest: "{{ undercloud_upgrade_script }}"
+    mode: 0775
+
+- name: create upgrade workaround scripts
+  template:
+    src: workarounds.sh.j2
+    dest: "{{working_dir}}/{{ item }}.sh"
+    mode: 0775
+  with_items:
+     - 'pre_undercloud_upgrade_workarounds'
+     - 'post_undercloud_upgrade_workarounds'
+  when: upgrade_workarounds
+

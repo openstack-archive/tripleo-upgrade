@@ -1,8 +1,8 @@
 ---
-- name: create upgrade scripts
-  include: create-upgrade-scripts.yaml
-  tags: create_upgrade_scripts
-  when: upgrade_noop|bool or undercloud_upgrade|bool or overcloud_upgrade|bool
+- name: create undercloud upgrade scripts
+  include: create-undercloud-upgrade-scripts.yaml
+  tags: create_undercloud_upgrade_scripts
+  when: upgrade_noop|bool or undercloud_upgrade|bool
 
 - block:
     - name: apply pre undercloud upgrade workarounds
@@ -21,6 +21,11 @@
       command: "{{working_dir}}/post_undercloud_upgrade_workarounds.sh"
       when: upgrade_workarounds
   when: undercloud_upgrade|bool
+
+- name: create overcloud upgrade scripts
+  include: create-overcloud-upgrade-scripts.yaml
+  tags: create_overcloud_upgrade_scripts
+  when: upgrade_noop|bool or overcloud_upgrade|bool
 
 - block:
     # TODO: move this out of upgrade
