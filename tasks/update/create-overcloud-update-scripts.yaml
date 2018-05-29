@@ -68,5 +68,12 @@
     mode: 0755
     force: true
 
+- name: create ceph update script
+  template:
+    src: "ceph-update-run.sh.j2"
+    dest: "{{ working_dir }}/ceph-update-run.sh"
+    mode: 0755
+    force: true
+
 - name: create nova actions check script
   include: ../common/create_nova_actions_check_script.yml

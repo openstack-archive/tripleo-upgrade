@@ -1,0 +1,15 @@
+---
+- name: run Ceph minor update
+  shell: |
+    {{ working_dir }}/ceph-update-run.sh &> {{ working_dir }}/ceph-update-run.log
+  ignore_errors: true
+  register: ceph_update_status
+
+- block:
+    - name: print Ceph update failures
+      command: tail {{ working_dir }}/ceph-update-run.log
+
+    - name: fail Ceph update
+      fail:
+        msg: Ceph minor update failed
+  when: ceph_update_status|failed
