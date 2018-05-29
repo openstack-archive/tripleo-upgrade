@@ -84,6 +84,14 @@
     mode: 0755
     force: true
 
+- name: create Remove-Unused-Rpm env-file
+  template:
+    src: "remove-packages.yaml.j2"
+    dest: "{{ working_dir }}/remove-packages.yaml"
+    mode: 0755
+    force: true
+  when: upgrade_remove_rpm|bool
+
 - include: ../common/ssh_config_skip_host.yml
 
 - name: Create post upgrade scripts for controller nodes
