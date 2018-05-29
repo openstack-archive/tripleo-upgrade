@@ -218,3 +218,6 @@ nova_actions_check: false
 
 # Ceph OSD service present in overcloud
 ceph_osd_enabled: false
+
+# Remove unused RPMs
+upgrade_remove_rpm: false
