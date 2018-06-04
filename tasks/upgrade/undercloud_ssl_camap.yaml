@@ -12,8 +12,10 @@
   register: ctrl_ip
 
 - name: test undercloud keystone reachability
+  vars:
+    oc_user: "{{ (overcloud_ssh_user == '') | ternary('heat-admin', overcloud_ssh_user) }}"
   shell: |
-    ssh -q -o StrictHostKeyChecking=no heat-admin@{{ ctrl_ip.stdout }} curl --silent {{ keystone_endpoint.stdout }}
+    ssh -q -o StrictHostKeyChecking=no {{ oc_user }}@{{ ctrl_ip.stdout }} curl --silent {{ keystone_endpoint.stdout }}
   register: uc_keystone_conn
   ignore_errors: true
 
@@ -87,9 +89,11 @@
       register: node_ip
 
     - name: copy certificate to the overcloud nodes and update the trusted store
+      vars:
+        oc_user: "{{ (overcloud_ssh_user == '') | ternary('heat-admin', overcloud_ssh_user) }}"
       shell: |
-        scp -q -o StrictHostKeyChecking=no {{ working_dir }}/undercloud.pem heat-admin@{{ item }}:
-        ssh -q -o StrictHostKeyChecking=no heat-admin@{{ item }} 'sudo cp undercloud.pem /etc/pki/ca-trust/source/anchors/; sudo update-ca-trust extract'
+        scp -q -o StrictHostKeyChecking=no {{ working_dir }}/undercloud.pem {{ oc_user }}@{{ item }}:
+        ssh -q -o StrictHostKeyChecking=no {{ oc_user }}@{{ item }} 'sudo cp undercloud.pem /etc/pki/ca-trust/source/anchors/; sudo update-ca-trust extract'
       with_items:
         - "{{ node_ip.stdout_lines }}"
   when: uc_keystone_conn|failed
