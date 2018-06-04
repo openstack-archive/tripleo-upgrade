@@ -1,4 +1,5 @@
 source {{ undercloud_rc }}
+OC_USER="{{ (overcloud_ssh_user == '') | ternary('heat-admin', overcloud_ssh_user) }}"
 NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
 
 ## wait for redis resource to come back up
@@ -6,7 +7,7 @@ timeout_seconds={{ node_reboot_timeout }}
 elapsed_seconds=0
 while true; do
     echo "Waiting for redis pcs resource to start"
-    REDIS_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:redis | grep -vi FAILED | grep -i master | wc -l)
+    REDIS_RES=$(ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:redis | grep -vi FAILED | grep -i master | wc -l)
     if [[ $REDIS_RES = 1 ]]; then
         break
     fi
