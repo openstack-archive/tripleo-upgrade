@@ -1,6 +1,4 @@
 ---
-- include: ../common/l3_agent_connectivity_check_start_script.yml
-
 - name: run major upgrade converge step
   shell: "bash {{ overcloud_upgrade_converge_script }} &> {{ working_dir }}/overcloud_upgrade_converge.log"
   register: overcloud_converge_upgrade
@@ -16,5 +14,3 @@
     - name: was the overcloud upgrade converge successful.
       fail: msg="Overcloud upgrade converge step failed... :("
   when: overcloud_converge_upgrade.rc != 0
-
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
