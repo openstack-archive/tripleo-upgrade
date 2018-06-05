@@ -19,6 +19,6 @@ openstack overcloud ceph-upgrade run \
     {% if tripleo_upgrade_validations_non_fatal|bool %}
     --validation-errors-nonfatal \
     {% endif %}
-    --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
+    -e {{ working_dir }}/{{ container_registry_file }} \
 
 echo "[$(date)] Finished CEPH minor update"

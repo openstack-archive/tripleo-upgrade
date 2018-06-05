@@ -21,4 +21,4 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
     {% endfor %}
     {% endif %}
     --roles-file {{ roles_data }} \
-    --container-registry-file {{ working_dir }}/{{ container_registry_file }} 2>&1
+    -e {{ working_dir }}/{{ container_registry_file }} 2>&1
