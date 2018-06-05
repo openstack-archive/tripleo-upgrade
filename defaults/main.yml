@@ -90,6 +90,7 @@ overcloud_update_converge_script: "{{ working_dir }}/overcloud_update_converge.s
 
 overcloud_validate_images_template: validate_docker_images_versions.sh.j2
 overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_versions.sh"
+overcloud_validate_ap_services: "openstack-cinder-volume openstack-cinder-backup openstack-manila-share"
 
 
 # container registry file
