@@ -21,7 +21,6 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     {% if tripleo_upgrade_validations_non_fatal|bool %}
     --validation-errors-nonfatal \
     {% endif %}
-    --container-registry-file {{ working_dir }}/{{ container_registry_file }} \
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
     {% for _env in initial_env_file.stdout_lines %}
     -e {{ _env }} \
@@ -33,4 +32,5 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     {% if upgrade_prepare_extra_params %}
     -e {{ upgrade_prepare_extra_params | join(' -e ') }} \
     {% endif %}
+    -e {{ working_dir }}/{{ container_registry_file }} \
     {% if not ffu_overcloud_upgrade %}--roles-file {{ roles_data }}{% endif %} 2>&1
