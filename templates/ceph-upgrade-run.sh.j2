@@ -28,6 +28,10 @@ openstack overcloud ceph-upgrade run \
     --validation-errors-nonfatal \
     {% endif %}
     -e {{ working_dir }}/{{ container_registry_file }} \
+    {% if splitstack_deployment|bool %}
+    --disable-validations \
+    --deployed-server \
+    {% endif %}
     {% if not ffu_overcloud_upgrade %}--roles-file {{ roles_data }}{% endif %} 2>&1
 
 echo "[$(date)] Finished CEPH upgrade"

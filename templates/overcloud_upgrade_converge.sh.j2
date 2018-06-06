@@ -13,17 +13,21 @@ openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgra
     {% if overcloud_ssh_user != '' %}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \
     {% endif %}
-{% if tripleo_upgrade_debug|bool %}
-        --debug \
-{% endif %}
-{% if tripleo_upgrade_validations_non_fatal|bool %}
-        --validation-errors-nonfatal \
-{% endif %}
-{% if tripleo_upgrade_converge_plan_only|bool %}
+    {% if tripleo_upgrade_debug|bool %}
+    --debug \
+    {% endif %}
+    {% if tripleo_upgrade_validations_non_fatal|bool %}
+    --validation-errors-nonfatal \
+    {% endif %}
+    {% if tripleo_upgrade_converge_plan_only|bool %}
     --update-plan-only \
-{% endif %}
+    {% endif %}
     --templates {{ tht_directory }} \
     --stack {{ overcloud_stack_name }} \
+    {% if splitstack_deployment|bool %}
+    --disable-validations \
+    --deployed-server \
+    {% endif %}
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
     {% for _env in initial_env_file.stdout_lines %}
         -e {{ _env }} \
