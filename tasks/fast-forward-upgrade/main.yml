@@ -43,11 +43,6 @@
     - include: ../common/convert_nic_templates.yaml
       tags: ffu_overcloud_prepare
 
-    - name: set upgrade_prepare_extra_params for ffu prepare with default repos
-      set_fact:
-        upgrade_prepare_extra_params: ["{{ tht_directory }}/environments/docker.yaml", "{{ tht_directory }}/environments/docker-ha.yaml"]
-      when: "'tripleo-repos' in ffu_overcloud_repo_type"
-
     - name: set upgrade_prepare_extra_params for ffu prepare with custom repos
       set_fact:
         upgrade_prepare_extra_params: ["{{working_dir}}/ffu_repos.yaml"]

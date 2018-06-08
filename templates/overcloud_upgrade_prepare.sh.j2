@@ -26,6 +26,10 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     -e {{ _env }} \
     {% endfor %}
     {% endif %}
+    {% if ffu_overcloud_upgrade and deployment_with_ha_upstream %}
+    -e {{ tht_directory }}/environments/docker.yaml \
+    -e {{ tht_directory }}/environments/docker-ha.yaml \
+    {% endif %}
     {% if cli_converted_options|default(false)|bool %}
     -e {{working_dir}}/cli_opts_params.yaml \
     {% endif %}
