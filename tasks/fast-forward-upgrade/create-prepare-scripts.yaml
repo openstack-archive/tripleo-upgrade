@@ -42,23 +42,6 @@
      - 'pre_ffu_overcloud_ceph_workarounds'
   when: ffu_upgrade_workarounds
 
-- name: register is_upstream variable
-  shell: |
-    rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
-  failed_when: false
-  register: is_upstream
-
-- name: Check if overcloud deployed with pacemaker
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show overcloud EnabledServices | grep 'pacemaker'
-  failed_when: false
-  register: pacemaker_present
-
-- name: set deployment_with_ha fact
-  set_fact:
-    deployment_with_ha: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
-
 - name: Create FFU custom repos environment
   template:
     src: fast-forward-upgrade/ffu_repos.yaml.j2
