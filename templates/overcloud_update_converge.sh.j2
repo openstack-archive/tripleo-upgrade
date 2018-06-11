@@ -20,5 +20,7 @@ openstack overcloud update converge \
     -e {{ _env }} \
     {% endfor %}
 {% endif %}
-    --roles-file {{ roles_data }} 2>&1
-
+    {% if roles_data != default_roles_data %}
+    --roles-file {{ roles_data }} \
+    {% endif %}
+    -e {{ working_dir }}/{{ container_registry_file }} 2>&1
