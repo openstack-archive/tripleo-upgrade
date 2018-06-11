@@ -3,6 +3,8 @@ set -euo pipefail
 
 # List of Active/Passive services separated with space
 AP_SERVICES='{{ overcloud_validate_ap_services }}'
+{% set overcloud_validate_ap_services_list = overcloud_validate_ap_services.split(" ") %}
+
 
 function assert_image_in_file {
     #
@@ -47,7 +49,7 @@ for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $
 
     CONTAINERS_PCMK=$( ssh -q -o StrictHostKeyChecking=no \
                         {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                        "sudo docker images 2>&1 | grep pcmk | {% if overcloud_validate_ap_services|length>0 %}grep -v -e {{ overcloud_validate_ap_services|join(' -e ') }} | {% endif %} awk '{ print \$3 }'" )
+                        "sudo docker images 2>&1 | grep pcmk | {% if overcloud_validate_ap_services_list|length>0 %}grep -v -e {{ overcloud_validate_ap_services_list|join(' -e ') }} | {% endif %} awk '{ print \$3 }'" )
 
     # check if any of defined A/P services has image on a node
     if [[ -n "${AP_SERVICES}" ]] ; then
@@ -98,7 +100,7 @@ for _ap_service in ${AP_SERVICES} ; do
         for _ip in $(cat AP_SERVICES_${_ap_service}.txt ) ; do
             _image=$( ssh -q -o StrictHostKeyChecking=no \
                         {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                        "sudo docker images 2>&1 | grep ${_ap_service} | awk '{ print \$1\":\"\$2}'" )
+                        "sudo docker images 2>&1" | awk '/'${_ap_service}'/ && !/pcmklatest/ { print $1":"$2}' )
 
             assert_image_in_file {{ working_dir }}/{{ container_registry_file }} ${_image}
 
