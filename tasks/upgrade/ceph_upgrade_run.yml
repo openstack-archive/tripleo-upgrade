@@ -1,7 +1,8 @@
 ---
 - name: run Ceph upgrade
   shell: |
-    {{ working_dir }}/ceph-upgrade-run.sh &> {{ working_dir }}/ceph-upgrade-run.log
+    {{ working_dir }}/ceph-upgrade-run.sh 2>&1 {{ timestamper_cmd }} > \
+      {{ working_dir }}/ceph-upgrade-run.log
   ignore_errors: true
   register: ceph_upg_status
 

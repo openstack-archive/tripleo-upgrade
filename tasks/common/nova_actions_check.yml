@@ -3,5 +3,6 @@
   shell: |
     set -o pipefail
     source {{ overcloud_rc }}
-    {{ working_dir }}/nova_actions_check.sh | tee {{ working_dir }}/nova_actions_check.log
+    {{ working_dir }}/nova_actions_check.sh 2>&1 {{ timestamper_cmd }} | \
+      tee {{ working_dir }}/nova_actions_check.log
   when: nova_actions_check|bool
