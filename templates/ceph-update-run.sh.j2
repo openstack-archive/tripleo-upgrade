@@ -20,5 +20,8 @@ openstack overcloud ceph-upgrade run \
     --validation-errors-nonfatal \
     {% endif %}
     -e {{ working_dir }}/{{ container_registry_file }} \
+    {% if roles_data != default_roles_data %}
+    --roles-file {{ roles_data }}
+    {% endif %}
 
 echo "[$(date)] Finished CEPH minor update"

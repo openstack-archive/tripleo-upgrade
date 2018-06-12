@@ -20,5 +20,7 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
         -e {{ _env }} \
     {% endfor %}
     {% endif %}
+    {% if roles_data != default_roles_data %}
     --roles-file {{ roles_data }} \
+    {% endif %}
     -e {{ working_dir }}/{{ container_registry_file }} 2>&1
