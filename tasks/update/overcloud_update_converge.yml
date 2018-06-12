@@ -2,15 +2,20 @@
 - include: ../common/l3_agent_connectivity_check_start_script.yml
 
 - name: run minor update converge step
-  shell: "bash {{ overcloud_update_converge_script }} &> {{ working_dir }}/overcloud_update_converge.log"
+  shell: |
+        set -o pipefail
+        bash {{ overcloud_update_converge_script }} 2>&1 {{ timestamper_cmd }} > \
+          {{ working_dir }}/overcloud_update_converge.log
   register: overcloud_converge_update
   ignore_errors: yes
 
 - block:
     - name: print stack failures
       shell: |
+        set -o pipefail
         source {{ undercloud_rc }}
-        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_composable_failed_update_converge.log
+        openstack stack failures list --long {{ overcloud_stack_name }} {{ timestamper_cmd }} | \
+          tee {{ working_dir}}/overcloud_composable_failed_update_converge.log
 
     - name: was the overcloud update converge successful.
       fail: msg="Overcloud update converge step failed... :("
