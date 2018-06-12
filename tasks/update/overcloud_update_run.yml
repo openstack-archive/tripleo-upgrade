@@ -2,7 +2,10 @@
 - include: ../common/l3_agent_connectivity_check_start_script.yml
 
 - name: run overcloud minor update in each of the roles/hostgroups
-  shell: "bash {{ overcloud_update_run_script_base }}-{{ item }}.sh &> {{ working_dir}}/overcloud_update_run_{{ item }}.log"
+  shell: |
+        set -o pipefail
+        bash {{ overcloud_update_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} > \
+          {{ working_dir}}/overcloud_update_run_{{ item }}.log
   with_items:
       - "{{ oc_roles|default('all') }}"
   register: overcloud_update_nodes
