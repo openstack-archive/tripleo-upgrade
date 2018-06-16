@@ -1,7 +1,9 @@
 ---
 - name: run Ceph minor update
   shell: |
-    {{ working_dir }}/ceph-update-run.sh &> {{ working_dir }}/ceph-update-run.log
+    set -o pipefail
+    {{ working_dir }}/ceph-update-run.sh 2>&1 {{ timestamper_cmd }} > \
+      {{ working_dir }}/ceph-update-run.log
   ignore_errors: true
   register: ceph_update_status
 
