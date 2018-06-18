@@ -9,7 +9,7 @@ parameter_defaults:
     CephStorageCount: {{ ceph_scale.stdout|regex_search('\d+')}}
 {% endif %}
 {% if control_flavor|succeeded %}
-    OvercloudControlFlavor: {{ control_flavor.stdout.split()[1]}}
+    OvercloudControllerFlavor: {{ control_flavor.stdout.split()[1]}}
 {% endif %}
 {% if compute_flavor|succeeded %}
     OvercloudComputeFlavor: {{ compute_flavor.stdout.split()[1]}}
