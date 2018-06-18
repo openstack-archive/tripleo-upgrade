@@ -4,16 +4,6 @@
   tags: use_oooq
   when: use_oooq|bool
 
-- name: check if bm nodes are present
-  shell: |
-    source {{ undercloud_rc }} ;
-    openstack baremetal node list -f value -c UUID
-  register: bm_node_present
-
-- name: set fact splitstack_deployment
-  set_fact:
-    splitstack_deployment: "{{ (bm_node_present.stdout_lines|length > 0)|ternary(false, true) }}"
-
 - name: Convert CLI options to parameters
   include: ../common/convert_cli_opts_params.yaml
 
