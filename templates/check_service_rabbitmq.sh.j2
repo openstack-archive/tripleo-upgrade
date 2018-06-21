@@ -8,12 +8,14 @@ while true; do
     echo "Waiting for rabbitmq pcs resource to start"
     RABBIT_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:rabbitmq-cluster | grep -vi FAILED | grep -i started | wc -l)
     if [[ $RABBIT_RES = 1 ]] || [[ $RABBIT_RES > 2 ]]; then
+        echo "${RABBIT_RES} instances of rabbitmq pcs resource are started"
         break
     fi
     sleep 3
     (( elapsed_seconds += 3 ))
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
         echo "FAILURE: Rabbitmq pcs resource didn't get started after reboot"
-    exit 1
+        ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep 'ocf::heartbeat:rabbitmq-cluster'
+        exit 1
     fi
 done

@@ -14,13 +14,14 @@ sudo docker exec $(sudo docker ps | grep -oP haproxy-bundle.*) bash -c 'echo "sh
 SSH
         grep DOWN ~/haproxy.stats > /dev/null
         if [[ $? != 0 ]]; then
+            echo "HAproxy backends are ready"
             break
         fi
         sleep 3
         (( elapsed_seconds += 3 ))
         if [ $elapsed_seconds -ge $timeout_seconds ]; then
             echo "FAILURE: $(grep DOWN haproxy.stats | awk -F ',' {'print $1'}) is down on $(grep DOWN haproxy.stats | awk -F ',' {'print $2'})"
-        exit 1
+            exit 1
         fi
     done
 fi
