@@ -18,11 +18,11 @@
   when: ffu_upgrade_workarounds|bool
   tags: ffu_overcloud_upgrade_controller
 
-- name: run FFU controller ugrade scripts
+- name: run FFU control plane ugrade scripts
   command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
   tags: ffu_overcloud_upgrade_controller
   with_items:
-    - "{{ oc_roles|intersect(['Controller']) }}"
+    - "{{ oc_roles|difference(['Compute','ComputeAlt','CephStorage']) }}"
 
 - include: "{{ item }}"
   with_items:
