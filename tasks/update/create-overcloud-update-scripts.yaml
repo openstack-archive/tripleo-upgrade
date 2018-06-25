@@ -28,18 +28,8 @@
 - name: include l3 agent tasks
   include: ../common/create_l3_agent_connectivity_check_script.yml
 
-- name: generate inventory file
-  shell: |
-    source {{ undercloud_rc }} ;
-    tripleo-ansible-inventory --plan {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} --static-yaml-inventory /tmp/fake-oc-hosts.yaml ;
-    awk -F':' '/role_name/ {gsub("[[:space:][:punct:]]", "", $2); print $2}' /tmp/fake-oc-hosts.yaml
-  register: oc_roles
-
-- name: store roles
-  vars:
-    controller_role_name: "{{ oc_roles.stdout|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
-  set_fact:
-    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name]) }}"
+- name: generate roles list from inventory file
+  include: ../common/load_roles_from_inventory.yaml
 
 - name: create overcloud update prepare script
   template:

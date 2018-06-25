@@ -1,22 +1,6 @@
 ---
-- name: generate overcloud ansible static yaml inventory file
-  shell: |
-    source {{ undercloud_rc }}
-    /usr/bin/tripleo-ansible-inventory \
-        --plan {{ overcloud_stack_name }} \
-        {% if overcloud_ssh_user != '' %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
-        --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory-static.yaml
-
-- name: register deployed roles list
-  shell: |
-    awk -F':' '/role_name/ {gsub("[[:space:][:punct:]]", "", $2); print $2}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
-  register: oc_roles
-
-- name: store roles
-  vars:
-    controller_role_name: "{{ oc_roles.stdout|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
-  set_fact:
-    oc_roles: "{{ [controller_role_name] +  oc_roles.stdout_lines|difference([controller_role_name]) }}"
+- name: generate roles list from inventory file
+  include: ../common/load_roles_from_inventory.yaml
 
 - name: create FFU role ugrades scripts
   template:
@@ -63,7 +47,7 @@
 - block:
     - name: register compute nodes from tripleo ansible inventory
       shell: |
-        awk -F':' '/^[^ \n]*compute-/ {print $1}' {{ working_dir }}/tripleo-ansible-inventory-static.yaml
+        awk -F':' '/^[^ \n]*compute-/ {print $1}' {{working_dir}}/tripleo-ansible-inventory.yaml
       register: tripleo_compute_nodes
       tags: ffu_overcloud_upgrade_compute
 
