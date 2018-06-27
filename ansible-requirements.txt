@@ -3,4 +3,4 @@
 # lint checks and want to document these as ansible specific things that may
 # be required for this repository.
 ansible
-ansible-lint==3.4.21
+ansible-lint
