@@ -28,6 +28,9 @@
 - name: Convert Ceph parameters to ceph ansible
   include: ../common/convert_ceph_params.yaml
 
+- name: Adjust custom roles data file during upgrade
+  include: convert_roles_data.yaml
+
 - name: create ffu upgrade workaround scripts
   template:
     src: fast-forward-upgrade/workarounds.sh.j2
