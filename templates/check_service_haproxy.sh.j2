@@ -12,13 +12,15 @@ if [[ $EXT_LB != 'false' ]]; then
         echo "Waiting for haproxy pcs resource to start"
         HAPROXY_RES=$(ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep haproxy-bundle | grep -i started | wc -l)
         if [[ $HAPROXY_RES = 1 ]] || [[ $HAPROXY_RES > 2 ]]; then
+            echo "${HAPROXY_RES} instances of haproxy-bundle are started"
             break
         fi
         sleep 3
         (( elapsed_seconds += 3 ))
         if [ $elapsed_seconds -ge $timeout_seconds ]; then
             echo "FAILURE: Haproxy pcs resource didn't get started after reboot"
-        exit 1
+            ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep 'haproxy-bundle'
+            exit 1
         fi
     done
 fi

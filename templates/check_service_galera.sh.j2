@@ -9,6 +9,7 @@ while true; do
     echo "Waiting for galera pcs resource to start"
     GALERA_RES=$(ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:galera | grep -vi FAILED | grep -i master | wc -l)
     if [[ $GALERA_RES = 1 ]] || [[ $GALERA_RES > 2 ]]; then
+        echo "${GALERA_RES} instances of galera are started"
         break
     fi
     sleep 3
@@ -33,7 +34,8 @@ while true; do
                 (( elapsed_seconds += 3 ))
                 if [ $elapsed_seconds -ge $timeout_seconds ]; then
                     echo "FAILURE: galera pcs resource didn't get started after reboot. Workaround for BZ#1499677 applied."
-                exit 1
+                    ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep 'ocf::heartbeat:galera'
+                    exit 1
                 fi
             done
         else
