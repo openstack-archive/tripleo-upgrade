@@ -11,8 +11,8 @@ PING_RESULT_LOG=$(find ~ -iname 'ping_results*' | sort | tail -1)
 tail -2 $PING_RESULT_LOG
 
 # check results
-PING_RESULT=$(tail -2 $PING_RESULT_LOG | head -1 | awk {'print $6'} | sed s/%//)
-if [[ $PING_RESULT -gt 1 ]]; then
-    echo "Ping loss higher than 1% detected"
+PING_RESULT=$( awk '/[[:digit:]]+% packet loss/' $PING_RESULT_LOG | grep -Eo '[[:digit:]]+%' | sed s/\%// )
+if [[ $PING_RESULT -gt {{ loss_threshold|default(1)|int }} ]]; then
+    echo "Ping loss higher than {{ loss_threshold|default(1)|int }}% detected"
     exit 1
 fi
