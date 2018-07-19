@@ -9,39 +9,39 @@ source {{undercloud_rc }}
 echo "Running {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade prepare step"
 openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}prepare --stack {{ overcloud_stack_name }} \
     --templates {{ tht_directory }} \
-    {% if ffu_overcloud_upgrade %}
+    {% if ffu_overcloud_upgrade -%}
     --yes \
-    {% endif %}
-    {% if overcloud_ssh_user != '' %}
+    {% endif -%}
+    {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \
-    {% endif %}
-    {% if tripleo_upgrade_debug|bool %}
+    {% endif -%}
+    {% if tripleo_upgrade_debug|bool -%}
     --debug \
-    {% endif %}
-    {% if tripleo_upgrade_validations_non_fatal|bool %}
+    {% endif -%}
+    {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
-    {% endif %}
-    {% if splitstack_deployment|bool %}
+    {% endif -%}
+    {% if splitstack_deployment|bool -%}
     --disable-validations \
     --deployed-server \
-    {% endif %}
-    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
-    {% for _env in initial_env_file.stdout_lines %}
+    {% endif -%}
+    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 -%}
+    {% for _env in initial_env_file.stdout_lines -%}
     -e {{ _env }} \
-    {% endfor %}
-    {% endif %}
-    {% if ffu_overcloud_upgrade and deployment_with_ha_upstream %}
+    {% endfor -%}
+    {% endif -%}
+    {% if ffu_overcloud_upgrade and deployment_with_ha_upstream -%}
     -e {{ tht_directory }}/environments/docker.yaml \
     -e {{ tht_directory }}/environments/docker-ha.yaml \
-    {% endif %}
-    {% if cli_converted_options|default(false)|bool %}
+    {% endif -%}
+    {% if cli_converted_options|default(false)|bool -%}
     -e {{working_dir}}/cli_opts_params.yaml \
-    {% endif %}
-    {% if upgrade_remove_rpm|default(false)|bool %}
+    {% endif -%}
+    {% if upgrade_remove_rpm|default(false)|bool -%}
     -e {{ working_dir }}/remove-packages.yaml \
-    {% endif %}
-    {% if upgrade_prepare_extra_params %}
+    {% endif -%}
+    {% if upgrade_prepare_extra_params -%}
     -e {{ upgrade_prepare_extra_params | join(' -e ') }} \
-    {% endif %}
+    {% endif -%}
     -e {{ working_dir }}/{{ container_registry_file }} \
     {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
