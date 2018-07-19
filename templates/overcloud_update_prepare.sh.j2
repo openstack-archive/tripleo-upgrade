@@ -9,18 +9,25 @@ set -euo pipefail
 echo "Setting up HEAT's output for minor update"
 openstack overcloud update prepare --templates {{ tht_directory }} \
     --stack {{ overcloud_stack_name }} \
-    {% if tripleo_upgrade_debug|bool %}
+    {% if overcloud_ssh_user != '' -%}
+    --overcloud-ssh-user {{ overcloud_ssh_user }} \
+    {% endif -%}
+    {% if splitstack_deployment|bool -%}
+    --disable-validations \
+    --deployed-server \
+    {% endif -%}
+    {% if tripleo_upgrade_debug|bool -%}
     --debug \
-    {% endif %}
-    {% if tripleo_upgrade_validations_non_fatal|bool %}
+    {% endif -%}
+    {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
-    {% endif %}
-    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
-    {% for _env in initial_env_file.stdout_lines %}
+    {% endif -%}
+    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 -%}
+    {% for _env in initial_env_file.stdout_lines -%}
         -e {{ _env }} \
-    {% endfor %}
-    {% endif %}
-    {% if roles_data != default_roles_data %}
+    {% endfor -%}
+    {% endif -%}
+    {% if roles_data != default_roles_data -%}
     --roles-file {{ roles_data }} \
-    {% endif %}
+    {% endif -%}
     -e {{ working_dir }}/{{ container_registry_file }} 2>&1
