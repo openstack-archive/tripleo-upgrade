@@ -3,6 +3,9 @@
 # main vars:
 working_dir: "{{ (ansible_env|default({})).HOME|default('/home/stack') }}"
 
+# undercloud.conf
+undercloud_conf: "{{ working_dir }}/undercloud.conf"
+
 # overcloud stack name
 overcloud_stack_name: "overcloud"
 
@@ -102,8 +105,11 @@ overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_vers
 overcloud_validate_ap_services: openstack-cinder-volume openstack-cinder-backup openstack-manila-share
 
 
-# container registry file
+# container registry file for overcloud
 container_registry_file: "docker-images.yaml"
+
+# container prepare params env file
+uc_containers_prepare_file: "containers-prepare-parameter.yaml"
 
 # create script to download container images.
 # When set to true the template to download the
