@@ -5,8 +5,7 @@ set -euo pipefail
 
 sudo yum update -y python-tripleoclient
 {% if containerized_undercloud_upgrade|bool %}
-# Add --use-heat until it becomes the default, hopefully in Rocky.
-openstack undercloud upgrade -y --use-heat
+openstack undercloud upgrade -y
 {% else %}
 openstack undercloud upgrade
 {% endif %}
