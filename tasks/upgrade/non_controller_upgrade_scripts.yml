@@ -6,7 +6,7 @@
 
 - include: compute_detect.yml
 
-- include: node_upgrade_script.yml
+- include_tasks: node_upgrade_script.yml
   loop_control:
     loop_var: node_name
   with_items:
