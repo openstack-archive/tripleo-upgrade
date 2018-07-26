@@ -22,6 +22,12 @@ if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
 fi
 {% endif %}
 
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_start.sh &
+{% endif %}
+
 source {{ undercloud_rc }}
 
 echo "[$(date)] Runing major upgrade {{ playbook }} playbook for {{ item }} role"
@@ -51,6 +57,13 @@ if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
 fi
 {% endif %}
 
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
+
+
     {%- endfor %}
 {% else %}
 
@@ -66,6 +79,12 @@ if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
     source {{ overcloud_rc }}
     bash {{ working_dir }}/l3_agent_failover_pre.sh
 fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_start.sh &
 {% endif %}
 
 source {{ undercloud_rc }}
@@ -96,5 +115,11 @@ if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
     source {{ overcloud_rc }}
     bash {{ working_dir }}/l3_agent_failover_post.sh
 fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
 {% endif %}
 {% endif %}

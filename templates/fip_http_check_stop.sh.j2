@@ -1,0 +1,9 @@
+#!/bin/env bash
+
+RESULT_CODE=$(grep 'HTTP Code' {{ working_dir }}/http_response.log | sort | uniq)
+
+#TODO: assert other conditions/thresholds for pass/fail criteria
+if [[ "$RESULT_CODE" != "HTTP Code: 200" ]]; then
+    echo 'There are non-200 HTTP calls'
+    exit 1
+fi

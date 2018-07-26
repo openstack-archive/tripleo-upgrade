@@ -1,0 +1,10 @@
+#!/bin/env bash
+
+FIP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1)
+
+while true; do
+    curl --location --silent --show-error --max-time 5 \
+        --write-out "HTTP Code: %{http_code}\nTotal Time: %{time_total} sec\nEffective URL: %{url_effective}\n\n" \
+        http://$FIP/ 2>/dev/null >> {{ working_dir }}/http_response.log
+    sleep 1
+done
