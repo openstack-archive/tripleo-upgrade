@@ -65,6 +65,8 @@ if [ $? -ne 0 ]; then
     openstack security group create ${SECGROUP_NAME}
     openstack security group rule create --proto icmp ${SECGROUP_NAME}
     openstack security group rule create --proto tcp --dst-port 22 ${SECGROUP_NAME}
+    openstack security group rule create --proto tcp --dst-port 80 ${SECGROUP_NAME}
+    openstack security group rule create --proto tcp --dst-port 443 ${SECGROUP_NAME}
 fi
 
 ## create instance

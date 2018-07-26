@@ -73,3 +73,6 @@
 
 - name: create nova actions check script
   include: ../common/create_nova_actions_check_script.yml
+
+- name: import create HTTP test scripts
+  import_tasks: ../common/create_http_test_scripts.yml
