@@ -54,6 +54,9 @@ external_network_name: "public"
 workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
 workload_memory: "512"
 workload_user: "cirros"
+workload_disk: 5
+workload_vcpu: 1
+workload_swap: 512
 workload_launch_post_composable_upgrade: false
 
 # note that both UC upgrade and update use the same template

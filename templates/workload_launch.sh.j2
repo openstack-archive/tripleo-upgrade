@@ -7,7 +7,7 @@ IMAGE_URL='{{ workload_image_url }}'
 IMAGE_NAME='upgrade_workload'
 IMAGE_FILE=~/upgrade_workload.qcow2
 KEYPAIR_NAME=userkey
-FLAVOR_NAME='v1-1G-5G'
+FLAVOR_NAME='v1-1G-{{ workload_disk}}G'
 SECGROUP_NAME='allow-icmp-ssh'
 TENANT_NET_NAME='internal_net'
 EXTERNAL_NET_NAME='{{ external_network_name }}'
@@ -35,7 +35,11 @@ fi
 ## create flavor
 openstack flavor list | grep ${FLAVOR_NAME}
 if [ $? -ne 0 ]; then
-    openstack flavor create --vcpus 1 --ram {{ workload_memory }} --disk 5 --swap 512 $FLAVOR_NAME
+    openstack flavor create --vcpus {{ workload_vcpu }} \
+        --ram {{ workload_memory }} \
+        --disk {{ workload_disk }} \
+        --swap {{ workload_swap }} \
+        $FLAVOR_NAME
 fi
 
 ## create networking
