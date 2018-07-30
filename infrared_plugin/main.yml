@@ -28,6 +28,18 @@
       set_fact:
          workload_user: "{{ install.upgrade.workloaduser }}"
 
+    - name: Set upgrade workload disk size
+      set_fact:
+         workload_disk: "{{ install.upgrade.workload.disk }}"
+
+    - name: Set upgrade workload vcpus
+      set_fact:
+         workload_vcpu: "{{ install.upgrade.workload.vcpu }}"
+
+    - name: Set upgrade workload swap
+      set_fact:
+         workload_swap: "{{ install.upgrade.workload.swap }}"
+
     - name: Set upgrade workload post_composable_upgrade launch
       set_fact:
          workload_launch_post_composable_upgrade: true
