@@ -8,12 +8,14 @@ while true; do
     echo "Waiting for redis pcs resource to start"
     REDIS_RES=$(ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'sudo pcs status --full' | grep ocf::heartbeat:redis | grep -vi FAILED | grep -i master | wc -l)
     if [[ $REDIS_RES = 1 ]]; then
+        echo "Redis master is ready"
         break
     fi
     sleep 3
     (( elapsed_seconds += 3 ))
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
         echo "FAILURE: redis pcs resource didn't get started after reboot"
-    exit 1
+        ssh -q -o StrictHostKeyChecking=no $OC_USER@$NODE_IP 'sudo pcs status --full' | grep 'ocf::heartbeat:redis'
+        exit 1
     fi
 done
