@@ -60,17 +60,17 @@ subparsers:
                       help: |
                           User used for conecting to workload instance via SSH
                       default: cirros
-                  upgrade-workload-disk:
+                  upgrade-workloaddisk:
                       type: Value
                       help: |
                           Disk size assigned to the instance spawned before upgrade
                       default: 5
-                  upgrade-workload-vcpu:
+                  upgrade-workloadvcpu:
                       type: Value
                       help: |
                           Amount of vcpus assigned to the instance spawned before upgrade
                       default: 1
-                  upgrade-workload-swap:
+                  upgrade-workloadswap:
                       type: Value
                       help: |
                           Swap size assigned to the instance spawned before upgrade
