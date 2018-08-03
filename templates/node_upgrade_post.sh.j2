@@ -51,14 +51,19 @@ timeout_seconds={{ node_reboot_timeout }}
 elapsed_seconds=0
 while true; do
     echo "Waiting for nova-compute service on {{ node_name | splitext | first | splitext | first }} to go up ..."
+    NODE_SSHABLE=$( ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP 'id' | grep -q heat-admin ; echo $?)
     NOVACOMPUTE_ENABLED=$(openstack compute service list --host {{ node_name }} -f json | jq -r -c '.[] | select(.Binary | contains("nova-compute")) | .State' | head -1)
-    if [[ $NOVACOMPUTE_ENABLED == 'up' ]]; then
+    OVS_AGENT_UP=$(  openstack network agent list --host {{ node_name }} -f json | jq -r -c '.[] | select(.Binary | contains("neutron-openvswitch-agent")) | .Alive' | head -1)
+    if [[ $NODE_SSHABLE -eq 0 && $NOVACOMPUTE_ENABLED == 'up' && $OVS_AGENT_UP == ':-)' ]]; then
+        echo 'SUCCESS: nova-compute and neutron-openvswitch-agent at {{ node_name }} are UP'
         break
     fi
     sleep 3
     (( elapsed_seconds += 3 ))
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
-        echo "FAILURE: Nova compute service didn't come up on {{ node_name | splitext | first | splitext | first }}"
+        echo "FAILURE: nova-compute or neutron-openvswitch-agent service didn't come up on {{ node_name | splitext | first | splitext | first }}"
+        openstack compute service list --host {{ node_name }} -f json
+        openstack network agent list --host {{ node_name }} -f json
         exit 1
     fi
 done
@@ -72,22 +77,19 @@ source {{ overcloud_rc }}
 STORAGE_BACKEND=$(openstack volume service list -f json | jq -r -c '.[] | select(.Binary | contains("cinder-volume")) | .Host' | sed s/hostgroup@tripleo_//)
 {% for instance in node_instances.stdout_lines %}
 if [ $STORAGE_BACKEND == 'ceph' ]; then
+    echo "Shared storage live migrating {{ instance }} back to {{ node_name }} ..."
     nova live-migration {{ instance }} {{ node_name }}
 else
+    echo "Block migrating {{ instance }} back to {{ node_name }} ..."
     nova live-migration --block-migrate {{ instance }} {{ node_name }}
 fi
-timeout_seconds=120
+
+timeout_seconds=180
 elapsed_seconds=0
+
 while true; do
-    if [ $STORAGE_BACKEND == 'ceph' ]; then
-        echo "Shared storage live migrating {{ instance }} back to {{ node_name }} ..."
-        ## Live migration might not complete on the first run so we run it multiple times
-        ## until the instance ends back on the originating host
-        nova live-migration {{ instance }} {{ node_name }}
-    else
-        echo "Block migrating {{ instance }} back to {{ node_name }} ..."
-        nova live-migration --block-migrate {{ instance }} {{ node_name }}
-    fi
+    ## Assert instance migrated back on the original host
+    ## Migration takes some time so it's run in a loop
     INSTANCE_HOST=$(openstack server show {{ instance }} -f json | jq -r -c '. | .["OS-EXT-SRV-ATTR:host"]')
     if [ $INSTANCE_HOST == '{{ node_name }}' ]; then
         break
