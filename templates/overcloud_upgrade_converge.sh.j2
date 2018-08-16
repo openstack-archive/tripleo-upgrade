@@ -19,7 +19,7 @@ fi
 
 {% if fip_http_check|bool %}
 source {{ overcloud_rc }}
-kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
 bash {{ working_dir }}/fip_http_check_start.sh &
 {% endif %}
 
