@@ -1,5 +1,5 @@
 tripleo-upgrade
-=========
+===============
 
 This role aims to provide a unified tool for upgrading TripleO based deploments.
 
@@ -130,6 +130,8 @@ Example Playbook
 
 An example playbook is provided in tests/test.yml:
 
+::
+
     - hosts: undercloud
       gather_facts: true
       become: yes
@@ -145,6 +147,8 @@ Usage with tripleo Quickstart
 After a successful deployment with OOOQ, you can create the necessary
 scripts using this example playbook (duplicate from
 ./tests/oooq-test.yaml):
+
+::
 
     ---
     - hosts: undercloud
@@ -166,9 +170,9 @@ one)
 This will only create the file (without running the actual upgrade):
  - undercloud_upgrade.sh
  - composable_docker_upgrade.sh
- - overcloud-compute-*_upgrade_pre.sh
- - overcloud-compute-*_upgrade.sh
- - overcloud-compute-*_upgrade_post.sh
+ - overcloud-compute-\*_upgrade_pre.sh
+ - overcloud-compute-\*_upgrade.sh
+ - overcloud-compute-\*_upgrade_post.sh
  - converge_docker_upgrade.sh
 
 with the correct parameters.
