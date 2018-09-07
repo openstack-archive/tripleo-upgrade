@@ -40,6 +40,8 @@ openstack overcloud upgrade run \
 
 echo "[$(date)] Finished major upgrade {{ playbook }} playbook for {{ item }} role"
 
+    {%- endfor %}
+{# validation scripts should run after all playbooks are finished #}
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
     source {{ overcloud_rc }}
@@ -60,8 +62,10 @@ kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
 bash {{ working_dir }}/fip_http_check_stop.sh
 {% endif %}
 
-
-    {%- endfor %}
+{% if launch_sanity_workload|bool %}
+bash {{ working_dir }}/workload_launch.sh 'sanity'
+{% endif %}
+{# finished overcloud_upgrade_multibooks section #}
 {% else %}
 
 {% if l3_agent_connectivity_check|bool %}
@@ -115,5 +119,8 @@ fi
 source {{ overcloud_rc }}
 kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
 bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
+{% if launch_sanity_workload|bool %}
+bash {{ working_dir }}/workload_launch.sh 'sanity'
 {% endif %}
 {% endif %}
