@@ -13,19 +13,8 @@
         chdir: "{{working_dir}}"
       when: upgrade_workarounds
 
-    - name: check customized {{ uc_containers_prepare_file }} exists
-      stat:
-        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
-      register: custom_uc_containers
-
-    - name: set containers file for undercloud
-      lineinfile:
-        path: "{{ undercloud_conf }}"
-        regexp: '^(container_images_file)(.*)'
-        line: "container_images_file = {{ working_dir }}/{{ uc_containers_prepare_file }}"
-        insertafter: ^\[DEFAULT\]
-      when:
-        - custom_uc_containers.stat.exists
+    - name: configure container specific parameters
+      include: configure_uc_containers.yml
 
     - name: upgrade undercloud
       shell: |
