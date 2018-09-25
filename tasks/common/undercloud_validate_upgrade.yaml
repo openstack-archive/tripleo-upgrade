@@ -92,6 +92,16 @@
             delay: 10
         delegate_to: virthost
         when: "'virthost' in groups"
+
+      - name: assert UC services started
+        shell: |
+            source {{ undercloud_rc }} ;
+            openstack stack list -f json | jq -c -r '.[]|."Stack Name"'
+        ignore_errors: true
+        register: oc_name
+        until: oc_name.stdout.find('{{ overcloud_stack_name }}') != -1
+        retries: "{{ service_readiness_count|default(100)|int }}"
+        delay: 3
   when:
     - not tripleo_ci and (undercloud_reboot or (installed_kernel.stdout != loaded_kernel.stdout) or (installed_ovs.stdout != loaded_ovs.stdout))
   tags: undercloud_reboot
