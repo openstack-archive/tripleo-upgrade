@@ -1,0 +1,52 @@
+---
+- name: check customized {{ uc_containers_prepare_file }} exists
+  stat:
+    path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+  register: custom_uc_containers
+
+- name: check docker_insecure_registries already defined in {{ undercloud_conf }}
+  shell: |
+    awk -F '=' '/^docker_insecure_registries/ {gsub(/[[:space:]]/, "", $2); print $2 }' {{ undercloud_conf }}
+  failed_when: false
+  register: defined_insecure_registry
+
+- block:
+    - name: set containers file for undercloud
+      ini_file:
+        path: "{{ undercloud_conf }}"
+        section: DEFAULT
+        option: container_images_file
+        value: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+      when: custom_uc_containers.stat.exists
+
+    - name: get namespaces from {{ uc_containers_prepare_file }}
+      shell: |
+        cat {{ uc_containers_prepare_file }}
+      register: prep_param_raw
+
+    - name: set namespaces
+      set_fact:
+        ceph_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_namespace.split('/')[0] }}"
+        def_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.namespace.split('/')[0] }}"
+
+    - name: set docker_insecure_registries for undercloud upgrade
+      ini_file:
+        path: "{{ undercloud_conf }}"
+        section: DEFAULT
+        option: docker_insecure_registries
+        value: "{{ def_namespace }},{{ ceph_namespace }}"
+      when: defined_insecure_registry.stdout_lines|length == 0
+
+  when: custom_uc_containers.stat.exists
+
+- name: adjust existing docker_insecure_registries for undercloud upgrade
+  vars:
+    reg_list: '{{ defined_insecure_registry.stdout.split(",")|union([def_namespace])|union([ceph_namespace])|unique|join(",") }}'
+  replace:
+    path: "{{ undercloud_conf }}"
+    regexp: '^(docker_insecure_registries\s*=)(.*)'
+    replace: '\1 {{ reg_list }}'
+  when:
+    - defined_insecure_registry.stdout_lines|length != 0
+    - def_namespace is defined
+    - ceph_namespace is defined
