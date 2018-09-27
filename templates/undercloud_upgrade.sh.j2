@@ -3,7 +3,11 @@
 # Perform undercloud upgrade and related steps
 set -euo pipefail
 
-sudo yum update -y python-tripleoclient
+sudo yum update -y \
+     python-tripleoclient \
+     openstack-tripleo-common \
+     openstack-tripleo-heat-templates
+
 {% if containerized_undercloud_upgrade|bool %}
 openstack undercloud upgrade -y
 {% else %}
