@@ -61,43 +61,16 @@
         delegate_to: virthost
         when: "'virthost' in groups"
 
-      - name: waiting for the undercloud to be available
-        become: no
-        wait_for:
-            port: 22
-            host: "{{ ansible_host }}"
-            search_regex: OpenSSH
-            timeout: 30
-        register: uc_reachable
-        delegate_to: localhost
-        retries: 21
-        until: uc_reachable|succeeded
-        when: "'hypervisor' not in groups and 'virthost' not in groups"
-
-      - name: waiting for the undercloud to be available
-        become: no
-        wait_for:
-            port: 22
-            host: "{{ ansible_ssh_host }}"
-            search_regex: OpenSSH
-            delay: 10
-        delegate_to: hypervisor
-        when: "'hypervisor' in groups"
-
-      - name: waiting for the undercloud to be available
-        become: no
-        wait_for:
-            port: 22
-            host: "{{ ansible_default_ipv4.address }}"
-            search_regex: OpenSSH
-            delay: 10
-        delegate_to: virthost
-        when: "'virthost' in groups"
+      - name: waiting for the undercloud to be ssh-able
+        wait_for_connection:
+            connect_timeout: 5
+            sleep: 3
+            timeout: 630
 
       - name: assert UC services started
         shell: |
             source {{ undercloud_rc }} ;
-            openstack stack list -f json | jq -c -r '.[]|."Stack Name"'
+            openstack stack list -f json | jq -c -r '.[]|.["Stack Name"]'
         ignore_errors: true
         register: oc_name
         until: oc_name.stdout.find('{{ overcloud_stack_name }}') != -1
