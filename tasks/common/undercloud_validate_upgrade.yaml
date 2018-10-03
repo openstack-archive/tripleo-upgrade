@@ -31,6 +31,7 @@
         become_user: root
 
       - name: wait for node to go down
+        become: no
         command: ping -c1 {{ ansible_host }}
         register: node_down
         until: node_down.rc != 0
