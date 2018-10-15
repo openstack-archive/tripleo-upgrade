@@ -82,7 +82,7 @@
         bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
       args:
         chdir: "{{working_dir}}"
-      when: workload_launch_post_composable_upgrade|bool
+      when: workload_launch|bool
 
     - include: overcloud_upgrade_run.yml
       tags: overcloud_upgrade_run
