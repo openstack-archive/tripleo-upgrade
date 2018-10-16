@@ -9,7 +9,7 @@
 - name: set nic_config_env fact
   set_fact:
     nic_config_env: "{{ item.item }}"
-  when: "{{ item.stdout|length > 0 }}"
+  when: item.stdout|length > 0
   with_items:
     - "{{ nic_config_envs.results }}"
 
