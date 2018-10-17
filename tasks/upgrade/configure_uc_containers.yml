@@ -10,6 +10,14 @@
   failed_when: false
   register: defined_insecure_registry
 
+- name: set container_cli for undercloud
+  ini_file:
+    path: "{{ undercloud_conf }}"
+    section: DEFAULT
+    option: container_cli
+    value: "{{ undercloud_container_cli }}"
+  when: undercloud_container_cli is defined
+
 - block:
     - name: set containers file for undercloud
       ini_file:
