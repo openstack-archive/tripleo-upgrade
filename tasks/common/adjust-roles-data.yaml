@@ -13,3 +13,9 @@
     dest: "{{ roles_data }}"
     regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
     replace: ''
+
+- name: add ContainerImagePrepare service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::HAproxy$)'
+    replace: '\1\2\1- OS::TripleO::Services::ContainerImagePrepare'
