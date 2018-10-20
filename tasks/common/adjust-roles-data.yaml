@@ -1,15 +1,15 @@
 ---
-- name: rename FluentdClient to Fluentd
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1540546
+- name: add OsloMessagingRpc and OsloMessagingNotify services
   replace:
     path: "{{ roles_data }}"
-    regexp: '(\s+)- OS::TripleO::Services::FluentdClient$'
-    replace: '\1- OS::TripleO::Services::Fluentd'
-  when: overcloud_upgrade|bool
+    regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
+    replace: '\1\2\1- {{ item }}'
+  with_items:
+    - "OS::TripleO::Services::OsloMessagingRpc"
+    - "OS::TripleO::Services::OsloMessagingNotify"
 
-- name: remove ManilaBackendGeneric resource
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1541382
+- name: drop RabbiMQ service
   replace:
-    path: "{{ roles_data }}"
-    regexp: '(\s+)- OS::TripleO::Services::ManilaBackendGeneric$'
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
     replace: ''
