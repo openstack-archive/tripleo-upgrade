@@ -106,7 +106,7 @@
     - name: apply pre overcloud upgrade converge workarounds
       shell: |
         set -o pipefail
-        bash {{ working_dir }}/pre_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_converge_workarounds.log
+        bash {{ working_dir }}/pre_overcloud_upgrade_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_converge_workarounds.log
       args:
         chdir: "{{working_dir}}"
       when: upgrade_workarounds
@@ -118,7 +118,7 @@
     - name: apply post overcloud upgrade converge workarounds
       shell: |
         set -o pipefail
-        bash {{ working_dir }}/post_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_converge_workarounds.log
+        bash {{ working_dir }}/post_overcloud_upgrade_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_converge_workarounds.log
       args:
         chdir: "{{working_dir}}"
       when: upgrade_workarounds
