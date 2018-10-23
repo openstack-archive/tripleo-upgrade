@@ -29,92 +29,115 @@ function apply_patch {
 
 }
 
-{% if 'pre_undercloud_upgrade_workarounds' in item %}
-{% for bugs in pre_undercloud_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% if 'pre_undercloud_upgrade_workarounds' in item -%}
+{% for bugs in pre_undercloud_upgrade_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
-
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'post_undercloud_upgrade_workarounds' in item %}
-{% for bugs in post_undercloud_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish pre_undercloud_upgrade_workarounds #}
+{% if 'post_undercloud_upgrade_workarounds' in item -%}
+{% for bugs in post_undercloud_upgrade_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
-
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_docker_composable_upgrade_workarounds' in item %}
-{% for bugs in pre_docker_composable_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish post_undercloud_upgrade_workarounds #}
+{% if 'pre_overcloud_upgrade_prepare_workarounds' in item -%}
+{% for bugs in pre_overcloud_upgrade_prepare_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_nova_compute_upgrade_workarounds' in item %}
-{% for bugs in pre_nova_compute_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish pre_overcloud_upgrade_prepare_workarounds #}
+{% if 'post_overcloud_upgrade_prepare_workarounds' in item -%}
+{% for bugs in post_overcloud_upgrade_prepare_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
-
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_docker_converge_upgrade_workarounds' in item %}
-{% for bugs in pre_docker_converge_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish post_overcloud_upgrade_prepare_workarounds #}
+{% if 'pre_overcloud_upgrade_workarounds' in item -%}
+{% for bugs in pre_overcloud_upgrade_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
-
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'post_docker_converge_upgrade_workarounds' in item %}
-{% for bugs in post_docker_converge_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish pre_overcloud_upgrade_workarounds #}
+{% if 'post_overcloud_upgrade_workarounds' in item -%}
+{% for bugs in post_overcloud_upgrade_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
-
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-
-{% else %}
+{% else -%}
 {{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-{% endif %}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish post_overcloud_upgrade_workarounds #}
+{% if 'pre_overcloud_upgrade_converge_workarounds' in item -%}
+{% for bugs in pre_overcloud_upgrade_converge_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
+echo {{ key }}
+{% if value.patch -%}
+apply_patch {{ value.basedir }} {{ value.id }}
+{% else -%}
+{{ value.command }}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{# finish pre_overcloud_upgrade_converge_workarounds #}
+{% if 'post_overcloud_upgrade_converge_workarounds' in item -%}
+{% for bugs in post_overcloud_upgrade_converge_workarounds|default([]) -%}
+{% for key, value in bugs.items() -%}
+echo {{ key }}
+{% if value.patch -%}
+apply_patch {{ value.basedir }} {{ value.id }}
+{% else -%}
+{{ value.command }}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{# finish post_overcloud_upgrade_converge_workarounds #}
+{% endif -%}
