@@ -46,7 +46,8 @@
     - 'post_overcloud_upgrade_workarounds'
     - 'pre_overcloud_upgrade_converge_workarounds'
     - 'post_overcloud_upgrade_converge_workarounds'
-
+    - 'pre_ceph_upgrade_workarounds'
+    - 'post_ceph_upgrade_workarounds'
   when: upgrade_workarounds
 
 - name: import tasks from create_l3_agent_connectivity_check_script
