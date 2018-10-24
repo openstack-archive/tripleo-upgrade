@@ -25,12 +25,13 @@ function apply_patch {
         sudo patch -Ns  -d ${patch_dir} -p1 < ${temp_dir}/patch.txt
     fi
 
-    sudo rm -Rf ${temp_dir}
+    sudo rm -Rf ${temp_dir}/
 
 }
 
-{% if 'pre_undercloud_upgrade_workarounds' in item -%}
-{% for bugs in pre_undercloud_upgrade_workarounds|default([]) -%}
+{% macro render_workarounds(workaround_var, workaround_name) -%}
+{% if workaround_name in item -%}
+{% for bugs in workaround_var -%}
 {% for key, value in bugs.items() -%}
 echo {{ key }}
 {% if value.patch -%}
@@ -42,130 +43,25 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endfor -%}
 {% endfor -%}
 {% endif -%}
+{% endmacro -%}
+
+{{ render_workarounds(pre_undercloud_upgrade_workarounds|default([]),'pre_undercloud_upgrade_workarounds') }}
 {# finish pre_undercloud_upgrade_workarounds #}
-{% if 'post_undercloud_upgrade_workarounds' in item -%}
-{% for bugs in post_undercloud_upgrade_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(post_undercloud_upgrade_workarounds|default([]),'post_undercloud_upgrade_workarounds') }}
 {# finish post_undercloud_upgrade_workarounds #}
-{% if 'pre_overcloud_upgrade_prepare_workarounds' in item -%}
-{% for bugs in pre_overcloud_upgrade_prepare_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(pre_overcloud_upgrade_prepare_workarounds|default([]),'pre_overcloud_upgrade_prepare_workarounds') }}
 {# finish pre_overcloud_upgrade_prepare_workarounds #}
-{% if 'post_overcloud_upgrade_prepare_workarounds' in item -%}
-{% for bugs in post_overcloud_upgrade_prepare_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(post_overcloud_upgrade_prepare_workarounds|default([]),'post_overcloud_upgrade_prepare_workarounds') }}
 {# finish post_overcloud_upgrade_prepare_workarounds #}
-{% if 'pre_overcloud_upgrade_workarounds' in item -%}
-{% for bugs in pre_overcloud_upgrade_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(pre_overcloud_upgrade_workarounds|default([]),'pre_overcloud_upgrade_workarounds') }}
 {# finish pre_overcloud_upgrade_workarounds #}
-{% if 'post_overcloud_upgrade_workarounds' in item -%}
-{% for bugs in post_overcloud_upgrade_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(post_overcloud_upgrade_workarounds|default([]),'post_overcloud_upgrade_workarounds') }}
 {# finish post_overcloud_upgrade_workarounds #}
-{% if 'pre_overcloud_upgrade_converge_workarounds' in item -%}
-{% for bugs in pre_overcloud_upgrade_converge_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(pre_overcloud_upgrade_converge_workarounds|default([]),'pre_overcloud_upgrade_converge_workarounds') }}
 {# finish pre_overcloud_upgrade_converge_workarounds #}
-{% if 'post_overcloud_upgrade_converge_workarounds' in item -%}
-{% for bugs in post_overcloud_upgrade_converge_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(post_overcloud_upgrade_converge_workarounds|default([]),'post_overcloud_upgrade_converge_workarounds') }}
 {# finish post_overcloud_upgrade_converge_workarounds #}
-{% if 'pre_ceph_upgrade_workarounds' in item -%}
-{% for bugs in pre_ceph_upgrade_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
-{% endif -%}
+{{ render_workarounds(pre_ceph_upgrade_workarounds|default([]),'pre_ceph_upgrade_workarounds') }}
 {# finish pre_ceph_upgrade_workarounds #}
-{% if 'post_ceph_upgrade_workarounds' in item -%}
-{% for bugs in post_ceph_upgrade_workarounds|default([]) -%}
-{% for key, value in bugs.items() -%}
-echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else -%}
-{{ value.command }}
-{% endif -%}
-################################################################################
-{% endfor -%}
-{% endfor -%}
+{{ render_workarounds(post_ceph_upgrade_workarounds|default([]),'post_ceph_upgrade_workarounds') }}
 {# finish post_ceph_upgrade_workarounds #}
-{% endif -%}
