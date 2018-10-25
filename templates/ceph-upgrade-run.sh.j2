@@ -1,37 +1,58 @@
 #!/bin/env bash
 set -euo pipefail
 
+set -euo pipefail
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
+bash {{ working_dir }}/fip_http_check_start.sh &
+{% endif %}
+
 source {{ undercloud_rc }}
 
-echo "[$(date)] Started {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade Ceph step"
+echo "[$(date)] Major upgrade - Ceph upgrade step"
 
-openstack overcloud ceph-upgrade run \
-    --templates {{ tht_directory }} \
+openstack overcloud external-upgrade run \
     --stack {{ overcloud_stack_name }} \
-    {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 %}
-    {% for _env in initial_env_file.stdout_lines %}
-    -e {{ _env }} \
-    {% endfor %}
-    {% endif %}
-    {% if cli_converted_options|default(false)|bool %}
-    -e {{working_dir}}/cli_opts_params.yaml \
-    {% endif %}
-    {% if ffu_overcloud_upgrade %}
-    {% if deployment_with_ha_upstream %}
-    -e {{ tht_directory }}/environments/docker.yaml \
-    -e {{ tht_directory }}/environments/docker-ha.yaml \
-    {% endif %}
-    -e {{working_dir}}/ceph-ansible-env.yaml \
-    --ceph-ansible-playbook '/usr/share/ceph-ansible/infrastructure-playbooks/switch-from-non-containerized-to-containerized-ceph-daemons.yml,/usr/share/ceph-ansible/infrastructure-playbooks/rolling_update.yml' \
-    {% endif %}
-    {% if tripleo_upgrade_validations_non_fatal|bool %}
-    --validation-errors-nonfatal \
-    {% endif %}
-    -e {{ working_dir }}/{{ container_registry_file }} \
-    {% if splitstack_deployment|bool %}
-    --disable-validations \
-    --deployed-server \
-    {% endif %}
-    {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
+    {% if overcloud_ssh_user != '' -%}
+    --ssh-user {{ overcloud_ssh_user }} \
+    {% endif -%}
+    {% if ceph_upgrade_skip_tags|default(false) -%}
+    --skip-tags "{{ ceph_upgrade_skip_tags }}" \
+    {% endif -%}
+    --tags ceph 2>&1
 
-echo "[$(date)] Finished CEPH upgrade"
+echo "[$(date)] Major upgrade - finished Ceph upgrade step"
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
