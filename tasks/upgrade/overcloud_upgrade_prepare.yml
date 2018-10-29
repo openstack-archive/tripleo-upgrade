@@ -12,6 +12,8 @@
 
 # Render it now so it takes all additions in upgrade_prepare_extra_params
 - name: create overcloud upgrade prepare script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
     src: "{{ overcloud_upgrade_prepare_template }}"
     dest: "{{ overcloud_upgrade_prepare_script }}"
