@@ -20,6 +20,9 @@ openstack overcloud update converge \
     -e {{ _env }} \
     {% endfor %}
 {% endif %}
+    {% if cli_converted_options|default(false)|bool -%}
+    -e {{ working_dir }}/cli_opts_params.yaml \
+    {% endif -%}
     {% if roles_data != default_roles_data %}
     --roles-file {{ roles_data }} \
     {% endif %}
