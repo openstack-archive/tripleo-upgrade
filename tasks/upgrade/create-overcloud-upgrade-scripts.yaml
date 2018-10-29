@@ -63,6 +63,8 @@
     - "{{ oc_roles|default('all') }}"
 
 - name: create overcloud converge script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
     src: "{{ overcloud_upgrade_converge_template }}"
     dest: "{{ overcloud_upgrade_converge_script }}"
