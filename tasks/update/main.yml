@@ -61,6 +61,14 @@
             {{ working_dir }}/post_overcloud_update_prepare_workarounds.log
       when: updates_workarounds|bool
 
+    - name: prepare containers for overcloud update
+      args:
+        chdir: "{{working_dir}}"
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/overcloud_prepare_containers.sh {{ timestamper_cmd }} > overcloud_update_prepare_containers.log
+      tags: overcloud_update_prepare_containers
+
     - name: Ensure ansible-pacemaker module is present in CI.
       yum: name=ansible-pacemaker state=latest
       when: tripleo_ci|default(false)|bool
