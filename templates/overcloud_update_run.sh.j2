@@ -12,6 +12,7 @@ source {{ undercloud_rc }}
 
 echo "Running minor update {{ playbook }} playbook for {{ item }} role"
 openstack overcloud update run \
+    --stack {{ overcloud_stack_name }} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
@@ -26,6 +27,7 @@ openstack overcloud update run \
 
 echo "Running minor update all playbooks for {{ item }} role"
 openstack overcloud update run \
+    --stack {{ overcloud_stack_name }} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
