@@ -1,6 +1,0 @@
-- include: compute_detect.yml
-
-- include_tasks: node_upgrade.yml
-  with_items: "{{ compute_nodes }}"
-  loop_control:
-    loop_var: node_name
