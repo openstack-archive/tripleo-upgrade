@@ -16,7 +16,7 @@ overcloud_stack_name: "overcloud"
 upgrade_noop: false
 update_noop: false
 undercloud_upgrade: false
-containerized_undercloud_upgrade: false
+containerized_undercloud_upgrade: true
 overcloud_upgrade: false
 undercloud_update: false
 overcloud_update: false
