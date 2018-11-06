@@ -36,9 +36,6 @@ openstack overcloud upgrade run \
         {% if tripleo_upgrade_debug|bool -%}
         --debug \
         {% endif -%}
-        {% if overcloud_ssh_user -%}
-        --ssh-user {{ overcloud_ssh_user }} \
-        {% endif -%}
         --roles {{ item }} --playbook {{ playbook }} 2>&1
 
 echo "[$(date)] Finished major upgrade {{ playbook }} playbook for {{ item }} role"
