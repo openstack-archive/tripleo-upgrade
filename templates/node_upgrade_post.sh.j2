@@ -88,7 +88,7 @@ while true; do
         echo "Block migrating {{ instance }} back to {{ node_name }} ..."
         nova live-migration --block-migrate {{ instance }} {{ node_name }}
     fi
-    INSTANCE_HOST=$(openstack server show {{ instance }} -f json | jq -r -c '. | .["OS-EXT-SRV-ATTR:host"]')
+    INSTANCE_HOST=$(openstack server show {{ instance }} -f value -c OS-EXT-SRV-ATTR:host)
     if [ $INSTANCE_HOST == '{{ node_name }}' ]; then
         break
     fi
