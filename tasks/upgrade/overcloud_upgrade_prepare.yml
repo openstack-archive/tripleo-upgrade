@@ -21,8 +21,10 @@
     force: true
 
 - name: setup HEAT outputs via upgrade prepare
-  shell: "bash {{ overcloud_upgrade_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
-    {{ working_dir }}/overcloud_upgrade_prepare.log"
+  shell: |
+    set -o pipefail
+    bash {{ overcloud_upgrade_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/overcloud_upgrade_prepare.log
   register: overcloud_upgrade_prepare
   ignore_errors: yes
 
