@@ -38,6 +38,13 @@
     mode: 0775
     force: true
 
+- name: create overcloud_prepare_containers.sh script
+  template:
+    src: overcloud_prepare_containers.sh.j2
+    dest: "{{ working_dir }}/overcloud_prepare_containers.sh"
+    mode: 0755
+    force: true
+
 - name: create overcloud update script
   template:
     src: "{{ overcloud_update_run_template }}"

@@ -1,0 +1,18 @@
+#!/bin/env bash
+#
+# Prepare conatainer images for overcloud update/upgrade
+#
+{% if overcloud_update|bool -%}
+{% set operation_type = 'update' -%}
+{% elif overcloud_upgrade|bool -%}
+{% set operation_type = 'upgrade' -%}
+{% endif -%}
+set -euo pipefail
+
+source {{undercloud_rc }}
+
+echo "[$(date)] Start preparing container images for overcloud {{ operation_type }}"
+
+openstack overcloud external-{{ operation_type }} run \
+    --stack {{ overcloud_stack_name }} \
+    --tags container_image_prepare 2>&1
