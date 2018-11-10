@@ -70,7 +70,7 @@
       - name: assert UC services started
         shell: |
             source {{ undercloud_rc }} ;
-            openstack stack list -f json | jq -c -r '.[]|.["Stack Name"]'
+            timeout 10 openstack stack list -f json | jq -c -r '.[]|.["Stack Name"]'
         ignore_errors: true
         register: oc_name
         until: oc_name.stdout.find('{{ overcloud_stack_name }}') != -1
