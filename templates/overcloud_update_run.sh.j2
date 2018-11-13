@@ -16,9 +16,6 @@ openstack overcloud update run \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
-    {% if overcloud_ssh_user %}
-    --ssh-user {{ overcloud_ssh_user }} \
-    {% endif %}
     --nodes {{ item }} --playbook {{ playbook }} 2>&1
 
     {%- endfor -%}
@@ -30,9 +27,6 @@ openstack overcloud update run \
     --stack {{ overcloud_stack_name }} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
-    {% endif %}
-    {% if overcloud_ssh_user %}
-    --ssh-user {{ overcloud_ssh_user }} \
     {% endif %}
     --nodes {{ item }} --playbook all 2>&1
 
