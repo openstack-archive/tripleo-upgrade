@@ -49,7 +49,7 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {# finish pre_undercloud_upgrade_workarounds #}
 {{ render_workarounds(post_undercloud_upgrade_workarounds|default([]),'post_undercloud_upgrade_workarounds') }}
 {# finish post_undercloud_upgrade_workarounds #}
-{{ render_workarounds(post_overcloud_upgrade_prepare_workarounds|default([]),'post_overcloud_upgrade_prepare_workarounds') }}
+{{ render_workarounds(pre_overcloud_upgrade_prepare_workarounds|default([]),'pre_overcloud_upgrade_prepare_workarounds') }}
 {# finish pre_overcloud_upgrade_prepare_workarounds #}
 {{ render_workarounds(post_overcloud_upgrade_prepare_workarounds|default([]),'post_overcloud_upgrade_prepare_workarounds') }}
 {# finish post_overcloud_upgrade_prepare_workarounds #}
