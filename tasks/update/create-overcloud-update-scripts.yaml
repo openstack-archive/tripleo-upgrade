@@ -54,6 +54,13 @@
   with_items:
     - "{{ oc_roles|default('all') }}"
 
+- name: create online data migration script
+  template:
+    src: "overcloud_online_data_migration.sh.j2"
+    dest: "{{ working_dir }}/overcloud_online_data_migration.sh"
+    mode: 0755
+    force: true
+
 - name: create overcloud update converge script
   template:
     src: "{{ overcloud_update_converge_template }}"
