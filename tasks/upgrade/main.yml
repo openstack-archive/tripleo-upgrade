@@ -136,6 +136,13 @@
         chdir: "{{working_dir}}"
       when: upgrade_workarounds
 
+    - name: run online data migration
+      args:
+        chdir: "{{working_dir}}"
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_upgrade_data_migration.log
+
     - include: overcloud_upgrade_converge.yml
       tags: overcloud_upgrade_converge
 
