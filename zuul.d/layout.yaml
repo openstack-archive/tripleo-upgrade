@@ -2,7 +2,6 @@
 - project:
     templates:
       - check-requirements
-      - release-notes-jobs-python3
     check:
       jobs:
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
