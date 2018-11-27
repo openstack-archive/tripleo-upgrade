@@ -1,8 +1,4 @@
 ---
-- name: adjust role-data for Pike update
-  include: ../common/adjust-roles-data.yaml
-  when: custom_roles_used|bool
-
 - name: setup HEAT outputs via update prepare
   shell: |
     set -o pipefail
