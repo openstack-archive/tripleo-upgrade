@@ -99,6 +99,13 @@
       include: ceph_update_run.yml
       when: ceph_osd_enabled|bool
 
+    - name: run online data migration
+      args:
+        chdir: "{{working_dir}}"
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_update_data_migration.log
+
     - name: apply pre overcloud update converge workarounds
       command: "{{working_dir}}/pre_overcloud_update_converge_workarounds.sh"
       when: updates_workarounds

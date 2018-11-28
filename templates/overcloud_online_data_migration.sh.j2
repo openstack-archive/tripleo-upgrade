@@ -1,0 +1,18 @@
+#!/bin/env bash
+#
+# Run online data migration for OpenStack services
+#
+{% if overcloud_update|bool -%}
+{% set operation_type = 'update' -%}
+{% elif overcloud_upgrade|bool -%}
+{% set operation_type = 'upgrade' -%}
+{% endif -%}
+set -euo pipefail
+
+source {{ undercloud_rc }}
+
+echo "[$(date)] Run online data migration for overcloud during {{ operation_type }}"
+
+openstack overcloud external-{{ operation_type }} run \
+    --stack {{ overcloud_stack_name }} \
+    --tags online_upgrade 2>&1
