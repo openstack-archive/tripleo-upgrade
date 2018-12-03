@@ -41,7 +41,7 @@ for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $
     echo "================================================================================"
     CONTAINERS=$( ssh -q -o StrictHostKeyChecking=no \
                     {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                    "sudo docker ps 2>&1 | grep -v -e pcmk -e ID -e qrouter | awk '{ print \$2 }'" )
+                    "sudo docker ps 2>&1 | grep -v -e pcmk -e ID -e qrouter -e openstack-neutron-dhcp-agent | awk '{ print \$2 }'" )
     for _container in ${CONTAINERS} ; do
         # non pcs managed containers
         assert_image_in_file {{ working_dir}}/{{ container_registry_file }} ${_container}
