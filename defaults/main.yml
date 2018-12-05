@@ -51,6 +51,8 @@ overcloud_rc: "{{ working_dir }}/{{ overcloud_stack_name }}rc"
 timestamper_cmd: >-
     | awk '{ print strftime("%Y-%m-%d %H:%M:%S |"), $0; fflush(); }'
 
+launch_sanity_workload: true
+
 # launch workload before update/upgrade
 workload_launch: false
 external_network_name: "public"
