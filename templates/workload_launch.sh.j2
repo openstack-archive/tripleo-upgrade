@@ -180,15 +180,20 @@ openstack server create  \
 timeout_seconds=120
 elapsed_seconds=0
 while true; do
-    INSTANCE_ACTIVE=$(openstack server show ${INSTANCE_NAME} -f json | jq -r '.status')
-    if [ "${INSTANCE_ACTIVE}" == "ACTIVE" ]; then
-        echo "${INSTANCE_NAME} reached 'ACTIVE' status"
-        break
-    fi
+    INSTANCE_STATUS=$(openstack server show ${INSTANCE_NAME} -f json | jq -r '.status')
+    case "${INSTANCE_STATUS}" in
+        "ACTIVE")
+            echo "${INSTANCE_NAME} reached 'ACTIVE' status"
+            break
+            ;;
+        "ERROR")
+            echo "${INSTANCE_NAME} failed"
+            exit 1
+    esac
     sleep 3
     elapsed_seconds=$(expr $elapsed_seconds + 3)
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
-        echo "FAILURE: Instance failed to boot."
+        echo "FAILURE: Instance failed to boot within ${elapsed_seconds} seconds"
         openstack server show ${INSTANCE_NAME} -f json 2>&1
         exit 1
     fi
