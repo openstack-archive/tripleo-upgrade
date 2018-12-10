@@ -17,7 +17,7 @@
     - name: Set upgrade workload image
       set_fact:
          workload_image_url: "{{ install.upgrade.workloadimage }}"
-      when: install.upgrade.workload
+      when: install.upgrade.workloadimage
 
     - name: Set upgrade workload memory
       set_fact:
