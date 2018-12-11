@@ -39,11 +39,6 @@
       set_fact:
         workload_swap: "{{ install.upgrade.workloadswap }}"
 
-    - name: Set upgrade workload post_composable_upgrade launch
-      set_fact:
-        workload_launch_post_composable_upgrade: true
-      when: install.upgrade.postcomposable.workload
-
     - name: Set undercloud upgrade
       set_fact:
         undercloud_upgrade: true

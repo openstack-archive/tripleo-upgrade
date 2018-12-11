@@ -62,7 +62,6 @@ workload_user: "cirros"
 workload_disk: 5
 workload_vcpu: 1
 workload_swap: 512
-workload_launch_post_composable_upgrade: false
 
 # note that both UC upgrade and update use the same template
 undercloud_upgrade_template: undercloud_upgrade.sh.j2
