@@ -22,7 +22,6 @@
     - name: Set upgrade workload memory
       set_fact:
          workload_memory: "{{ install.upgrade.workloadmemory }}"
-      when: install.upgrade.workload
 
     - name: Set upgrade workload user
       set_fact:
@@ -39,11 +38,6 @@
     - name: Set upgrade workload swap
       set_fact:
          workload_swap: "{{ install.upgrade.workloadswap }}"
-
-    - name: Set upgrade workload post_composable_upgrade launch
-      set_fact:
-         workload_launch_post_composable_upgrade: true
-      when: install.upgrade.postcomposable.workload
 
     - name: Set undercloud upgrade
       set_fact:
