@@ -28,9 +28,6 @@ echo "[$(date)] Major upgrade - Ceph upgrade step"
 
 openstack overcloud external-upgrade run \
     --stack {{ overcloud_stack_name }} \
-    {% if overcloud_ssh_user != '' -%}
-    --ssh-user {{ overcloud_ssh_user }} \
-    {% endif -%}
     {% if ceph_upgrade_skip_tags|default(false) -%}
     --skip-tags "{{ ceph_upgrade_skip_tags }}" \
     {% endif -%}
