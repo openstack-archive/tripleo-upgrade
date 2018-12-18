@@ -7,7 +7,7 @@
   with_items:
       - "{{ oc_roles|default('all') }}"
   register: overcloud_upgrade_nodes
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: was the overcloud upgrade composable step successful.
   fail: msg="Overcloud upgrade composable step failed... :("

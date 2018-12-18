@@ -163,4 +163,3 @@
     - include: ../common/nova_actions_check.yml
 
   when: overcloud_upgrade|bool
-

@@ -1,3 +1,4 @@
+---
 - name: Register roles data file location if exists
   shell: "grep '\\-r\\ \\|\\-\\-roles' {{ overcloud_deploy_script }} | awk {'print $2'}"
   register: custom_roles_file

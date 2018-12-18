@@ -1,3 +1,4 @@
+---
 - name: create upgrade prepare scripts
   include: create-prepare-scripts.yaml
   tags: create_ffu_prepare_scripts
@@ -88,28 +89,28 @@
       tags: ffu_overcloud_upgrade_role
       when: not ffu_bulk|bool
 
-    - block:
-      - name: apply pre ffu ceph upgrade workarounds
-        command: "{{working_dir}}/pre_ffu_overcloud_ceph_workarounds.sh"
-        when: ffu_upgrade_workarounds|bool
-        tags: ffu_overcloud_ceph
+    - when: ceph_osd_enabled|bool
+      block:
+        - name: apply pre ffu ceph upgrade workarounds
+          command: "{{working_dir}}/pre_ffu_overcloud_ceph_workarounds.sh"
+          when: ffu_upgrade_workarounds|bool
+          tags: ffu_overcloud_ceph
 
-      - name: run FFU ceph osd nodes ugrade scripts
-        command: "{{ working_dir }}/overcloud_upgrade_CephStorage.sh"
-        tags: ffu_overcloud_ceph
+        - name: run FFU ceph osd nodes upgrade scripts
+          command: "{{ working_dir }}/overcloud_upgrade_CephStorage.sh"
+          tags: ffu_overcloud_ceph
 
-      - include: ../common/l3_agent_connectivity_check_start_script.yml
-        tags: ffu_overcloud_ceph
+        - include: ../common/l3_agent_connectivity_check_start_script.yml
+          tags: ffu_overcloud_ceph
 
-      - include: ../upgrade/ceph_upgrade_run.yml
-        tags: ffu_overcloud_ceph
+        - include: ../upgrade/ceph_upgrade_run.yml
+          tags: ffu_overcloud_ceph
 
-      - include: "{{ item }}"
-        with_items:
-          - '../common/l3_agent_connectivity_check_stop_script.yml'
-          - '../common/l3_agent_failover_check_post_script.yml'
-        tags: ffu_overcloud_ceph
-      when: ceph_osd_enabled|bool
+        - include: "{{ item }}"
+          with_items:
+            - '../common/l3_agent_connectivity_check_stop_script.yml'
+            - '../common/l3_agent_failover_check_post_script.yml'
+          tags: ffu_overcloud_ceph
 
     - name: apply pre ffu overcloud converge workarounds
       command: "{{working_dir}}/pre_ffu_overcloud_converge_workarounds.sh"

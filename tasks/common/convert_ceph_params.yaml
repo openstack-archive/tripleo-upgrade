@@ -35,7 +35,7 @@
           copy:
             src: "{{ ceph_env }}"
             dest: "{{ working_dir}}/pre_upgrade_ceph_osd_hieradata_env.yaml"
-            remote_src: yes
+            remote_src: true
 
         - name: register environment file
           command: "cat {{ ceph_env }}"
@@ -62,7 +62,7 @@
 
         - name: set extra_config fact
           set_fact:
-             extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+            extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
 
         - name: remove unused ceph parameters.
           lineinfile:
@@ -93,7 +93,7 @@
 
         - name: set extra_config from ceph puppet.
           set_fact:
-           extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+            extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
 
         - name: replace empty extraconfig
           replace:

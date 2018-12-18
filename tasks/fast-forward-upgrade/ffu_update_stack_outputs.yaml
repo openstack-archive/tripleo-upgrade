@@ -5,7 +5,7 @@
     {{ working_dir }}/ffu_update_stack_outputs.sh 2>&1 {{ timestamper_cmd }} > \
       {{ working_dir }}/ffu_update_stack_outputs.log
   register: ffu_stack_output
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: print stack failures
   shell: |

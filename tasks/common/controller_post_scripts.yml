@@ -1,3 +1,4 @@
+---
 - name: register controller nodes
   shell: |
     source {{ undercloud_rc }}

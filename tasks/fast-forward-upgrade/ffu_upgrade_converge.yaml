@@ -5,7 +5,7 @@
     {{ working_dir }}/ffu_upgrade_converge_script.sh 2>&1 {{ timestamper_cmd }} > \
       {{ working_dir }}/ffu_upgrade_converge.log
   register: ffu_converge
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: print stack failures
   shell: |

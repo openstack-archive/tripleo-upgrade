@@ -26,7 +26,7 @@
     bash {{ overcloud_upgrade_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
         {{ working_dir }}/overcloud_upgrade_prepare.log
   register: overcloud_upgrade_prepare
-  ignore_errors: yes
+  ignore_errors: true
 
 - block:
     - name: print stack failures

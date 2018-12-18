@@ -1,3 +1,4 @@
+---
 - name: Run pre undercloud {{ current_release }} upgrade workarounds
   command: "{{ working_dir }}/pre_undercloud_upgrade_{{ current_release }}_workarounds.sh"
   when: ffu_upgrade_workarounds

@@ -1,3 +1,4 @@
+---
 - block:
     - name: create l3 agent failover check pre script
       template:

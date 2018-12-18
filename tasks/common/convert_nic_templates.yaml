@@ -1,3 +1,4 @@
+---
 - name: look for network software config
   shell: |
     grep "OS::TripleO::.*::Net::SoftwareConfig" {{ item }}

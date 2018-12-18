@@ -1,3 +1,4 @@
+---
 - name: Kill SSH
   shell: sleep 1; pkill -u {{ ansible_ssh_user }} sshd
   async: 3
