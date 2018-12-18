@@ -134,7 +134,7 @@ An example playbook is provided in tests/test.yml:
 
     - hosts: undercloud
       gather_facts: true
-      become: yes
+      become: true
       become_method: sudo
       become_user: stack
       roles:
@@ -153,7 +153,7 @@ scripts using this example playbook (duplicate from
     ---
     - hosts: undercloud
       gather_facts: true
-      become: yes
+      become: true
       become_method: sudo
       become_user: stack
       roles:

@@ -1,3 +1,4 @@
+---
 - block:
     - name: create start l3 agent connectivity check scripts
       template:

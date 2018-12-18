@@ -1,3 +1,4 @@
+---
 - name: register control-scale opts
   shell: |
     grep -oP "control-scale\ \d+"  {{ overcloud_deploy_script }}
@@ -93,9 +94,16 @@
   template:
     src: fast-forward-upgrade/cli_opts_params.yaml.j2
     dest: "{{working_dir}}/cli_opts_params.yaml"
-    force: no
+    force: false
   when:
-    - control_scale|succeeded or compute_scale|succeeded or ceph_scale|succeeded or control_flavor|succeeded or compute_flavor|succeeded or ceph_flavor|succeeded or ntp_server|succeeded
+    - >
+      control_scale|succeeded or
+      compute_scale|succeeded or
+      ceph_scale|succeeded or
+      control_flavor|succeeded or
+      compute_flavor|succeeded or
+      ceph_flavor|succeeded or
+      ntp_server|succeeded
 
 - name: check "{{working_dir}}/cli_opts_params.yaml" exists
   stat:

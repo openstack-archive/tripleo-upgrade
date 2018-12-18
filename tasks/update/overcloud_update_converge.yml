@@ -7,7 +7,7 @@
         bash {{ overcloud_update_converge_script }} 2>&1 {{ timestamper_cmd }} > \
           {{ working_dir }}/overcloud_update_converge.log
   register: overcloud_converge_update
-  ignore_errors: yes
+  ignore_errors: true
 
 - block:
     - name: print stack failures

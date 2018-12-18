@@ -35,14 +35,14 @@
     dest: "{{working_dir}}/{{ item }}.sh"
     mode: 0775
   with_items:
-     - 'pre_overcloud_upgrade_prepare_workarounds'
-     - 'post_overcloud_upgrade_prepare_workarounds'
-     - 'pre_overcloud_upgrade_workarounds'
-     - 'post_overcloud_upgrade_workarounds'
-     - 'pre_overcloud_upgrade_converge_workarounds'
-     - 'post_overcloud_upgrade_converge_workarounds'
-     - 'pre_ceph_upgrade_workarounds'
-     - 'post_ceph_upgrade_workarounds'
+    - 'pre_overcloud_upgrade_prepare_workarounds'
+    - 'post_overcloud_upgrade_prepare_workarounds'
+    - 'pre_overcloud_upgrade_workarounds'
+    - 'post_overcloud_upgrade_workarounds'
+    - 'pre_overcloud_upgrade_converge_workarounds'
+    - 'post_overcloud_upgrade_converge_workarounds'
+    - 'pre_ceph_upgrade_workarounds'
+    - 'post_ceph_upgrade_workarounds'
   when: upgrade_workarounds
 
 - include: ../common/create_l3_agent_connectivity_check_script.yml

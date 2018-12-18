@@ -1,3 +1,4 @@
+---
 - name: Register roles data file location if exists
   shell: "grep '\\-r\\ \\|\\-\\-roles' {{ overcloud_deploy_script }} | awk {'print $2'}"
   register: custom_roles_file
@@ -17,14 +18,14 @@
 
     - name: Clear removed service for roles_data.yaml file
       lineinfile:
-          dest: '{{ custom_roles_file.stdout }}'
-          regexp: "{{ item }}"
-          state: absent
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: "{{ item }}"
+        state: absent
       with_items:
-          - 'OS::TripleO::Services::Core'
-          - 'OS::TripleO::Services::VipHosts'
-          - 'OS::TripleO::Services::FluentdClient'
-          - 'OS::TripleO::Services::ManilaBackendGeneric'
+        - 'OS::TripleO::Services::Core'
+        - 'OS::TripleO::Services::VipHosts'
+        - 'OS::TripleO::Services::FluentdClient'
+        - 'OS::TripleO::Services::ManilaBackendGeneric'
 
     - name: Assigns deprecated params to Controller role
       replace:
@@ -72,9 +73,9 @@
 
     - name: Add disable_upgrade_deployment to Compute and ObjectStorage roles
       replace:
-          dest: '{{ custom_roles_file.stdout }}'
-          regexp: '^(- name: (Compute|ObjectStorage).*$)'
-          replace: '\1\n  disable_upgrade_deployment: True'
+        dest: '{{ custom_roles_file.stdout }}'
+        regexp: '^(- name: (Compute|ObjectStorage).*$)'
+        replace: '\1\n  disable_upgrade_deployment: True'
 
     - name: Assigns new attributes to CephStorage role
       replace:
