@@ -1,3 +1,4 @@
+---
 - name: create {{ current_release }} undercloud upgrade script
   template:
     src: templates/fast-forward-upgrade/undercloud_upgrade.sh.j2

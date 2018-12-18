@@ -1,3 +1,4 @@
+---
 - name: Adjust ssh config to skip host key check
   copy:
     src: ssh_config

@@ -77,7 +77,7 @@
 
     - include: overcloud_update_run.yml
       tags:
-          - overcloud_update
+        - overcloud_update
 
     - name: overcloud post-update run workarounds
       shell: |
@@ -111,8 +111,8 @@
           bash {{ overcloud_validate_images_script }} 2>&1 {{ timestamper_cmd }} > \
             {{ working_dir}}/validate_oc_images_containers.log
       tags:
-          - overcloud_update
-          - overcloud_images_validate
+        - overcloud_update
+        - overcloud_images_validate
 
     - include: ../common/nova_actions_check.yml
 

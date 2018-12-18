@@ -5,11 +5,11 @@
   shell: |
         set -o pipefail
         bash {{ overcloud_update_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} > \
-          {{ working_dir}}/overcloud_update_run_{{ item }}.log
+          {{ working_dir }}/overcloud_update_run_{{ item }}.log
   with_items:
       - "{{ oc_roles|default('all') }}"
   register: overcloud_update_nodes
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: was the overcloud minor update successful.
   fail: msg="Overcloud minor update execution step failed..."
@@ -17,4 +17,3 @@
   when: item.rc != 0
 
 - include: ../common/l3_agent_connectivity_check_stop_script.yml
-

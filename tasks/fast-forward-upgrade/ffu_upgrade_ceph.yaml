@@ -1,9 +1,10 @@
+---
 - name: upgrade ceph post ffu
   shell: |
     source {{ undercloud_rc }}
     {{ working_dir }}/ffu_upgrade_ceph_script.sh &> {{ working_dir }}/ffu_upgrade_ceph.log
   register: ffu_upgrade_ceph
-  ignore_errors: yes
+  ignore_errors: true
 
 - block:
     - name: print stack failures

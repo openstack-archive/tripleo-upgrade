@@ -10,12 +10,6 @@
 - name: get auxiliary facts for major upgrades
   include: ../common/auxilary-facts.yaml
 
-- name: register is_upstream variable
-  shell: |
-    rpm -q openstack-tripleo-heat-templates | grep '\.el[[:digit:]]\.'
-  failed_when: false
-  register: is_upstream
-
 - name: check if undercloud is ssl enabled
   command: "grep -Fq OS_AUTH_URL=https {{ undercloud_rc }}"
   register: undercloud_ssl
@@ -41,12 +35,13 @@
     dest: "{{working_dir}}/{{ item }}.sh"
     mode: 0775
   with_items:
-     - 'pre_overcloud_upgrade_prepare_workarounds'
-     - 'post_overcloud_upgrade_prepare_workarounds'
-     - 'pre_overcloud_upgrade_workarounds'
-     - 'post_overcloud_upgrade_workarounds'
-     - 'pre_overcloud_upgrade_converge_workarounds'
-     - 'post_overcloud_upgrade_converge_workarounds'
+    - 'pre_overcloud_upgrade_prepare_workarounds'
+    - 'post_overcloud_upgrade_prepare_workarounds'
+    - 'pre_overcloud_upgrade_workarounds'
+    - 'post_overcloud_upgrade_workarounds'
+    - 'pre_overcloud_upgrade_converge_workarounds'
+    - 'post_overcloud_upgrade_converge_workarounds'
+
   when: upgrade_workarounds
 
 - include: ../common/create_l3_agent_connectivity_check_script.yml

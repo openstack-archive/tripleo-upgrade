@@ -58,7 +58,7 @@
         mode: 0775
       tags: ffu_overcloud_upgrade_compute
       with_items:
-         - '{{ tripleo_compute_nodes.stdout_lines }}'
+        - '{{ tripleo_compute_nodes.stdout_lines }}'
 
     - include: ../common/l3_agent_connectivity_check_start_script.yml
       tags: ffu_overcloud_upgrade_compute
@@ -67,7 +67,7 @@
       command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
       tags: ffu_overcloud_upgrade_compute
       with_items:
-         - '{{ tripleo_compute_nodes.stdout_lines }}'
+        - '{{ tripleo_compute_nodes.stdout_lines }}'
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_overcloud_upgrade_compute

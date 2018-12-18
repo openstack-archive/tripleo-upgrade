@@ -6,7 +6,7 @@
     bash {{ overcloud_update_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
       {{ working_dir }}/overcloud_update_prepare.log
   register: overcloud_update_prepare
-  ignore_errors: yes
+  ignore_errors: true
 
 - block:
     - name: print stack failures
@@ -24,4 +24,3 @@
     - name: was the overcloud update prepare successful.
       fail: msg="Overcloud minor update preparation step failed..."
   when: overcloud_update_prepare.rc != 0
-

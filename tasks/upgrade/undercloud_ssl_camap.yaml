@@ -1,3 +1,4 @@
+---
 - name: register undercloud public endpoint
   shell: |
     source {{ undercloud_rc }}
@@ -14,7 +15,7 @@
   shell: |
     ssh -q -o StrictHostKeyChecking=no heat-admin@{{ ctrl_ip.stdout }} curl --silent {{ keystone_endpoint.stdout }}
   register: uc_keystone_conn
-  ignore_errors: True
+  ignore_errors: true
 
 - block:
     - name: register ssl certificate location

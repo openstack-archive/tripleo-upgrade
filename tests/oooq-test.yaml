@@ -1,8 +1,8 @@
 ---
 - hosts: undercloud
   gather_facts: true
-  become: yes
+  become: true
   become_method: sudo
   become_user: stack
   roles:
-    - { role: tripleo-upgrade, use_oooq: 'true' }
+    - {role: tripleo-upgrade, use_oooq: 'true'}
