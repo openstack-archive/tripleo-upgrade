@@ -63,14 +63,16 @@
 
     - name: prepare containers for overcloud update
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       shell: |
         set -o pipefail
         bash {{ working_dir }}/overcloud_prepare_containers.sh {{ timestamper_cmd }} > overcloud_update_prepare_containers.log
       tags: overcloud_update_prepare_containers
 
     - name: Ensure ansible-pacemaker module is present in CI.
-      yum: name=ansible-pacemaker state=latest
+      yum:
+        name: ansible-pacemaker
+        state: latest
       when: tripleo_ci|default(false)|bool
       tags: overcloud_update
       become: true
@@ -101,13 +103,13 @@
 
     - name: run online data migration
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       shell: |
         set -o pipefail
         bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_update_data_migration.log
 
     - name: apply pre overcloud update converge workarounds
-      command: "{{working_dir}}/pre_overcloud_update_converge_workarounds.sh"
+      command: "{{ working_dir }}/pre_overcloud_update_converge_workarounds.sh"
       when: updates_workarounds
       tags: overcloud_update_converge
 
@@ -115,7 +117,7 @@
       tags: overcloud_update_converge
 
     - name: apply post overcloud update converge workarounds
-      command: "{{working_dir}}/post_overcloud_update_converge_workarounds.sh"
+      command: "{{ working_dir }}/post_overcloud_update_converge_workarounds.sh"
       when: updates_workarounds
       tags: overcloud_update_converge
 
@@ -124,7 +126,7 @@
           set -o pipefail
           source {{ undercloud_rc }}
           bash {{ overcloud_validate_images_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir}}/validate_oc_images_containers.log
+            {{ working_dir }}/validate_oc_images_containers.log
       tags:
         - overcloud_update
         - overcloud_images_validate

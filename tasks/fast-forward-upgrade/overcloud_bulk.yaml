@@ -9,7 +9,7 @@
     - "all"
 
 - name: apply pre overcloud upgrade run workarounds
-  command: "{{working_dir}}/pre_ffu_overcloud_upgrade_workarounds.sh"
+  command: "{{ working_dir }}/pre_ffu_overcloud_upgrade_workarounds.sh"
   when: ffu_upgrade_workarounds|bool
   tags: ffu_overcloud_upgrade
 
@@ -17,7 +17,7 @@
   tags: ffu_overcloud_upgrade
 
 - name: run all roles upgrade steps
-  command: "{{working_dir}}//overcloud_upgrade_all.sh"
+  command: "{{ working_dir }}//overcloud_upgrade_all.sh"
   tags: ffu_overcloud_upgrade
 
 - include: "{{ item }}"

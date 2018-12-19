@@ -43,8 +43,8 @@
   vars:
     roles_data: "{{ roles_data_file.stdout }}"
   set_fact:
-    roles_data: "{{ (roles_data_file.stdout|length > 0) | ternary(roles_data, default_roles_data)}}"
-    custom_roles_used: "{{ (roles_data_file.stdout|length > 0) | ternary(true, false)}}"
+    roles_data: "{{ (roles_data_file.stdout) | ternary(roles_data, default_roles_data) }}"
+    custom_roles_used: "{{ (roles_data_file.stdout) | ternary(true, false) }}"
 
 - name: assert CephOSD is enabled
   shell: |
@@ -54,7 +54,7 @@
 
 - name: set ceph_osd_enabled fact
   set_fact:
-    ceph_osd_enabled: "{{ (ceph_osd_service.stdout|length > 0) | ternary(true, false) }}"
+    ceph_osd_enabled: "{{ (ceph_osd_service.stdout) | ternary(true, false) }}"
 
 - name: check if bm nodes are present
   shell: |
@@ -64,4 +64,4 @@
 
 - name: set fact splitstack_deployment
   set_fact:
-    splitstack_deployment: "{{ (bm_node_present.stdout_lines|length > 0)|ternary(false, true) }}"
+    splitstack_deployment: "{{ (bm_node_present.stdout_lines) | ternary(false, true) }}"

@@ -1,5 +1,5 @@
 source {{ undercloud_rc }}
-OC_USER="{{ (overcloud_ssh_user == '') | ternary('heat-admin', overcloud_ssh_user) }}"
+OC_USER="{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
 NODE_IP=$(openstack server show {{ node_name | splitext | first }} -f json  | jq -r .addresses | grep -oP '[0-9.]+')
 
 ## in case of external loadbalancer haproxy resource is not running on controller nodes

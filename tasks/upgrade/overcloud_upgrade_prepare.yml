@@ -34,14 +34,14 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
-        tee {{ working_dir}}/overcloud_failed_upgrade_prepare.log
+        tee {{ working_dir }}/overcloud_failed_upgrade_prepare.log
 
     - name: print resource list
       shell: |
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} \
-        2>&1 {{ timestamper_cmd }} | tee {{ working_dir}}/overcloud_failed_prepare_resources.log
+        2>&1 {{ timestamper_cmd }} | tee {{ working_dir }}/overcloud_failed_prepare_resources.log
 
     - name: was the overcloud upgrade preparation successful.
       fail: msg="Overcloud upgrade preparation step failed... :("

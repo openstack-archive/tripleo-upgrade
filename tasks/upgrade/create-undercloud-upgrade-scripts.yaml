@@ -9,7 +9,7 @@
 - name: create upgrade workaround scripts
   template:
     src: workarounds.sh.j2
-    dest: "{{working_dir}}/{{ item }}.sh"
+    dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
   with_items:
     - 'pre_undercloud_upgrade_workarounds'

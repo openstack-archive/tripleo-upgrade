@@ -32,7 +32,7 @@
 - name: create upgrade workaround scripts
   template:
     src: workarounds.sh.j2
-    dest: "{{working_dir}}/{{ item }}.sh"
+    dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
   with_items:
     - 'pre_overcloud_upgrade_prepare_workarounds'
@@ -50,7 +50,7 @@
 - name: create the custom upgrade init commands
   template:
     src: "{{ upgrade_init_command_template }}"
-    dest: "{{upgrade_init_command_dest}}"
+    dest: "{{ upgrade_init_command_dest }}"
     mode: 0775
   when: upgrade_init_command is string
 

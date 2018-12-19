@@ -2,7 +2,7 @@
 - name: Create FIP HTTP check scripts
   template:
     src: "{{ item }}"
-    dest: "{{working_dir}}/{{ item.split('.') | first }}.sh"
+    dest: "{{ working_dir }}/{{ item.split('.') | first }}.sh"
     mode: 0775
   with_items:
     - 'fip_http_check_start.sh.j2'

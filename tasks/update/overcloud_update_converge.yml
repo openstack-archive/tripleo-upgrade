@@ -15,7 +15,7 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} {{ timestamper_cmd }} | \
-          tee {{ working_dir}}/overcloud_composable_failed_update_converge.log
+          tee {{ working_dir }}/overcloud_composable_failed_update_converge.log
 
     - name: was the overcloud update converge successful.
       fail: msg="Overcloud update converge step failed... :("
