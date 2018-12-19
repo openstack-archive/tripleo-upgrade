@@ -13,12 +13,12 @@
 - name: Adjust ffu scenario file.
   replace:
     dest: "{{ overcloud_deploy_script }}"
-    regexp: "{{composable_scenario}}"
-    replace: "{{upgrade_composable_scenario}}"
+    regexp: "{{ composable_scenario }}"
+    replace: "{{ upgrade_composable_scenario }}"
   when:
     - tripleo_ci|bool
-    - upgrade_composable_scenario != ""
-    - composable_scenario != ""
+    - upgrade_composable_scenario|default("")
+    - composable_scenario|default("")
 
 - name: Convert CLI options to parameters
   include: ../common/convert_cli_opts_params.yaml
@@ -35,7 +35,7 @@
 - name: create ffu upgrade workaround scripts
   template:
     src: fast-forward-upgrade/workarounds.sh.j2
-    dest: "{{working_dir}}/{{ item }}.sh"
+    dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
   with_items:
     - 'post_ffu_undercloud_upgrade_workarounds'
@@ -49,13 +49,13 @@
 - name: Create FFU custom repos environment
   template:
     src: fast-forward-upgrade/ffu_repos.yaml.j2
-    dest: "{{working_dir}}/ffu_repos.yaml"
+    dest: "{{ working_dir }}/ffu_repos.yaml"
   when: "'tripleo-repos' not in ffu_overcloud_repo_type"
 
 - name: create overcloud ffwd run script
   template:
     src: "fast-forward-upgrade/overcloud_upgrade_run.sh.j2"
-    dest: "{{working_dir}}/overcloud_upgrade_run.sh"
+    dest: "{{ working_dir }}/overcloud_upgrade_run.sh"
     mode: 0775
     force: false
 

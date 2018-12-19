@@ -10,7 +10,7 @@
         set -o pipefail
         bash {{ working_dir }}/pre_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_undercloud_upgrade_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
 
     - name: upgrade undercloud
@@ -18,7 +18,7 @@
         set -o pipefail
         bash {{ undercloud_upgrade_script }} 2>&1 {{ timestamper_cmd }} > undercloud_upgrade.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       tags: undercloud_upgrade
 
     - name: validate undercloud upgrade
@@ -30,7 +30,7 @@
         set -o pipefail
         bash {{ working_dir }}/post_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_undercloud_upgrade_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
   when: undercloud_upgrade|bool
 
@@ -45,7 +45,7 @@
         set -o pipefail
         bash {{ working_dir }}/pre_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_prepare_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
@@ -57,12 +57,14 @@
         set -o pipefail
         bash {{ working_dir }}/post_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_prepare_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
     - name: Ensure ansible-pacemaker module is present in CI.
-      yum: name=ansible-pacemaker state=latest
+      yum:
+        name: ansible-pacemaker
+        state: latest
       when: tripleo_ci|default(false)|bool
       tags: overcloud_upgrade_run
       become: true
@@ -72,7 +74,7 @@
         set -o pipefail
         bash {{ working_dir }}/pre_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_run
 
@@ -81,7 +83,7 @@
         set -o pipefail
         bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: workload_launch|bool
 
     - include: overcloud_upgrade_run.yml
@@ -92,7 +94,7 @@
         set -o pipefail
         bash {{ working_dir }}/post_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_run
 
@@ -105,7 +107,7 @@
         set -o pipefail
         bash {{ working_dir }}/pre_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_converge_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 
@@ -117,7 +119,7 @@
         set -o pipefail
         bash {{ working_dir }}/post_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_converge_workarounds.log
       args:
-        chdir: "{{working_dir}}"
+        chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 

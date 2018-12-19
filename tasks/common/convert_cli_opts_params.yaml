@@ -93,7 +93,7 @@
 - name: convert cli options into parameters
   template:
     src: fast-forward-upgrade/cli_opts_params.yaml.j2
-    dest: "{{working_dir}}/cli_opts_params.yaml"
+    dest: "{{ working_dir }}/cli_opts_params.yaml"
     force: false
   when:
     - >
@@ -105,9 +105,9 @@
       ceph_flavor|succeeded or
       ntp_server|succeeded
 
-- name: check "{{working_dir}}/cli_opts_params.yaml" exists
+- name: check "{{ working_dir }}/cli_opts_params.yaml" exists
   stat:
-    path: "{{working_dir}}/cli_opts_params.yaml"
+    path: "{{ working_dir }}/cli_opts_params.yaml"
   register: cli_opts_param_file
 
 - name: set cli_converted_options fact

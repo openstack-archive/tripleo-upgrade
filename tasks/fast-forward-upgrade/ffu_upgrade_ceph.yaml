@@ -10,12 +10,14 @@
     - name: print stack failures
       shell: |
         source {{ undercloud_rc }}
-        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_ceph_failed.log
+        openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
+        tee {{ working_dir }}/ffu_upgrade_ceph_failed.log
 
     - name: print resource list
       shell: |
         source {{ undercloud_rc }}
-        openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} | tee {{ working_dir}}/ffu_upgrade_ceph_failed_resources.log
+        openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} \
+        2>&1 {{ timestamper_cmd }} | tee {{ working_dir }}/ffu_upgrade_ceph_failed_resources.log
 
     - name: was the ffu update ceph successful.
       fail: msg="FFU upgrade ceph step failed... :("

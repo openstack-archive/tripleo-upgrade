@@ -8,7 +8,8 @@
     - name: print stack failures
       shell: |
         source {{ undercloud_rc }}
-        openstack stack failures list --long {{ overcloud_stack_name }} | tee {{ working_dir}}/overcloud_composable_failed_upgrade_converge.log
+        openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
+          tee {{ working_dir }}/overcloud_composable_failed_upgrade_converge.log
 
     - name: was the overcloud upgrade converge successful.
       fail: msg="Overcloud upgrade converge step failed... :("

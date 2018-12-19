@@ -19,13 +19,15 @@
       with_items: "{{ ffu_undercloud_releases }}"
 
     - name: apply post ffu undercloud upgrade workarounds
-      command: "{{working_dir}}/post_ffu_undercloud_upgrade_workarounds.sh"
+      command: "{{ working_dir }}/post_ffu_undercloud_upgrade_workarounds.sh"
       when: ffu_upgrade_workarounds|bool
   when: ffu_undercloud_upgrade|bool
 
 - block:
     - name: Ensure ansible-pacemaker module is present in CI.
-      yum: name=ansible-pacemaker state=latest
+      yum:
+        name: ansible-pacemaker
+        state: latest
       when: tripleo_ci|default(false)|bool
       tags: ffu_upgrade_playbook
       become: true
@@ -37,7 +39,7 @@
       tags: ffu_overcloud_prepare
 
     - name: apply pre ffu overcloud prepare workarounds
-      command: "{{working_dir}}/pre_ffu_overcloud_prepare_workarounds.sh"
+      command: "{{ working_dir }}/pre_ffu_overcloud_prepare_workarounds.sh"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
 
@@ -46,12 +48,12 @@
 
     - name: set upgrade_prepare_extra_params for ffu prepare with custom repos
       set_fact:
-        upgrade_prepare_extra_params: ["{{working_dir}}/ffu_repos.yaml"]
+        upgrade_prepare_extra_params: ["{{ working_dir }}/ffu_repos.yaml"]
       when: "'tripleo-repos' not in ffu_overcloud_repo_type"
 
     - name: set upgrade_prepare_extra_params for ffu prepare with deployed server
       set_fact:
-        upgrade_prepare_extra_params: '{{ upgrade_prepare_extra_params + ["{{tht_directory}}/environments/updates/update-from-deployed-server-newton.yaml"] }}'
+        upgrade_prepare_extra_params: '{{ upgrade_prepare_extra_params + ["{{ tht_directory }}/environments/updates/update-from-deployed-server-newton.yaml"] }}'
       when: deployed_server|default(false)|bool
 
     - include: ../upgrade/overcloud_upgrade_prepare.yml
@@ -64,7 +66,7 @@
       tags: ffu_overcloud_prepare
 
     - name: apply pre fast forward overcloud upgrade run workarounds
-      command: "{{working_dir}}/pre_ffu_overcloud_run_workarounds.sh"
+      command: "{{ working_dir }}/pre_ffu_overcloud_run_workarounds.sh"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_run
 
@@ -72,7 +74,7 @@
       tags: ffu_overcloud_run
 
     - name: run overcloud fast forward upgrade
-      command: "{{working_dir}}/overcloud_upgrade_run.sh"
+      command: "{{ working_dir }}/overcloud_upgrade_run.sh"
       tags: ffu_overcloud_run
 
     - include: ../common/l3_agent_connectivity_check_stop_script.yml
@@ -92,7 +94,7 @@
     - when: ceph_osd_enabled|bool
       block:
         - name: apply pre ffu ceph upgrade workarounds
-          command: "{{working_dir}}/pre_ffu_overcloud_ceph_workarounds.sh"
+          command: "{{ working_dir }}/pre_ffu_overcloud_ceph_workarounds.sh"
           when: ffu_upgrade_workarounds|bool
           tags: ffu_overcloud_ceph
 
@@ -113,7 +115,7 @@
           tags: ffu_overcloud_ceph
 
     - name: apply pre ffu overcloud converge workarounds
-      command: "{{working_dir}}/pre_ffu_overcloud_converge_workarounds.sh"
+      command: "{{ working_dir }}/pre_ffu_overcloud_converge_workarounds.sh"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_converge
 

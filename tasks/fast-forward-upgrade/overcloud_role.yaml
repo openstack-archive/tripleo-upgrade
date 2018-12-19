@@ -14,7 +14,7 @@
   tags: ffu_overcloud_upgrade_controller
 
 - name: pre controller role upgrade steps workarounds
-  command: "{{working_dir}}/pre_ffu_overcloud_upgrade_workarounds.sh"
+  command: "{{ working_dir }}/pre_ffu_overcloud_upgrade_workarounds.sh"
   when: ffu_upgrade_workarounds|bool
   tags: ffu_overcloud_upgrade_controller
 
@@ -47,7 +47,7 @@
 - block:
     - name: register compute nodes from tripleo ansible inventory
       shell: |
-        awk -F':' '/^[^ \n]*compute-/ {print $1}' {{working_dir}}/tripleo-ansible-inventory.yaml
+        awk -F':' '/^[^ \n]*compute-/ {print $1}' {{ working_dir }}/tripleo-ansible-inventory.yaml
       register: tripleo_compute_nodes
       tags: ffu_overcloud_upgrade_compute
 

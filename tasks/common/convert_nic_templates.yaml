@@ -36,7 +36,8 @@
       shell: |
         set -o pipefail
         sed -i -E "s/^[ ]{0,}#.*//" {{ '/'.join(nic_config_env.split('/')[0:-1]) }}/{{ item }}
-        echo y | /usr/share/openstack-tripleo-heat-templates/tools/yaml-nic-config-2-script.py {{ '/'.join(nic_config_env.split('/')[0:-1]) }}/{{ item }}
+        echo y | /usr/share/openstack-tripleo-heat-templates/tools/yaml-nic-config-2-script.py \
+            {{ '/'.join(nic_config_env.split('/')[0:-1]) }}/{{ item }}
       when:
         - "item[0] != '/'"
         - "tht_directory not in '/'.join(nic_config_env.split('/')[0:-1])"
