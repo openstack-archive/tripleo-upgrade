@@ -35,7 +35,8 @@
             --discard-comments yes \
             --template {{ nic_path }}
       when:
-        - "(item[0] == '/' and tht_directory not in item) or (item[0] != '/' and tht_directory not in '/'.join(nic_config_env.split('/')[0:-1]))"
+        - "(item[0] == '/' and tht_directory not in item) or \
+             (item[0] != '/' and tht_directory not in '/'.join(nic_config_env.split('/')[0:-1]))"
       with_items:
         - "{{ nic_template_files.stdout_lines }}"
 

@@ -6,7 +6,7 @@
 
 - name: check if ceph osd hieradata has already been removed
   stat:
-    path: "{{ working_dir}}/pre_upgrade_ceph_osd_hieradata_env.yaml"
+    path: "{{ working_dir }}/pre_upgrade_ceph_osd_hieradata_env.yaml"
   register: ceph_osd_adjusted
 
 - block:
@@ -34,7 +34,7 @@
         - name: make a copy of the initial environment file
           copy:
             src: "{{ ceph_env }}"
-            dest: "{{ working_dir}}/pre_upgrade_ceph_osd_hieradata_env.yaml"
+            dest: "{{ working_dir }}/pre_upgrade_ceph_osd_hieradata_env.yaml"
             remote_src: true
 
         - name: register environment file
@@ -42,12 +42,16 @@
           register: ceph_puppet
 
         - name: set ceph_osds fact
+          vars:
+            ceph_yaml: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults }}"
           set_fact:
-            ceph_osds: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osds'] | default([]) }}"
+            ceph_osds: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osds'] | default([]) }}"
 
         - name: set ceph_osds_pg fact
+          vars:
+            ceph_yaml: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults }}"
           set_fact:
-            ceph_osds_pg: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
+            ceph_osds_pg: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
           ignore_errors: true
 
         - name: set ceph_osds_non_collocated fact
@@ -58,7 +62,7 @@
         - name: generate new environment file
           template:
             src: cephosd.yaml.j2
-            dest: "{{working_dir}}/ceph-ansible-env.yaml"
+            dest: "{{ working_dir }}/ceph-ansible-env.yaml"
 
         - name: set extra_config fact
           set_fact:

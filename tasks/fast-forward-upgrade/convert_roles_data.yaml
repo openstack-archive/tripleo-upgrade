@@ -39,6 +39,10 @@
         - '\1\n  uses_deprecated_params: True'
 
     - name: Assigns network attributes to Controller role or custom controller roles
+      vars:
+        ctr_desc: >-
+          description: |\n    Controller role that has all the controler services loaded and handles
+              Database, Messaging and Network functions.
       replace:
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Controller.*)'
@@ -46,7 +50,7 @@
       with_items:
         - '\1\n  networks:\n    - External\n    - InternalApi\n    - Storage\n    - StorageMgmt\n    - Tenant'
         - '\1\n  tags:\n    - primary\n    - controller'
-        - '\1\n  description: |\n    Controller role that has all the controler services loaded and handles\n    Database, Messaging and Network functions.'
+        - '\1\n  {{ ctr_desc }}'
 
     - name: Assigns deprecated params to Compute role
       replace:
