@@ -121,15 +121,6 @@
       include: ceph_upgrade_run.yml
       when: ceph_osd_enabled|bool
 
-    - name: apply pre overcloud upgrade converge workarounds
-      shell: |
-        set -o pipefail
-        bash {{ working_dir }}/pre_overcloud_upgrade_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_converge_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-      when: upgrade_workarounds
-      tags: overcloud_upgrade_converge
-
     - name: apply post Ceph upgrade workarounds
       shell: |
         set -o pipefail
@@ -144,6 +135,15 @@
       shell: |
         set -o pipefail
         bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_upgrade_data_migration.log
+
+    - name: apply pre overcloud upgrade converge workarounds
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/pre_overcloud_upgrade_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_converge_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: upgrade_workarounds
+      tags: overcloud_upgrade_converge
 
     - include: overcloud_upgrade_converge.yml
       tags: overcloud_upgrade_converge
