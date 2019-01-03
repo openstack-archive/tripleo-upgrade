@@ -87,7 +87,7 @@
     - name: register overcloud nodes ip address
       shell: |
         source {{ undercloud_rc }}
-        openstack server list -f json | jq -r -c '.[] | .Networks' | grep -oP '[0-9.]+'
+        openstack server list -f value -c Networks |  grep -oP '[0-9.]+'
       register: node_ip
 
     - name: copy certificate to the overcloud nodes and update the trusted store

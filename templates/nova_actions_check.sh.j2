@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux
 
-SERVER_ID=$(openstack server list -f json | jq -r -c '.[0] | .ID')
+SERVER_ID=$(openstack server list -f value -c ID --limit 1)
 SERVER_FIP=$(openstack server show -f json ${SERVER_ID} | jq -r -c '.addresses' | grep -oP ',.*' | sed s/,\ //)
 SERVER_SSH_USER={{ workload_user }}
 
