@@ -21,6 +21,12 @@
   when: item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*')
   with_items: "{{ oc_roles }}"
 
-- name: store sorted roles with controller first
+- name: store sorted roles with controller first(default)
   set_fact:
     oc_roles: "{{ oc_roles|intersect([controller_role_name]) + oc_roles|difference([controller_role_name]) }}"
+  when: roles_upgrade_order == '__undefined__'
+
+- name: store sorted roles with controller first(user-defined)
+  set_fact:
+    oc_roles: "{{ roles_upgrade_order.split(';') }}"
+  when: roles_upgrade_order != '__undefined__'
