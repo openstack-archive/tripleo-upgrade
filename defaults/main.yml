@@ -237,5 +237,8 @@ upgrade_remove_rpm: false
 # List of roles deployed in overcloud
 oc_roles: []
 
+# Roles upgrade order
+roles_upgrade_order: '__undefined__'
+
 # Packet loss threshold for a ping test
 loss_threshold: 1
