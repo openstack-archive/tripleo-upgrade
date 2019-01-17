@@ -183,7 +183,7 @@ In order to install it manually, the following InfraRed command should be used::
 
     infrared plugin add tripleo-upgrade
     # add with a specific revision / branch
-    infrared plugin add --revision stable/pike tripleo-upgrade
+    infrared plugin add --revision stable/rocky tripleo-upgrade
 
 After a successful InfraRed overcloud deployment you need to run the following steps to upgrade the deployment:
 
@@ -239,9 +239,36 @@ Upgrade overcloud::
         --overcloud-upgrade yes
 
 Update overcloud::
+
     infrared tripleo-upgrade \
         --overcloud-update yes
 
+Advanced upgrade options
+------------------------
+
+Operator can now specify order of roles to upgrade by using *roles_upgrade_order* variable.
+
+It's the **responsibility** of operator to specify *Controller* role first followed by all other roles.
+
+*roles_upgrade_order* variable expects roles being separated by *;(semicolon)*, for e.g.:
+
+::
+
+    infrared tripleo-upgrade \
+        --overcloud-upgrade yes \
+        -e 'roles_upgrade_order=ControllerOpenstack;Database;Messaging'
+
+will upgrade ControllerOpenstack group, then Database and finally Messaging.
+
+Multiple roles could be upgraded in parallel, to achieve this they should be separated by *,(comma)*, for e.g:
+
+::
+
+    infrared tripleo-upgrade \
+        --overcloud-upgrade yes \
+        -e 'roles_upgrade_order=ControllerOpenstack;Database;Messaging'
+
+will upgrade Controller and Database groups in parallel and then continue with Messaging.
 
 Running the role manually from the undercloud
 ---------------------------------------------
