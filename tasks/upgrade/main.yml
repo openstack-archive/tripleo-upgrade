@@ -1,6 +1,9 @@
 ---
 - name: create undercloud upgrade scripts
-  include: create-undercloud-upgrade-scripts.yaml
+  include_tasks: create-undercloud-upgrade-scripts.yaml
+  args:
+    apply:
+      tags: create_undercloud_upgrade_scripts
   tags: create_undercloud_upgrade_scripts
   when: upgrade_noop|bool or undercloud_upgrade|bool
 
@@ -14,7 +17,7 @@
       when: upgrade_workarounds
 
     - name: configure container specific parameters
-      include: configure_uc_containers.yml
+      import_tasks: configure_uc_containers.yml
 
     - name: upgrade undercloud
       shell: |
@@ -25,7 +28,7 @@
       tags: undercloud_upgrade
 
     - name: validate undercloud upgrade
-      include: ../common/undercloud_validate_upgrade.yaml
+      import_tasks: ../common/undercloud_validate_upgrade.yaml
       tags: undercloud_upgrade_validate
 
     - name: apply post undercloud upgrade workarounds
@@ -38,7 +41,11 @@
   when: undercloud_upgrade|bool
 
 - name: create overcloud upgrade scripts
-  include: create-overcloud-upgrade-scripts.yaml
+  include_tasks: create-overcloud-upgrade-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_overcloud_upgrade_scripts
   tags: create_overcloud_upgrade_scripts
   when: upgrade_noop|bool or overcloud_upgrade|bool
 
@@ -52,7 +59,7 @@
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
 
-    - include: overcloud_upgrade_prepare.yml
+    - import_tasks: overcloud_upgrade_prepare.yml
       tags: overcloud_upgrade_prepare
 
     - name: apply post overcloud upgrade prepare workarounds
@@ -97,7 +104,7 @@
         chdir: "{{ working_dir }}"
       when: workload_launch|bool
 
-    - include: overcloud_upgrade_run.yml
+    - import_tasks: overcloud_upgrade_run.yml
       tags: overcloud_upgrade_run
 
     - name: apply post overcloud upgrade workarounds
@@ -118,7 +125,7 @@
       when: upgrade_workarounds
 
     - name: upgrade Ceph
-      include: ceph_upgrade_run.yml
+      include_tasks: ceph_upgrade_run.yml
       when: ceph_osd_enabled|bool
 
     - name: apply post Ceph upgrade workarounds
@@ -145,7 +152,7 @@
       when: upgrade_workarounds
       tags: overcloud_upgrade_converge
 
-    - include: overcloud_upgrade_converge.yml
+    - import_tasks: overcloud_upgrade_converge.yml
       tags: overcloud_upgrade_converge
 
     - name: apply post overcloud upgrade converge workarounds
@@ -158,10 +165,14 @@
       tags: overcloud_upgrade_converge
 
     - name: run controller post upgrade steps
-      include: controller_post_upgrade.yml
+      include_tasks: controller_post_upgrade.yml
+      args:
+        apply:
+          tags:
+            - controller_post_upgrade
       tags: controller_post_upgrade
       when: controller_upgrade_post|bool
 
-    - include: ../common/nova_actions_check.yml
+    - import_tasks: ../common/nova_actions_check.yml
 
   when: overcloud_upgrade|bool
