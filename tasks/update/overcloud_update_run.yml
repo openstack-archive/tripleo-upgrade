@@ -1,5 +1,6 @@
 ---
-- include: ../common/l3_agent_connectivity_check_start_script.yml
+- name: import tasks from l3_agent_connectivity_check_start_script
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
 - name: run overcloud minor update in each of the roles/hostgroups
   shell: |
@@ -16,4 +17,5 @@
   with_items: "{{ overcloud_update_nodes.results }}"
   when: item.rc != 0
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
+- name: import tasks from l3_agent_connectivity_check_stop_script
+  import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml

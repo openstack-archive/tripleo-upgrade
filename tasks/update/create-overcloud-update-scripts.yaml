@@ -1,14 +1,18 @@
 ---
 - name: create a comptatible deployment scripts from oooq
-  include: ../upgrade/use_oooq.yaml
+  include_tasks: ../upgrade/use_oooq.yaml
+  args:
+    apply:
+      tags:
+        - use_oooq
   tags: use_oooq
   when: use_oooq|bool
 
 - name: Convert CLI options to parameters
-  include: ../common/convert_cli_opts_params.yaml
+  import_tasks: ../common/convert_cli_opts_params.yaml
 
 - name: get auxiliary facts for major upgrades
-  include: ../common/auxilary-facts.yaml
+  import_tasks: ../common/auxilary-facts.yaml
 
 - name: create scripts with workarounds
   template:
@@ -26,10 +30,10 @@
   when: updates_workarounds|bool
 
 - name: include l3 agent tasks
-  include: ../common/create_l3_agent_connectivity_check_script.yml
+  import_tasks: ../common/create_l3_agent_connectivity_check_script.yml
 
 - name: generate roles list from inventory file
-  include: ../common/load_roles_from_inventory.yaml
+  import_tasks: ../common/load_roles_from_inventory.yaml
 
 - name: create overcloud update prepare script
   template:
@@ -69,10 +73,10 @@
     force: true
 
 - name: Create L3-agent failover scripts
-  include: ../common/create_l3_agent_failover_check_script.yml
+  import_tasks: ../common/create_l3_agent_failover_check_script.yml
 
 - name: create nova actions check script
-  include: ../common/create_nova_actions_check_script.yml
+  import_tasks: ../common/create_nova_actions_check_script.yml
 
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
