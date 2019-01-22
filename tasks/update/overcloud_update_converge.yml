@@ -1,5 +1,6 @@
 ---
-- include: ../common/l3_agent_connectivity_check_start_script.yml
+- name: import tasks from l3_agent_connectivity_check_start_script
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
 - name: run minor update converge step
   shell: |
@@ -21,4 +22,5 @@
       fail: msg="Overcloud update converge step failed... :("
   when: overcloud_converge_update.rc != 0
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
+- name: import tasks from l3_agent_connectivity_check_stop_script
+  import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
