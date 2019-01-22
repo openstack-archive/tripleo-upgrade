@@ -1,6 +1,6 @@
 ---
 - name: adjust role-data for P->Q upgrade
-  include: ../common/adjust-roles-data.yaml
+  include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
 
 - name: add upgrade init script to upgrade prepare params

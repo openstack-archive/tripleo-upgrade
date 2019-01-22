@@ -1,27 +1,32 @@
 ---
 - name: create a comptatible deployment scripts from oooq
-  include: use_oooq.yaml
+  include_tasks: use_oooq.yaml
+  args:
+    apply:
+      tags:
+        - use_oooq
   tags: use_oooq
   when: use_oooq|bool
 
 - name: Convert CLI options to parameters
-  include: ../common/convert_cli_opts_params.yaml
+  import_tasks: ../common/convert_cli_opts_params.yaml
 
 - name: get auxiliary facts for major upgrades
-  include: ../common/auxilary-facts.yaml
+  import_tasks: ../common/auxilary-facts.yaml
 
 - name: check if undercloud is ssl enabled
   command: "grep -Fq OS_AUTH_URL=https {{ undercloud_rc }}"
   register: undercloud_ssl
   ignore_errors: true
 
-- include: undercloud_ssl_camap.yaml
+- name: include undercloud_ssl_camap.yaml
+  include_tasks: undercloud_ssl_camap.yaml
   when:
     - undercloud_ssl|succeeded
     - not splitstack_deployment|bool
 
 - name: generate roles list from inventory file
-  include: ../common/load_roles_from_inventory.yaml
+  import_tasks: ../common/load_roles_from_inventory.yaml
 
 - name: create workload launch script
   template:
@@ -45,7 +50,8 @@
     - 'post_ceph_upgrade_workarounds'
   when: upgrade_workarounds
 
-- include: ../common/create_l3_agent_connectivity_check_script.yml
+- name: import tasks from create_l3_agent_connectivity_check_script
+  import_tasks: ../common/create_l3_agent_connectivity_check_script.yml
 
 - name: create the custom upgrade init commands
   template:
@@ -101,19 +107,20 @@
     force: true
   when: upgrade_remove_rpm|bool
 
-- include: ../common/ssh_config_skip_host.yml
+- name: import tasks from sh_config_skip_host
+  import_tasks: ../common/ssh_config_skip_host.yml
 
 - name: Create post upgrade scripts for controller nodes
-  include: ../common/controller_post_scripts.yml
+  import_tasks: ../common/controller_post_scripts.yml
 
 - name: Create L3-agent failover scripts
-  include: ../common/create_l3_agent_failover_check_script.yml
+  import_tasks: ../common/create_l3_agent_failover_check_script.yml
 
 - name: create nova actions check script
-  include: ../common/create_nova_actions_check_script.yml
+  import_tasks: ../common/create_nova_actions_check_script.yml
 
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
 
 - name: update nic configs to rocky format
-  include_tasks: ../common/queens_to_rocky_adjust_nic_templates.yaml
+  import_tasks: ../common/queens_to_rocky_adjust_nic_templates.yaml
