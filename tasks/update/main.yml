@@ -1,6 +1,10 @@
 ---
 - name: create undercloud update scripts
-  include: create-undercloud-update-scripts.yaml
+  include_tasks: create-undercloud-update-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_undercloud_update_scripts
   tags: create_undercloud_update_scripts
   when: update_noop|bool or undercloud_update|bool
 
@@ -29,13 +33,17 @@
       when: updates_workarounds|bool
 
     - name: validate undercloud update
-      include: ../common/undercloud_validate_upgrade.yaml
+      import_tasks: ../common/undercloud_validate_upgrade.yaml
       tags: undercloud_update_validate
 
   when: undercloud_update|bool
 
 - name: create overcloud update scripts
-  include: create-overcloud-update-scripts.yaml
+  include_tasks: create-overcloud-update-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_overcloud_update_scripts
   tags: create_overcloud_update_scripts
   when: update_noop|bool or overcloud_update|bool
 
@@ -48,7 +56,8 @@
             {{ working_dir }}/pre_overcloud_update_prepare_workarounds.log
       when: updates_workarounds|bool
 
-    - include: overcloud_update_prepare.yml
+    - name: import oc update prepare tasks
+      import_tasks: overcloud_update_prepare.yml
       tags:
         - overcloud_update
         - overcloud_update_prepare
@@ -85,7 +94,8 @@
             {{ working_dir }}/pre_overcloud_update_run_workarounds.log
       when: updates_workarounds|bool
 
-    - include: overcloud_update_run.yml
+    - name: import overcloud update run tasks
+      import_tasks: overcloud_update_run.yml
       tags:
         - overcloud_update
 
@@ -98,7 +108,7 @@
       when: updates_workarounds|bool
 
     - name: update Ceph
-      include: ceph_update_run.yml
+      include_tasks: ceph_update_run.yml
       when: ceph_osd_enabled|bool
 
     - name: run online data migration
@@ -113,7 +123,8 @@
       when: updates_workarounds
       tags: overcloud_update_converge
 
-    - include: overcloud_update_converge.yml
+    - name: import overcloud update converge tasks
+      import_tasks: overcloud_update_converge.yml
       tags: overcloud_update_converge
 
     - name: apply post overcloud update converge workarounds
@@ -131,6 +142,7 @@
         - overcloud_update
         - overcloud_images_validate
 
-    - include: ../common/nova_actions_check.yml
+    - name: import nova_actions_check tasks
+      import_tasks: ../common/nova_actions_check.yml
 
   when: overcloud_update|bool
