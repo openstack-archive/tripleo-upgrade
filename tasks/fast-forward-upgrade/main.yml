@@ -1,10 +1,18 @@
 ---
 - name: create upgrade prepare scripts
-  include: create-prepare-scripts.yaml
+  include_tasks: create-prepare-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_ffu_prepare_scripts
   tags: create_ffu_prepare_scripts
 
 - name: create fast forward upgrade scripts
-  include: create-ffu-scripts.yaml
+  include_tasks: create-ffu-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_ffu_scripts
   tags: create_ffu_scripts
   loop_control:
     loop_var: current_release
@@ -13,7 +21,7 @@
 
 - block:
     - name: ffu undercloud upgrade
-      include: undercloud-upgrade.yml
+      include_tasks: undercloud-upgrade.yml
       loop_control:
         loop_var: current_release
       with_items: "{{ ffu_undercloud_releases }}"
@@ -32,7 +40,11 @@
       tags: ffu_upgrade_playbook
       become: true
 
-    - include: "{{ item }}"
+    - name: start L3 verification scripts
+      include_tasks: "{{ item }}"
+      args:
+        apply:
+          tags: ffu_overcloud_prepare
       with_items:
         - '../common/l3_agent_connectivity_check_start_script.yml'
         - '../common/l3_agent_failover_check_pre_script.yml'
@@ -43,7 +55,8 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
 
-    - include: ../common/convert_nic_templates.yaml
+    - name: convert nic templates
+      import_tasks: ../common/convert_nic_templates.yaml
       tags: ffu_overcloud_prepare
 
     - name: set upgrade_prepare_extra_params for ffu prepare with custom repos
@@ -56,10 +69,15 @@
         upgrade_prepare_extra_params: '{{ upgrade_prepare_extra_params + ["{{ tht_directory }}/environments/updates/update-from-deployed-server-newton.yaml"] }}'
       when: deployed_server|default(false)|bool
 
-    - include: ../upgrade/overcloud_upgrade_prepare.yml
+    - name: run overcloud upgrade prepare
+      import_tasks: ../upgrade/overcloud_upgrade_prepare.yml
       tags: ffu_overcloud_prepare
 
-    - include: "{{ item }}"
+    - name: stop L3 verification scripts
+      include_tasks: "{{ item }}"
+      args:
+        apply:
+          tags: ffu_overcloud_prepare
       with_items:
         - '../common/l3_agent_connectivity_check_stop_script.yml'
         - '../common/l3_agent_failover_check_post_script.yml'
@@ -70,24 +88,32 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_run
 
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
+    - name: start L3 connectivity script
+      import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
       tags: ffu_overcloud_run
 
     - name: run overcloud fast forward upgrade
       command: "{{ working_dir }}/overcloud_upgrade_run.sh"
       tags: ffu_overcloud_run
 
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
+    - name: stop L3 connectivity script
+      import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_overcloud_run
 
     ## we can either upgrade all overcloud nodes at one or per role/node
     - name: upgrade all overcloud nodes at once
-      include: overcloud_bulk.yaml
+      include_tasks: overcloud_bulk.yaml
+      args:
+        apply:
+          tags: ffu_overcloud_upgrade_bulk
       tags: ffu_overcloud_upgrade_bulk
       when: ffu_bulk|bool
 
     - name: upgrade overcloud nodes per roles
-      include: overcloud_role.yaml
+      include_tasks: overcloud_role.yaml
+      args:
+        apply:
+          tags: ffu_overcloud_upgrade_role
       tags: ffu_overcloud_upgrade_role
       when: not ffu_bulk|bool
 
@@ -102,13 +128,19 @@
           command: "{{ working_dir }}/overcloud_upgrade_CephStorage.sh"
           tags: ffu_overcloud_ceph
 
-        - include: ../common/l3_agent_connectivity_check_start_script.yml
+        - name: start L3 connectivity script
+          import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
           tags: ffu_overcloud_ceph
 
-        - include: ../upgrade/ceph_upgrade_run.yml
+        - name: import ceph ugrade tasks
+          import_tasks: ../upgrade/ceph_upgrade_run.yml
           tags: ffu_overcloud_ceph
 
-        - include: "{{ item }}"
+        - name: stop L3 verification scripts
+          include_tasks: "{{ item }}"
+          args:
+            apply:
+              tags: ffu_overcloud_ceph
           with_items:
             - '../common/l3_agent_connectivity_check_stop_script.yml'
             - '../common/l3_agent_failover_check_post_script.yml'
@@ -119,11 +151,12 @@
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_converge
 
-    - include: ../upgrade/overcloud_upgrade_converge.yml
+    - name: import overcloud upgrade converge tasks
+      import_tasks: ../upgrade/overcloud_upgrade_converge.yml
       tags: ffu_overcloud_converge
 
     - name: run post upgrade actions
-      include: ../common/nova_actions_check.yml
+      import_tasks: ../common/nova_actions_check.yml
       tags: ffu_overcloud_post
 
   when: ffu_overcloud_upgrade|bool

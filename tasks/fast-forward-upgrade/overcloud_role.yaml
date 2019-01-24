@@ -1,6 +1,6 @@
 ---
 - name: generate roles list from inventory file
-  include: ../common/load_roles_from_inventory.yaml
+  import_tasks: ../common/load_roles_from_inventory.yaml
 
 - name: create FFU role ugrades scripts
   template:
@@ -10,7 +10,8 @@
   tags: ffu_overcloud_upgrade_controller
   with_items: "{{ oc_roles|default([]) }}"
 
-- include: ../common/l3_agent_connectivity_check_start_script.yml
+- name: start L3 connectivity check
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
   tags: ffu_overcloud_upgrade_controller
 
 - name: pre controller role upgrade steps workarounds
@@ -24,13 +25,15 @@
   with_items:
     - "{{ oc_roles|difference(['Compute','ComputeAlt','CephStorage']) }}"
 
-- include: "{{ item }}"
+- name: run L3 validation
+  include_tasks: "{{ item }}"
   with_items:
     - '../common/l3_agent_connectivity_check_stop_script.yml'
     - '../common/l3_agent_failover_check_post_script.yml'
   tags: ffu_overcloud_upgrade_controller
 
-- include: ../common/l3_agent_connectivity_check_start_script.yml
+- name: start L3 connectivity check
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
   tags: ffu_overcloud_upgrade_compute
 
 - name: run FFU compute ugrade scripts
@@ -41,7 +44,8 @@
   when:
     - not ffu_computes_rolling|bool
 
-- include: ../common/l3_agent_connectivity_check_stop_script.yml
+- name: validate L3 connectivity result
+  import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
   tags: ffu_overcloud_upgrade_compute
 
 - block:
@@ -60,7 +64,8 @@
       with_items:
         - '{{ tripleo_compute_nodes.stdout_lines }}'
 
-    - include: ../common/l3_agent_connectivity_check_start_script.yml
+    - name: start L3 connectivity check
+      import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
       tags: ffu_overcloud_upgrade_compute
 
     - name: Rolling upgrade compute nodes
@@ -69,6 +74,7 @@
       with_items:
         - '{{ tripleo_compute_nodes.stdout_lines }}'
 
-    - include: ../common/l3_agent_connectivity_check_stop_script.yml
+    - name: validate L3 connectivity result
+      import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_overcloud_upgrade_compute
   when: ffu_computes_rolling|bool

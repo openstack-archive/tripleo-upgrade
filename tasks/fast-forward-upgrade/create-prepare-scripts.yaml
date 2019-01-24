@@ -1,6 +1,9 @@
 ---
 - name: create a comptatible deployment scripts from oooq
-  include: ../upgrade/use_oooq.yaml
+  include_tasks: ../upgrade/use_oooq.yaml
+  args:
+    apply:
+      tags: use_oooq
   tags: use_oooq
   when: use_oooq|bool
 
@@ -21,16 +24,16 @@
     - composable_scenario|default("")
 
 - name: Convert CLI options to parameters
-  include: ../common/convert_cli_opts_params.yaml
+  import_tasks: ../common/convert_cli_opts_params.yaml
 
 - name: get auxiliary facts for upgrade
-  include: ../common/auxilary-facts.yaml
+  import_tasks: ../common/auxilary-facts.yaml
 
 - name: Convert Ceph parameters to ceph ansible
-  include: ../common/convert_ceph_params.yaml
+  import_tasks: ../common/convert_ceph_params.yaml
 
 - name: Adjust custom roles data file during upgrade
-  include: convert_roles_data.yaml
+  import_tasks: convert_roles_data.yaml
 
 - name: create ffu upgrade workaround scripts
   template:
@@ -72,14 +75,17 @@
     dest: "{{ working_dir }}/ceph-upgrade-run.sh"
     mode: 0755
 
-- include: ../common/ssh_config_skip_host.yml
+- name: import ssh_config_skip_host tasks
+  import_tasks: ../common/ssh_config_skip_host.yml
 
-- include: ../common/create_l3_agent_connectivity_check_script.yml
+- name: import create_l3_agent_connectivity_check_script tasks
+  import_tasks: ../common/create_l3_agent_connectivity_check_script.yml
 
-- include: ../common/create_l3_agent_failover_check_script.yml
+- name: import create_l3_agent_failover_check_script tasks
+  import_tasks: ../common/create_l3_agent_failover_check_script.yml
 
 - name: create nova actions check script
-  include: ../common/create_nova_actions_check_script.yml
+  import_tasks: ../common/create_nova_actions_check_script.yml
 
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
