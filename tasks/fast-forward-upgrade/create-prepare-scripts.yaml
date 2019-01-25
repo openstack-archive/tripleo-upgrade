@@ -41,12 +41,18 @@
     dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
   with_items:
+    - 'pre_ffu_undercloud_upgrade_workarounds'
     - 'post_ffu_undercloud_upgrade_workarounds'
     - 'pre_ffu_overcloud_prepare_workarounds'
+    - 'post_ffu_overcloud_prepare_workarounds'
     - 'pre_ffu_overcloud_run_workarounds'
+    - 'post_ffu_overcloud_run_workarounds'
     - 'pre_ffu_overcloud_upgrade_workarounds'
+    - 'post_ffu_overcloud_upgrade_workarounds'
     - 'pre_ffu_overcloud_converge_workarounds'
+    - 'post_ffu_overcloud_converge_workarounds'
     - 'pre_ffu_overcloud_ceph_workarounds'
+    - 'post_ffu_overcloud_ceph_workarounds'
   when: ffu_upgrade_workarounds
 
 - name: Create FFU custom repos environment

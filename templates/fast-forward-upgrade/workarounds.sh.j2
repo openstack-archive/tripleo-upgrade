@@ -6,107 +6,66 @@ set -euo pipefail
 function apply_patch {
     local patch_dir=$1
     local patch_id=$2
+    local temp_dir=''
 
-    curl -4 https://review.openstack.org/changes/${patch_id}/revisions/current/patch?download | \
-        base64 -d > /tmp/patch.txt
+    temp_dir=$( mktemp -d )
 
-    if sudo patch --dry-run --reverse --force -d ${patch_dir} -p1 < /tmp/patch.txt >/dev/null 2>&1
+    curl -4 --retry 5 https://review.openstack.org/changes/${patch_id}/revisions/current/patch?download | \
+        base64 -d > ${temp_dir}/patch.txt
+
+    if [[ ${?} -ne 0 ]] ; then
+        echo "Failed to download patch https://review.openstack.org/#/c/${patch_id}/"
+        exit 1
+    fi
+
+    if sudo patch --dry-run --reverse --force -d ${patch_dir} -p1 < ${temp_dir}/patch.txt >/dev/null 2>&1
     then
         echo "Patch ${patch_id} already applied, skipping"
     else
-        sudo patch -Ns  -d ${patch_dir} -p1 < /tmp/patch.txt
+        sudo patch -Ns  -d ${patch_dir} -p1 < ${temp_dir}/patch.txt
     fi
+
+    sudo rm -Rf ${temp_dir}
+
 }
 
-{% if 'pre_ffu_undercloud_upgrade_workarounds' in item %}
-{% for bugs in pre_ffu_undercloud_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
+{% macro render_workarounds(workaround_var, workaround_name) -%}
+{% if workaround_name in item -%}
+{% for bugs in workaround_var -%}
+{% for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch %}
+{% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
+{% else -%}
 {{ value.command }}
+{% endif -%}
+################################################################################
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{% endmacro -%}
 
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'post_ffu_undercloud_upgrade_workarounds' in item %}
-{% for bugs in post_ffu_undercloud_upgrade_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_overcloud_prepare_workarounds' in item %}
-{% for bugs in pre_ffu_overcloud_prepare_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_overcloud_run_workarounds' in item %}
-{% for bugs in pre_ffu_overcloud_run_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_overcloud_upgrade_workaround' in item %}
-{% for bugs in pre_ffu_overcloud_upgrade_workaround|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_overcloud_converge_workarounds' in item %}
-{% for bugs in pre_ffu_overcloud_converge_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% elif 'pre_ffu_overcloud_ceph_workarounds' in item %}
-{% for bugs in pre_ffu_overcloud_ceph_workarounds|default([]) %}
-{% for key, value in bugs.items() %}
-echo {{ key }}
-{% if value.patch %}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% else %}
-{{ value.command }}
-
-{% endif %}
-{% endfor %}
-{% endfor %}
-
-{% endif %}
+{{ render_workarounds(pre_ffu_undercloud_upgrade_workarounds|default([]),'pre_ffu_undercloud_upgrade_workarounds') }}
+{# finish pre_ffu_undercloud_upgrade_workarounds #}
+{{ render_workarounds(post_ffu_undercloud_upgrade_workarounds|default([]),'post_ffu_undercloud_upgrade_workarounds') }}
+{# finish post_ffu_undercloud_upgrade_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_prepare_workarounds|default([]),'pre_ffu_overcloud_prepare_workarounds') }}
+{# finish pre_ffu_overcloud_prepare_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_prepare_workarounds|default([]),'post_ffu_overcloud_prepare_workarounds') }}
+{# finish post_ffu_overcloud_prepare_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_run_workarounds|default([]),'pre_ffu_overcloud_run_workarounds') }}
+{# finish pre_ffu_overcloud_run_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_run_workarounds|default([]),'post_ffu_overcloud_run_workarounds') }}
+{# finish post_ffu_overcloud_run_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_upgrade_workarounds|default([]),'pre_ffu_overcloud_upgrade_workarounds') }}
+{# finish pre_ffu_overcloud_upgrade_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_upgrade_workarounds|default([]),'post_ffu_overcloud_upgrade_workarounds') }}
+{# finish post_ffu_overcloud_upgrade_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_converge_workarounds|default([]),'pre_ffu_overcloud_converge_workarounds') }}
+{# finish pre_ffu_overcloud_converge_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_converge_workarounds|default([]),'post_ffu_overcloud_converge_workarounds') }}
+{# finish post_ffu_overcloud_converge_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_ceph_workarounds|default([]),'pre_ffu_overcloud_ceph_workarounds') }}
+{# finish pre_ffu_overcloud_ceph_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_ceph_workarounds|default([]),'post_ffu_overcloud_ceph_workarounds') }}
+{# finish post_ffu_overcloud_ceph_workarounds #}
