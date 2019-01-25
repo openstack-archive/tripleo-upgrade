@@ -78,3 +78,8 @@
       import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_overcloud_upgrade_compute
   when: ffu_computes_rolling|bool
+
+- name: post controller role upgrade steps workarounds
+  command: "{{ working_dir }}/post_ffu_overcloud_upgrade_workarounds.sh"
+  when: ffu_upgrade_workarounds|bool
+  tags: ffu_overcloud_upgrade_controller

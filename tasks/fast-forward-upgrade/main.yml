@@ -20,6 +20,10 @@
   when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
 
 - block:
+    - name: apply post ffu undercloud upgrade workarounds
+      command: "{{ working_dir }}/pre_ffu_undercloud_upgrade_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+
     - name: ffu undercloud upgrade
       include_tasks: undercloud-upgrade.yml
       loop_control:
@@ -73,6 +77,11 @@
       import_tasks: ../upgrade/overcloud_upgrade_prepare.yml
       tags: ffu_overcloud_prepare
 
+    - name: apply post ffu overcloud prepare workarounds
+      command: "{{ working_dir }}/post_ffu_overcloud_prepare_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
+      tags: ffu_overcloud_prepare
+
     - name: stop L3 verification scripts
       include_tasks: "{{ item }}"
       args:
@@ -94,6 +103,11 @@
 
     - name: run overcloud fast forward upgrade
       command: "{{ working_dir }}/overcloud_upgrade_run.sh"
+      tags: ffu_overcloud_run
+
+    - name: apply post fast forward overcloud upgrade run workarounds
+      command: "{{ working_dir }}/post_ffu_overcloud_run_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_run
 
     - name: stop L3 connectivity script
@@ -136,6 +150,11 @@
           import_tasks: ../upgrade/ceph_upgrade_run.yml
           tags: ffu_overcloud_ceph
 
+        - name: apply post ffu ceph upgrade workarounds
+          command: "{{ working_dir }}/post_ffu_overcloud_ceph_workarounds.sh"
+          when: ffu_upgrade_workarounds|bool
+          tags: ffu_overcloud_ceph
+
         - name: stop L3 verification scripts
           include_tasks: "{{ item }}"
           args:
@@ -153,6 +172,11 @@
 
     - name: import overcloud upgrade converge tasks
       import_tasks: ../upgrade/overcloud_upgrade_converge.yml
+      tags: ffu_overcloud_converge
+
+    - name: apply post ffu overcloud converge workarounds
+      command: "{{ working_dir }}/post_ffu_overcloud_converge_workarounds.sh"
+      when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_converge
 
     - name: run post upgrade actions
