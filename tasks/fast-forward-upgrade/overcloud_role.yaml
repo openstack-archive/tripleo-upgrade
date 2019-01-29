@@ -8,7 +8,7 @@
     dest: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
     mode: 0775
   tags: ffu_overcloud_upgrade_controller
-  with_items: "{{ oc_roles|default([]) }}"
+  loop: "{{ oc_roles|default([]) }}"
 
 - name: start L3 connectivity check
   import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
@@ -22,12 +22,11 @@
 - name: run FFU control plane ugrade scripts
   command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
   tags: ffu_overcloud_upgrade_controller
-  with_items:
-    - "{{ oc_roles|difference(['Compute','ComputeAlt','CephStorage']) }}"
+  loop: "{{ oc_roles|difference(['Compute','ComputeAlt','CephStorage']) }}"
 
 - name: run L3 validation
   include_tasks: "{{ item }}"
-  with_items:
+  loop:
     - '../common/l3_agent_connectivity_check_stop_script.yml'
     - '../common/l3_agent_failover_check_post_script.yml'
   tags: ffu_overcloud_upgrade_controller
@@ -39,8 +38,7 @@
 - name: run FFU compute ugrade scripts
   command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
   tags: ffu_overcloud_upgrade_compute
-  with_items:
-    - "{{ oc_roles|intersect(['Compute','ComputeAlt']) }}"
+  loop: "{{ oc_roles|intersect(['Compute','ComputeAlt']) }}"
   when:
     - not ffu_computes_rolling|bool
 
@@ -61,8 +59,7 @@
         dest: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
         mode: 0775
       tags: ffu_overcloud_upgrade_compute
-      with_items:
-        - '{{ tripleo_compute_nodes.stdout_lines }}'
+      loop: '{{ tripleo_compute_nodes.stdout_lines }}'
 
     - name: start L3 connectivity check
       import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
@@ -71,8 +68,7 @@
     - name: Rolling upgrade compute nodes
       command: "{{ working_dir }}/overcloud_upgrade_{{ item }}.sh"
       tags: ffu_overcloud_upgrade_compute
-      with_items:
-        - '{{ tripleo_compute_nodes.stdout_lines }}'
+      loop: '{{ tripleo_compute_nodes.stdout_lines }}'
 
     - name: validate L3 connectivity result
       import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml

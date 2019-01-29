@@ -20,15 +20,13 @@
         grep 'ceph::profile::params::osds' {{ item }}
       ignore_errors: true
       register: osd_env
-      with_items:
-        - "{{ envs.stdout_lines }}"
+      loop: "{{ envs.stdout_lines }}"
 
     - name: set ceph_env fact
       set_fact:
         ceph_env: "{{ item.item }}"
       when: item.stdout|length > 0
-      with_items:
-        - "{{ osd_env.results }}"
+      loop: "{{ osd_env.results }}"
 
     - block:
         - name: make a copy of the initial environment file
@@ -73,7 +71,7 @@
             path: "{{ ceph_env }}"
             regexp: "{{ item }}"
             state: absent
-          with_items:
+          loop:
             - "ceph::profile::params::osd_pool_default_pg_num"
             - "ceph::profile::params::osd_pool_default_pgp_num"
             - "ceph::profile::params::osds"
@@ -89,7 +87,7 @@
             path: "{{ ceph_env }}"
             regexp: "{{ item }}"
             state: absent
-          with_items: "{{ ceph_osds }}"
+          loop: "{{ ceph_osds }}"
 
         - name: register new environment file
           command: "cat {{ ceph_env }}"

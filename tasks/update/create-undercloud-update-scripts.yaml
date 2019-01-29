@@ -12,7 +12,6 @@
     dest: "{{ working_dir }}/{{ item.script }}"
     mode: 0755
     force: true
-  with_items:
-    - '{{ pre_undercloud_update_workarounds|default([]) }}'
-    - '{{ post_undercloud_update_workarounds|default([]) }}'
+  loop: '{{ pre_undercloud_update_workarounds|default([])
+    + post_undercloud_update_workarounds|default([]) }}'
   when: updates_workarounds|bool
