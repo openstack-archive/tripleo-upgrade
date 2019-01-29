@@ -8,8 +8,7 @@
     name: "{{ item }}"
     group: compute
     ansible_fqdn: "{{ item }}"
-  with_items:
-    - "{{ compute.stdout_lines|default([]) }}"
+  loop: "{{ compute.stdout_lines|default([]) }}"
 
 - name: create transformation script
   template:

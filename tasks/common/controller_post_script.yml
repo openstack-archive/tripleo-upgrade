@@ -9,7 +9,7 @@
     src: "check_service_{{ item }}.sh.j2"
     dest: "{{ working_dir }}/{{ node_name | splitext | first }}_post/{{ item }}.sh"
     mode: 0775
-  with_items:
+  loop:
     - 'haproxy'
     - 'haproxy_backend'
     - 'rabbitmq'
