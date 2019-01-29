@@ -21,7 +21,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: "^(- name: Controller( # the 'primary' role goes first)?$)"
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  deprecated_param_image: "controllerImage"'
         - '\1\n  deprecated_param_flavor: "OvercloudControlFlavor"'
         - '\1\n  deprecated_param_extraconfig: "controllerExtraConfig"'
@@ -32,7 +32,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Controller.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - External\n    - InternalApi\n    - Storage\n    - StorageMgmt\n    - Tenant'
         - '\1\n  tags:\n    - primary\n    - controller'
         - '\1\n  description: |\n    Controller role that has all the controler services loaded and handles\n    Database, Messaging and Network functions.'
@@ -42,7 +42,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Compute$)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  deprecated_server_resource_name: "NovaCompute"'
         - '\1\n  deprecated_param_ips: "NovaComputeIPs"'
         - '\1\n  deprecated_param_scheduler_hints: "NovaComputeSchedulerHints"'
@@ -56,7 +56,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Compute.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi\n    - Storage\n    - Tenant'
         - '\1\n  description: |\n    Basic Compute Node role'
 
@@ -65,7 +65,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: AltCompute.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi\n    - Storage\n    - Tenant'
         - '\1\n  description: |\n    Basic Compute Node role'
 
@@ -74,7 +74,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: BlockStorage.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi\n    - Storage\n    - StorageMgmt'
         - '\1\n  description: |\n    Cinder Block Storage node role'
 
@@ -83,7 +83,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: ObjectStorage$)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  deprecated_param_flavor: "OvercloudSwiftStorageFlavor"'
         - '\1\n  deprecated_param_image: "SwiftStorageImage"'
         - '\1\n  deprecated_param_ips: "SwiftStorageIPs"'
@@ -95,7 +95,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: ObjectStorage.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi\n    - Storage\n    - StorageMgmt'
         - '\1\n  description: |\n    Swift Object Storage node role'
 
@@ -104,7 +104,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: CephStorage.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - Storage\n    - StorageMgmt'
         - '\1\n  description: |\n    Ceph OSD Storage node role'
 
@@ -113,7 +113,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Database.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi'
         - '\1\n  description: |\n    Standalone database role with the database being managed via Pacemaker'
 
@@ -122,7 +122,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Galera.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi'
         - '\1\n  description: |\n    Standalone database role with the database being managed via Pacemaker'
 
@@ -131,7 +131,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Networker.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi\n    - Tenant'
         - '\1\n  description: |\n    Standalone networking role to run Neutron agents'
 
@@ -140,7 +140,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Messaging.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - InternalApi'
         - '\1\n  description: |\n    Standalone messaging role with RabbitMQ being managed via Pacemaker'
 
@@ -149,7 +149,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '^(- name: Monitor.*)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n  networks:\n    - Storage'
         - '\1\n  description: |\n    Ceph Monitor role'
 
@@ -158,7 +158,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- OS::TripleO::Services::Timezone)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::CertmongerUser'
         - '\1\n    - OS::TripleO::Services::Docker'
         - '\1\n    - OS::TripleO::Services::Securetty'
@@ -170,7 +170,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- .*CinderVolume)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::CinderBackendVRTSHyperScale'
         - '\1\n    - OS::TripleO::Services::CinderBackendDellEMCUnity'
         - '\1\n    - OS::TripleO::Services::CinderBackendDellEMCVMAXISCSI'
@@ -192,7 +192,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: "{{ item }}"
         replace: '\1\n    - OS::TripleO::Services::Iscsid'
-      with_items:
+      loop:
         - '(- .*CinderVolume)'
         - '(- OS::TripleO::Services::NovaCompute)'
 
@@ -201,7 +201,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- OS::TripleO::Services::NeutronApi)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::NeutronBgpVpnApi'
         - '\1\n    - OS::TripleO::Services::NeutronL2gwApi'
 
@@ -210,7 +210,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- OS::TripleO::Services::NeutronL3Agent)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::NeutronL2gwAgent'
         - '\1\n    - OS::TripleO::Services::NeutronLbaasv2Agent'
 
@@ -219,7 +219,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- .*NeutronOvsAgent)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::NeutronVppAgent'
         - '\1\n    - OS::TripleO::Services::NeutronLinuxbridgeAgent'
         - '\1\n    - OS::TripleO::Services::Vpp'
@@ -241,7 +241,7 @@
         dest: '{{ custom_roles_file.stdout }}'
         regexp: '(- OS::TripleO::Services::ManilaShare)'
         replace: "{{ item }}"
-      with_items:
+      loop:
         - '\1\n    - OS::TripleO::Services::ManilaBackendIsilon'
         - '\1\n    - OS::TripleO::Services::ManilaBackendUnity'
         - '\1\n    - OS::TripleO::Services::ManilaBackendVMAX'

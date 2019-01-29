@@ -4,15 +4,13 @@
     grep "OS::TripleO::.*::Net::SoftwareConfig" {{ item }}
   ignore_errors: true
   register: nic_config_envs
-  with_items:
-    - "{{ initial_env_file.stdout_lines }}"
+  loop: "{{ initial_env_file.stdout_lines }}"
 
 - name: set nic_config_env fact
   set_fact:
     nic_config_env: "{{ item.item }}"
   when: item.stdout|length > 0
-  with_items:
-    - "{{ nic_config_envs.results }}"
+  loop: "{{ nic_config_envs.results }}"
 
 - block:
     - name: register nic templates files defined in the environment file
@@ -37,7 +35,6 @@
       when:
         - "(item[0] == '/' and tht_directory not in item) or \
              (item[0] != '/' and tht_directory not in '/'.join(nic_config_env.split('/')[0:-1]))"
-      with_items:
-        - "{{ nic_template_files.stdout_lines }}"
+      loop: "{{ nic_template_files.stdout_lines }}"
 
   when: nic_config_env is defined
