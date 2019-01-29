@@ -94,6 +94,5 @@
       shell: |
         scp -q -o StrictHostKeyChecking=no {{ working_dir }}/undercloud.pem {{ oc_user }}@{{ item }}:
         ssh -q -o StrictHostKeyChecking=no {{ oc_user }}@{{ item }} 'sudo cp undercloud.pem /etc/pki/ca-trust/source/anchors/; sudo update-ca-trust extract'
-      with_items:
-        - "{{ node_ip.stdout_lines }}"
+      loop: "{{ node_ip.stdout_lines }}"
   when: uc_keystone_conn|failed

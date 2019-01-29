@@ -11,7 +11,7 @@
     src: workarounds.sh.j2
     dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
-  with_items:
+  loop:
     - 'pre_undercloud_upgrade_workarounds'
     - 'post_undercloud_upgrade_workarounds'
   when: upgrade_workarounds

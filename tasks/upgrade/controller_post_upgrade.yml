@@ -6,6 +6,6 @@
   register: controllers
 
 - include_tasks: controller_node_upgrade.yml
-  with_items: "{{ controllers.stdout_lines }}"
+  loop: "{{ controllers.stdout_lines }}"
   loop_control:
     loop_var: node_name

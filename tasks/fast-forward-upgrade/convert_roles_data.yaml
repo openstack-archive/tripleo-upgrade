@@ -99,7 +99,6 @@
                       .ServicesDefault |= (. += ["OS::TripleO::Services::CephRbdMirror"] | unique)
                    else . end)' |\
           {{ yaml_dump }} > {{ custom_roles_file.stdout }}
-
   when: custom_roles_file.stdout|length > 0 and not custom_roles_adjusted.stat.exists
   vars:
     json_dump: "python -c 'import sys, yaml, simplejson as json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)'"

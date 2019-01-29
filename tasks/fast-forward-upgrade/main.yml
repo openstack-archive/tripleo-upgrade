@@ -16,7 +16,7 @@
   tags: create_ffu_scripts
   loop_control:
     loop_var: current_release
-  with_items: "{{ ffu_undercloud_releases }}"
+  loop: "{{ ffu_undercloud_releases }}"
   when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
 
 - block:
@@ -24,7 +24,7 @@
       include_tasks: undercloud-upgrade.yml
       loop_control:
         loop_var: current_release
-      with_items: "{{ ffu_undercloud_releases }}"
+      loop: "{{ ffu_undercloud_releases }}"
 
     - name: apply post ffu undercloud upgrade workarounds
       command: "{{ working_dir }}/post_ffu_undercloud_upgrade_workarounds.sh"
@@ -45,7 +45,7 @@
       args:
         apply:
           tags: ffu_overcloud_prepare
-      with_items:
+      loop:
         - '../common/l3_agent_connectivity_check_start_script.yml'
         - '../common/l3_agent_failover_check_pre_script.yml'
       tags: ffu_overcloud_prepare
@@ -78,7 +78,7 @@
       args:
         apply:
           tags: ffu_overcloud_prepare
-      with_items:
+      loop:
         - '../common/l3_agent_connectivity_check_stop_script.yml'
         - '../common/l3_agent_failover_check_post_script.yml'
       tags: ffu_overcloud_prepare
@@ -141,7 +141,7 @@
           args:
             apply:
               tags: ffu_overcloud_ceph
-          with_items:
+          loop:
             - '../common/l3_agent_connectivity_check_stop_script.yml'
             - '../common/l3_agent_failover_check_post_script.yml'
           tags: ffu_overcloud_ceph

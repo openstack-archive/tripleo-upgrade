@@ -1,12 +1,14 @@
 ---
 - name: run overcloud major upgrade in each of the roles/hostgroups
-  shell: "bash {{ overcloud_upgrade_run_script_base }}-{{ item }}.sh &> {{ working_dir }}/overcloud_upgrade_run_{{ item }}.log"
-  with_items:
-      - "{{ oc_roles|default('all') }}"
+  shell: |
+    set -o pipefail
+    bash {{ overcloud_upgrade_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/overcloud_upgrade_run_{{ item }}.log
+  loop: "{{ oc_roles|default(['all']) }}"
   register: overcloud_upgrade_nodes
   ignore_errors: true
 
 - name: was the overcloud upgrade composable step successful.
   fail: msg="Overcloud upgrade composable step failed... :("
-  with_items: "{{ overcloud_upgrade_nodes.results }}"
+  loop: "{{ overcloud_upgrade_nodes.results }}"
   when: item.rc != 0

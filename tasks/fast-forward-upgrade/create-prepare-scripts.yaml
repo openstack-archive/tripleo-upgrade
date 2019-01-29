@@ -40,7 +40,7 @@
     src: fast-forward-upgrade/workarounds.sh.j2
     dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
-  with_items:
+  loop:
     - 'pre_ffu_undercloud_upgrade_workarounds'
     - 'post_ffu_undercloud_upgrade_workarounds'
     - 'pre_ffu_overcloud_prepare_workarounds'

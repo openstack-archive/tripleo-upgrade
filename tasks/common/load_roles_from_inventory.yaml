@@ -19,7 +19,7 @@
   set_fact:
     controller_role_name: "{{ item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
   when: item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*')
-  with_items: "{{ oc_roles }}"
+  loop: "{{ oc_roles }}"
 
 - name: store sorted roles with controller first
   set_fact:

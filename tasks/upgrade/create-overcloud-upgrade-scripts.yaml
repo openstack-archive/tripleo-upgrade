@@ -39,7 +39,7 @@
     src: workarounds.sh.j2
     dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
-  with_items:
+  loop:
     - 'pre_overcloud_upgrade_prepare_workarounds'
     - 'post_overcloud_upgrade_prepare_workarounds'
     - 'pre_overcloud_upgrade_workarounds'
@@ -66,8 +66,7 @@
     dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
-  with_items:
-    - "{{ oc_roles|default('all') }}"
+  loop: "{{ oc_roles|default(['all']) }}"
 
 - name: create overcloud converge script
   template:
