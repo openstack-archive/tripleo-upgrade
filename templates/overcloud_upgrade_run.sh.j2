@@ -36,7 +36,7 @@ openstack overcloud upgrade run \
         {% if tripleo_upgrade_debug|bool -%}
         --debug \
         {% endif -%}
-        --roles {{ item }} --playbook {{ playbook }} 2>&1
+        --limit {{ item }} --playbook {{ playbook }} 2>&1
 
 echo "[$(date)] Finished major upgrade {{ playbook }} playbook for {{ item }} role"
 
@@ -97,7 +97,7 @@ openstack overcloud upgrade run \
         {% if tripleo_upgrade_debug|bool %}
         --debug \
         {% endif -%}
-        --roles {{ item }} --playbook all 2>&1
+        --limit {{ item }} --playbook all 2>&1
 
 echo "[$(date)] Finished major upgrade for {{ item }} role"
 
