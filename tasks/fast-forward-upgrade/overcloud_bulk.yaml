@@ -30,3 +30,8 @@
     - '../common/l3_agent_connectivity_check_stop_script.yml'
     - '../common/l3_agent_failover_check_post_script.yml'
   tags: ffu_overcloud_upgrade
+
+- name: apply post overcloud upgrade run workarounds
+  command: "{{ working_dir }}/post_ffu_overcloud_upgrade_workarounds.sh"
+  when: ffu_upgrade_workarounds|bool
+  tags: ffu_overcloud_upgrade
