@@ -16,6 +16,25 @@
   set_fact:
     deployment_with_ha_upstream: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
 
+- name: assert CephOSD is enabled
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices | awk '/\s+- ceph_osd/'
+  register: ceph_osd_service
+
+- name: set ceph_osd_enabled fact
+  set_fact:
+    ceph_osd_enabled: "{{ (ceph_osd_service.stdout|length > 0) | ternary(true, false) }}"
+
+- name: change puppet-ceph-external to ceph-ansible-external
+  replace:
+    dest: "{{ overcloud_deploy_script }}"
+    regexp: "(.*){{ tht_directory }}/environments/{{ item.old }}(.*)"
+    replace: '\1{{ tht_directory }}/environments/ceph-ansible/{{ item.new }}\2'
+  with_items:
+    - {'old': 'puppet-ceph-external.yaml', 'new': 'ceph-ansible-external.yaml'}
+  when: not ceph_osd_enabled|bool
+
 - name: get env files used during deploy
   shell: |
     awk '/-e\s|--environment-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
@@ -36,16 +55,6 @@
   set_fact:
     roles_data: "{{ (roles_data_file.stdout|length > 0) | ternary(roles_data, default_roles_data)}}"
     custom_roles_used: "{{ (roles_data_file.stdout|length > 0) | ternary(true, false)}}"
-
-- name: assert CephOSD is enabled
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices | awk '/\s+- ceph_osd/'
-  register: ceph_osd_service
-
-- name: set ceph_osd_enabled fact
-  set_fact:
-    ceph_osd_enabled: "{{ (ceph_osd_service.stdout|length > 0) | ternary(true, false) }}"
 
 - name: check if bm nodes are present
   shell: |
