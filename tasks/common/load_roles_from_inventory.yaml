@@ -30,3 +30,10 @@
   set_fact:
     oc_roles: "{{ roles_upgrade_order.split(';') }}"
   when: roles_upgrade_order != '__undefined__'
+
+- name: create hosts per role fact
+  vars:
+    inventory_yaml: "{{ upgrade_tripleo_inventory.stdout | from_yaml }}"
+  set_fact:
+    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : inventory_yaml[item.key]['hosts'].keys() }) }}"
+  with_dict: "{{ inventory_yaml.overcloud.children }}"
