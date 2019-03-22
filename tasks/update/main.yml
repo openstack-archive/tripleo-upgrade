@@ -79,7 +79,7 @@
       tags: overcloud_update_prepare_containers
 
     - name: Ensure ansible-pacemaker module is present in CI.
-      yum:
+      package:
         name: ansible-pacemaker
         state: latest
       when: tripleo_ci|default(false)|bool

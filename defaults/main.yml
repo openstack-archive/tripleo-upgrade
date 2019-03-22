@@ -249,3 +249,6 @@ roles_upgrade_order: '__undefined__'
 
 # Packet loss threshold for a ping test
 loss_threshold: 1
+
+# Python version used
+py_ver: 2
