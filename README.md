@@ -252,7 +252,7 @@ Note: before starting the upgrade process make sure that both the undercloud
 and overcloud nodes have the repositories with upgraded packages set up
 
 Clone this repository
-    git clone https://git.openstack.org/openstack/tripleo-upgrade
+    git clone https://opendev.org/openstack/tripleo-upgrade
 
 Set ansible roles path
     ANSIBLE_ROLES_PATH=$(pwd)
