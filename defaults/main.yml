@@ -130,6 +130,9 @@ containers_default_parameters: "{{ working_dir }}/docker-osp12.yaml"
 # container_images.yaml file location
 container_images_location: "{{ working_dir }}/container_images.yaml"
 
+# undercloud_hiera.yaml file location
+undercloud_hiera: "{{ working_dir }}/undercloud_hiera.yaml"
+
 # reboot nodes post upgrade
 undercloud_reboot: false
 controller_reboot: false
