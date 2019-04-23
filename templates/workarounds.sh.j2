@@ -10,11 +10,11 @@ function apply_patch {
 
     temp_dir=$( mktemp -d )
 
-    curl -4 --retry 5 https://review.openstack.org/changes/${patch_id}/revisions/current/patch?download | \
+    curl -4 --retry 5 https://review.opendev.org/changes/${patch_id}/revisions/current/patch?download | \
         base64 -d > ${temp_dir}/patch.txt
 
     if [[ ${?} -ne 0 ]] ; then
-        echo "Failed to download patch https://review.openstack.org/#/c/${patch_id}/"
+        echo "Failed to download patch https://review.opendev.org/#/c/${patch_id}/"
         exit 1
     fi
 

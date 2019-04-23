@@ -8,7 +8,7 @@ set -euo pipefail
 
 {% for workaround in item.workarounds %}
 {% if workaround.patch_id %}
-curl -4 'https://review.openstack.org/changes/{{workaround.patch_id}}/revisions/current/patch?download' | \
+curl -4 'https://review.opendev.org/changes/{{workaround.patch_id}}/revisions/current/patch?download' | \
     base64 -d | \
     sudo patch -d {{ workaround.directory }} -p1 {{ workaround.misc }}
 {% endif %} {# end of item.patch_id #}
