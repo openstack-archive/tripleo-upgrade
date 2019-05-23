@@ -43,8 +43,9 @@
 - name: create overcloud upgrade scripts
   include_tasks: create-overcloud-upgrade-scripts.yaml
   args:
-    tags:
-      - create_overcloud_upgrade_scripts
+    apply:
+      tags:
+        - create_overcloud_upgrade_scripts
   tags: create_overcloud_upgrade_scripts
   when: upgrade_noop|bool or overcloud_upgrade|bool
 
