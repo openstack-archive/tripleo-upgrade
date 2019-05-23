@@ -22,6 +22,9 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
     {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
     {% endif -%}
+    {% if network_data_file|length >0 -%}
+    -n {{ network_data_file }} \
+    {% endif -%}
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 -%}
     {% for _env in initial_env_file.stdout_lines -%}
         -e {{ _env }} \
