@@ -30,6 +30,9 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     -e {{ _env }} \
     {% endfor %}
     {% endif %}
+    {% if network_data_file|length >0 -%}
+    -n {{ network_data_file }} \
+    {% endif -%}
     {% if ffu_overcloud_upgrade and deployment_with_ha_upstream %}
     -e {{ tht_directory }}/environments/docker.yaml \
     -e {{ tht_directory }}/environments/docker-ha.yaml \

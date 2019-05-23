@@ -20,6 +20,9 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
         -e {{ _env }} \
     {% endfor %}
     {% endif %}
+    {% if network_data_file|length >0 -%}
+    -n {{ network_data_file }} \
+    {% endif -%}
     {% if cli_converted_options|default(false)|bool -%}
     -e {{ working_dir }}/cli_opts_params.yaml \
     {% endif -%}
