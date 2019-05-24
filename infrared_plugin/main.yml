@@ -6,7 +6,10 @@
   become: true
   become_method: sudo
   become_user: stack
-
+  vars:
+    # Explicit ansible_python_interpreter to allow connecting
+    # to different OS releases (EL7/8) while using delegate_to.
+    ansible_python_interpreter: /usr/libexec/platform-python
   pre_tasks:
 
     - name: Set upgrade workload launch
@@ -43,6 +46,11 @@
       set_fact:
         undercloud_upgrade: true
       when: install.undercloud.upgrade
+
+    - name: Set undercloud operating system upgrade
+      set_fact:
+        undercloud_os_upgrade: true
+      when: install.undercloud.os.upgrade
 
     - name: Set undercloud reboot
       set_fact:

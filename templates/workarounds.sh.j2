@@ -45,6 +45,8 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endif -%}
 {% endmacro -%}
 
+{{ render_workarounds(pre_undercloud_os_upgrade_workarounds|default([]),'pre_undercloud_os_upgrade_workarounds') }}
+{# finish pre_undercloud_os_upgrade_workarounds #}
 {{ render_workarounds(pre_undercloud_upgrade_workarounds|default([]),'pre_undercloud_upgrade_workarounds') }}
 {# finish pre_undercloud_upgrade_workarounds #}
 {{ render_workarounds(post_undercloud_upgrade_workarounds|default([]),'post_undercloud_upgrade_workarounds') }}

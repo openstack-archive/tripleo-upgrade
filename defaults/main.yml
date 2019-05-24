@@ -16,6 +16,7 @@ overcloud_stack_name: "overcloud"
 upgrade_noop: false
 update_noop: false
 undercloud_upgrade: false
+undercloud_os_upgrade: false
 containerized_undercloud_upgrade: true
 overcloud_upgrade: false
 undercloud_update: false
@@ -252,3 +253,6 @@ roles_upgrade_order: '__undefined__'
 
 # Packet loss threshold for a ping test
 loss_threshold: 1
+
+# Leapp OS upgrade variables
+leapp_unregister: true
