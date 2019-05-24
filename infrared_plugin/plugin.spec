@@ -14,6 +14,11 @@ subparsers:
                           NOTE: Upgrade require overcloud deployment script to be available in home directory of undercloud
                           user at undercloud node
                       default: false
+                  undercloud-os-upgrade:
+                      type: Bool
+                      help: |
+                          Upgrade Undercloud's Operating System
+                      default: false
                   undercloud-upgrade:
                       type: Bool
                       help: |

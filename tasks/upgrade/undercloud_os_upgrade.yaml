@@ -1,0 +1,53 @@
+---
+- name: Remove old RHEL7 packages
+  shell: |
+     yum -y remove *el7ost* -- \
+       -*openvswitch* \
+       -python2-babel \
+       -python2-dateutil \
+       -python2-ipaddress \
+       -python2-jinja2 \
+       -python2-markupsafe \
+       -python2-jsonpatch \
+       -python2-six \
+       -python-PyMySQL \
+       -python-jsonpointer
+
+- name: Install leapp
+  package:
+    name: leapp
+    state: latest
+
+- name: Check if rhos-release is installed
+  package:
+    name: rhos-release
+    state: present
+  check_mode: true
+  failed_when: false
+  register: rhos_release_installed
+
+- block:
+    - name: Remove rhos-release repos
+      command: rhos-release -x
+
+    - name: Remove conflicting rhos-release package
+      package:
+        name: rhos-release
+        state: absent
+  when:
+    - rhos_release_installed.rc == 0
+    - not rhos_release_installed.changed
+
+- name: Run leapp upgrade (download packages)
+  shell: |
+    set -o pipefail
+    leapp upgrade --debug 2>&1 | \
+        tee {{ working_dir }}/undercloud_leapp_upgrade.log
+
+- name: Reboot the undercloud
+  import_tasks: ../common/undercloud_reboot.yaml
+
+- name: Unregister the node once the OS was upgraded if desired
+  redhat_subscription:
+    state: absent
+  when: leapp_unregister|bool
