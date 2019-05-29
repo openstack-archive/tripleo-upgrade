@@ -16,6 +16,15 @@
   set_fact:
     deployment_with_ha_upstream: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
 
+- name: get network-data-file
+  shell: |
+    awk '/-n\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+  register: network_data_file
+
+- name: set network_data_file fact
+  set_fact:
+    network_data_file: "{{ network_data_file.stdout }}"
+
 - name: get env files used during deploy
   shell: |
     awk '/-e\s|--environment-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
