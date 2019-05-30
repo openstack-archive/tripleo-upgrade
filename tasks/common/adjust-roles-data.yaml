@@ -4,7 +4,7 @@
     path: "{{ roles_data }}"
     regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
     replace: '\1\2\1- {{ item }}'
-  with_items:
+  loop:
     - "OS::TripleO::Services::OsloMessagingRpc"
     - "OS::TripleO::Services::OsloMessagingNotify"
 
@@ -25,7 +25,7 @@
     dest: "{{ roles_data }}"
     regexp: '(\s+)(- OS::TripleO::Services::{{ item }}$)'
     replace: ''
-  with_items:
+  loop:
     - CeilometerApi
     - CeilometerCollector
     - CeilometerExpirer

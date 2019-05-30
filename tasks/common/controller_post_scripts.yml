@@ -8,4 +8,4 @@
 - include_tasks: controller_post_script.yml
   loop_control:
     loop_var: node_name
-  with_items: "{{ controllers.stdout_lines }}"
+  loop: "{{ controllers.stdout_lines }}"

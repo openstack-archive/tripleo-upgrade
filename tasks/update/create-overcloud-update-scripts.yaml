@@ -20,7 +20,7 @@
     dest: "{{ working_dir }}/{{ item.script }}"
     mode: 0755
     force: true
-  with_items:
+  loop:
     - '{{ pre_overcloud_update_prepare_workarounds|default([]) }}'
     - '{{ post_overcloud_update_prepare_workarounds|default([]) }}'
     - '{{ pre_overcloud_update_run_workarounds|default([]) }}'
@@ -55,8 +55,7 @@
     dest: "{{ overcloud_update_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
-  with_items:
-    - "{{ oc_roles|default('all') }}"
+  loop: "{{ oc_roles|default(['all']) }}"
 
 - name: create online data migration script
   template:
