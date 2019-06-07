@@ -19,6 +19,11 @@
     - name: configure container specific parameters
       import_tasks: configure_uc_containers.yml
 
+    - name: install/update required packages before upgrading the undercloud
+      become: true
+      become_user: root
+      import_tasks: ../common/undercloud_prerequisites.yaml
+
     - name: upgrade undercloud
       shell: |
         set -o pipefail
