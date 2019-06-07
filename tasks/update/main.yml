@@ -17,6 +17,11 @@
             {{ working_dir }}/uc_pre_update_workarounds.log
       when: updates_workarounds|bool
 
+    - name: install/update required packages before updating the undercloud
+      become: true
+      become_user: root
+      import_tasks: ../common/undercloud_prerequisites.yaml
+
     - name: update undercloud
       shell: |
           set -o pipefail
