@@ -16,4 +16,5 @@
       - "{{ 'python-tripleoclient' if use_oooq|bool else 'python3-tripleoclient' }}"
       - "openstack-tripleo-common"
       - "openstack-tripleo-heat-templates"
+      - "openstack-tripleo-validations"
     state: latest
