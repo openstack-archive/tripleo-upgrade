@@ -106,6 +106,14 @@
     force: true
   when: upgrade_remove_rpm|bool
 
+- name: create disable-leapp env file
+  template:
+    src: "disable-leapp.yaml.j2"
+    dest: "{{ working_dir }}/disable-leapp.yaml"
+    mode: 0755
+    force: true
+  when: use_oooq|default(false)|bool
+
 - name: import tasks from sh_config_skip_host
   import_tasks: ../common/ssh_config_skip_host.yml
 
