@@ -5,7 +5,28 @@
     apply:
       tags: create_undercloud_upgrade_scripts
   tags: create_undercloud_upgrade_scripts
-  when: upgrade_noop|bool or undercloud_upgrade|bool
+  when: >
+      upgrade_noop|bool or
+      undercloud_upgrade|bool or
+      undercloud_os_upgrade|bool
+
+- block:
+    - name: apply pre undercloud OS upgrade workarounds
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/pre_undercloud_os_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_undercloud_os_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: upgrade_workarounds|bool
+
+    - name: Upgrade operating system
+      become: true
+      become_user: root
+      import_tasks: undercloud_os_upgrade.yaml
+      when: not use_oooq|bool
+
+  when: undercloud_os_upgrade|bool
+  tags: undercloud_os_upgrade
 
 - block:
     - name: apply pre undercloud upgrade workarounds
