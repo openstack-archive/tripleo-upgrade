@@ -1,9 +1,4 @@
 ---
-- name: Ensure Openvswitch is installed
-  package:
-    name: "{{ 'openvswitch' if use_oooq|bool else 'rhosp-openvswitch' }}"
-    state: present
-
 - name: Ensure Openvswitch is enabled and running
   service:
     name: openvswitch
