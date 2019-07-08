@@ -129,5 +129,5 @@
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
 
-- name: update nic configs to rocky format
-  import_tasks: ../common/queens_to_rocky_adjust_nic_templates.yaml
+- name: update nic configs to stein format
+  import_tasks: ../common/rocky_to_stein_adjust_nic_templates.yaml
