@@ -12,9 +12,25 @@
   failed_when: false
   register: pacemaker_present
 
-- name: set deployment_with_ha fact
+- name: Check if overcloud deployed with neutron ovn engine
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show {{ overcloud_stack_name }} EnabledServices | grep 'neutron_plugin_ml2_ovn'
+  failed_when: false
+  register: neutron_ovn_present
+
+- name: Check if overcloud deployed with neutron ovs engine
+  shell: |
+    source {{ undercloud_rc }}
+    openstack stack output show {{ overcloud_stack_name }} EnabledServices | grep 'neutron_ovs_agent'
+  failed_when: false
+  register: neutron_ovs_present
+
+- name: set deployment_with_ha and deployment_with_ovs fact
   set_fact:
     deployment_with_ha_upstream: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
+    deployment_with_ovs: "{{ neutron_ovs_present.rc == 0 }}"
+    deployment_with_ovn: "{{ neutron_ovn_present.rc == 0 }}"
 
 - name: get network-data-file
   shell: |
