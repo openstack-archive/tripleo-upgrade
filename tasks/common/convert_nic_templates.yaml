@@ -42,4 +42,49 @@
         - "tht_directory not in '/'.join(nic_config_env.split('/')[0:-1])"
       with_items:
         - "{{ nic_template_files.stdout_lines }}"
+
+    - name: Register roles data file location if exists
+      shell: "grep '\\-r\\ \\|\\-\\-roles' {{ overcloud_deploy_script }} | awk {'print $2'}"
+      register: custom_roles_file
+      ignore_errors: true
+
+    - block:
+        - name: Make a copy of the custom roles data file
+          copy:
+            src: "{{ custom_roles_file.stdout }}"
+            dest: "{{ custom_roles_file.stdout }}.networks_update"
+            remote_src: true
+
+        - name: Get roles
+          shell: |
+            awk -F': ' '/ name:/ {print $2}' {{ custom_roles_file.stdout }}
+          register: roles
+
+        - name: Generate head of the network update script
+          shell: |
+            echo "{{ json_dump }} < {{ custom_roles_file.stdout }}.networks_update {{ escape }}" > update_networks.sh
+
+        - name: Generate the network update script
+          shell: |
+            grep get_param $( awk -F': ' '/OS::TripleO::{{ item }}::Net::SoftwareConfig/ {print $2}' {{ nic_config_env }}) |\
+            grep -o -e InternalApiIpSubnet -e StorageIpSubnet -e StorageMgmtIpSubnet -e TenantIpSubnet -e ExternalIpSubnet -e ManagementIpSubnet |\
+            while read network ; do
+              echo "jq \"map( if .name | contains (\\\"{{ item }}\\\")
+                              then .networks |= (. += [\\\"${network/%IpSubnet}\\\"] | unique)
+                              else . end)\" {{ escape }}" >> update_networks.sh
+            done
+          with_items: "{{ roles.stdout_lines }}"
+
+        - name: Generate tail of the network update script
+          shell: |
+            echo "{{ yaml_dump }} > {{ custom_roles_file.stdout }}" >> update_networks.sh
+
+        - name: Apply the network update script
+          shell: bash update_networks.sh
+
+      when: custom_roles_file.stdout|length  > 0
+      vars:
+        escape: '|\\'
+        json_dump: "python -c \\\"import sys, yaml, simplejson as json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)\\\""
+        yaml_dump: "python -c \\\"import simplejson, sys, yaml; print yaml.dump(simplejson.loads(str(sys.stdin.read())), default_flow_style=False)\\\""
   when: nic_config_env is defined
