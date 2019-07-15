@@ -42,4 +42,4 @@
   wait_for_connection:
     connect_timeout: 5
     sleep: 3
-    timeout: 630
+    timeout: 900
