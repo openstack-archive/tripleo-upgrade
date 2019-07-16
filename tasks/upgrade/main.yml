@@ -25,6 +25,14 @@
       import_tasks: undercloud_os_upgrade.yaml
       when: not use_oooq|bool
 
+    - name: apply post undercloud OS upgrade workarounds
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/post_undercloud_os_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_undercloud_os_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: upgrade_workarounds|bool
+
   when: undercloud_os_upgrade|bool
   tags: undercloud_os_upgrade
 
