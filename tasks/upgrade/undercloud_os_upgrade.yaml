@@ -41,7 +41,7 @@
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
-    leapp upgrade --debug 2>&1 | \
+    {{ 'LEAPP_DEVEL_SKIP_RHSM=1 sudo -E' if leapp_unsubscribed|bool and upgrade_workarounds|bool }} leapp upgrade --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Reboot the undercloud
@@ -50,4 +50,6 @@
 - name: Unregister the node once the OS was upgraded if desired
   redhat_subscription:
     state: absent
-  when: leapp_unregister|bool
+  when:
+    - leapp_unregister|bool
+    - not leapp_unsubscribed|bool
