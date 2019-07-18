@@ -46,7 +46,9 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     {% if use_oooq|default(false)|bool -%}
     -e {{ working_dir }}/disable-leapp.yaml \
     {% endif -%}
-    {% if upgrade_prepare_extra_params -%}
+    {% if upgrade_prepare_extra_params and upgrade_prepare_extra_params|string -%}
+    -e {{ upgrade_prepare_extra_params }} \
+    {% elif upgrade_prepare_extra_params and upgrade_prepare_extra_params|list -%}
     -e {{ upgrade_prepare_extra_params | join(' -e ') }} \
     {% endif -%}
     -e {{ working_dir }}/{{ uc_containers_prepare_file }} \
