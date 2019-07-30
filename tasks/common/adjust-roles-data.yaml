@@ -29,3 +29,9 @@
     - CeilometerApi
     - CeilometerCollector
     - CeilometerExpirer
+
+- name: drop MongDB service
+  replace:
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::MongoDb$)'
+    replace: ''

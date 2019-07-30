@@ -1,5 +1,5 @@
 ---
-- name: adjust role-data for P->Q upgrade
+- name: adjust role-data for R->S upgrade
   include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
 
