@@ -1,7 +1,21 @@
 #!/bin/bash
 #
 # Apply upgrade workarounds
+# These arguments are only used when the workaround contains
+# the ansible_hosts option.
+# Args:
+# -l|--limit: Host to be passed in the --limit option when
+#             calling ansible-playbook. If not argument passed
+#             no --limit will be used = --limit all.
+# -u|--ssh-ansible-user: User to be passed when creating the
+#                        tripleo-inventory. Defaults to heat-admin.
+
 set -euo pipefail
+
+function usage {
+    echo "Usage: ${0} [ [-l|--limit <ansible_host_to_limit>] [-u|--ssh-ansible-user <ansible_ssh_user_for_inventory>]]"
+}
+
 
 function apply_patch {
     local patch_dir=$1
@@ -29,6 +43,62 @@ function apply_patch {
 
 }
 
+function ansible_patch {
+    local ansible_filename=$1
+    local ansible_limit=""
+    local ansible_ssh_user="heat-admin"
+    local ansible_dir=$HOME/ansible_workarounds
+
+    if [ ! -z $LIMIT ]
+    then
+      ansible_limit="--limit ${LIMIT}"
+    fi
+    if [ ! -z $ANSIBLE_SSH_USER ]
+    then
+      ansible_ssh_user=$ANSIBLE_SSH_USER
+    fi
+
+    inventory_file=${ansible_dir}/tripleo-inventory.yaml
+    if [ ! -f "$inventory_file" ]; then
+        source {{ undercloud_rc }}
+        tripleo-ansible-inventory --ansible_ssh_user ${ansible_ssh_user} --static-yaml-inventory ${inventory_file}
+    fi
+
+    # Run ansible playbook
+    ansible-playbook -v -i ${inventory_file} --become  --become-user root ${ansible_dir}/${ansible_filename}.yaml ${ansible_limit}
+
+}
+
+# Global vars
+LIMIT=""
+ANSIBLE_SSH_USER=""
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -l|--limit)
+    LIMIT="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -u|--ssh-ansible-user)
+    ANSIBLE_SSH_USER="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -h|--help)
+    usage
+    exit 1
+    ;;
+    *)
+    usage
+    exit 1 # unknown option
+    ;;
+esac
+done
+
 {% macro render_workarounds(workaround_var, workaround_name) -%}
 {% if workaround_name in item -%}
 {% for bugs in workaround_var -%}
@@ -36,6 +106,19 @@ function apply_patch {
 echo {{ key }}
 {% if value.patch -%}
 apply_patch {{ value.basedir }} {{ value.id }}
+{% elif value.ansible_hosts is defined and  value.ansible_hosts != '' -%}
+
+[ -d $HOME/ansible_workarounds ] || mkdir $HOME/ansible_workarounds
+
+cat <<'EOF' > "$HOME/ansible_workarounds/{{ key }}.yaml"
+- hosts: {{ value.ansible_hosts }}
+  tasks:
+    - name: {{key}} workaround
+      shell: |
+        {{ value.command | indent(width=8) }}
+EOF
+
+ansible_patch {{ key }}
 {% else -%}
 {{ value.command }}
 {% endif -%}
