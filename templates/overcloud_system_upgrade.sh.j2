@@ -1,0 +1,53 @@
+#!/bin/env bash
+#
+# Run overcloud Operating System upgrade on overcloud node {{ item }}
+#
+
+set -euo pipefail
+
+source {{ undercloud_rc }}
+
+{% if system_upgrade_compact|bool -%}
+
+echo "[$(date)] Started system upgrade step for {{ item }} role"
+
+openstack overcloud upgrade run \
+        --playbook upgrade_steps_playbook.yaml \
+        --tags system_upgrade \
+        --limit {{ item }} 2>&1
+
+echo "[$(date)] Finished system upgrade step for {{ item }} role"
+
+{% else -%}
+
+echo "[$(date)] Started system upgrade prepare for {{ item }} role"
+
+openstack overcloud upgrade run \
+        --playbook upgrade_steps_playbook.yaml \
+        --tags system_upgrade_prepare \
+        --limit {{ item }} 2>&1
+
+echo "[$(date)] Finished system upgrade prepare for {{ item }} role"
+
+echo "[$(date)] Started system upgrade run for {{ item }} role"
+
+openstack overcloud upgrade run \
+        --playbook upgrade_steps_playbook.yaml \
+        --tags system_upgrade_run \
+        --limit {{ item }} 2>&1
+
+echo "[$(date)] Finished system upgrade run for {{ item }} role"
+
+{% endif -%}
+
+{% if role == 'Controller' and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
+
+echo "[$(date)] Started system upgrade transfer data for {{ item }} role"
+
+openstack overcloud external-upgrade run \
+        --tags system_upgrade_transfer_data 2>&1
+
+echo "[$(date)] Finished system upgrade transfer data for {{ item }} role"
+{% endif -%}
+
+

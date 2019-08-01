@@ -1,0 +1,74 @@
+---
+######## RHEL system upgrade ########
+- name: apply pre overcloud system upgrade workarounds in {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ working_dir }}/pre_overcloud_system_upgrade_workarounds.sh --limit {{ host}} 2>&1 {{ timestamper_cmd }} > pre_overcloud_system_upgrade_workarounds_{{ host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: upgrade_workarounds
+  tags: overcloud_system_upgrade
+
+- name: run the RHEL upgrade steps for the host {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/overcloud_system_upgrade_{{ host }}.log
+  register: overcloud_system_upgrade_res
+  ignore_errors: true
+  tags: overcloud_system_upgrade
+
+- name: was the RHEL upgrade step successful.
+  fail: msg="Overcloud Operating System upgrade failed in {{ host }}."
+  when: overcloud_system_upgrade_res.rc != 0
+  tags: overcloud_system_upgrade
+
+- name: apply post overcloud system upgrade workarounds in {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ working_dir }}/post_overcloud_system_upgrade_workarounds.sh --limit {{ host}} 2>&1 {{ timestamper_cmd }} > post_overcloud_system_upgrade_workarounds_{{ host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: upgrade_workarounds
+  tags: overcloud_system_upgrade
+
+  ######## overcloud upgrade run ########
+- name: apply pre overcloud upgrade workarounds in {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ working_dir }}/pre_overcloud_upgrade_workarounds.sh --limit {{ host}} 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_workarounds_{{ host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: upgrade_workarounds
+  tags: overcloud_upgrade_run
+
+- name: launch workload
+  shell: |
+    set -o pipefail
+    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: workload_launch|bool
+
+- name: run overcloud major upgrade for the host {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ overcloud_upgrade_run_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/overcloud_upgrade_run_{{ host }}.log
+  register: overcloud_upgrade_res
+  ignore_errors: true
+  tags: overcloud_upgrade_run
+
+- name: was the overcloud upgrade composable step successful.
+  fail: msg="Overcloud upgrade composable step failed for {{ host }}... :("
+  when: overcloud_upgrade_res.rc != 0
+  tags: overcloud_upgrade_run
+
+- name: apply post overcloud upgrade workarounds in {{ host }}
+  shell: |
+    set -o pipefail
+    bash {{ working_dir }}/post_overcloud_upgrade_workarounds.sh --limit {{ host}} 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds_{{ host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: upgrade_workarounds
+  tags: overcloud_upgrade_run
