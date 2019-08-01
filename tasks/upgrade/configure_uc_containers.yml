@@ -4,11 +4,23 @@
     path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
   register: custom_uc_containers
 
+- name: check hieradata_override parameter already defined in {{ undercloud_conf }}
+  shell: |
+    awk -F '=' '/^hieradata_override/ {gsub(/[[:space:]]/, "", $2); print $2 }' {{ undercloud_conf }}
+  failed_when: false
+  register: defined_hieradata_override
+
 - name: check docker_insecure_registries already defined in {{ undercloud_conf }}
   shell: |
     awk -F '=' '/^docker_insecure_registries/ {gsub(/[[:space:]]/, "", $2); print $2 }' {{ undercloud_conf }}
   failed_when: false
   register: defined_insecure_registry
+
+- name: check container_insecure_registries already defined in {{ undercloud_conf }}
+  shell: |
+    awk -F '=' '/^container_insecure_registries/ {gsub(/[[:space:]]/, "", $2); print $2 }' {{ undercloud_conf }}
+  failed_when: false
+  register: defined_container_registry
 
 - name: set container_cli for undercloud
   ini_file:
@@ -37,24 +49,70 @@
         ceph_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_namespace.split('/')[0] }}"
         def_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.namespace.split('/')[0] }}"
 
-    - name: set docker_insecure_registries for undercloud upgrade
+    - name: set container_insecure_registries for undercloud upgrade
       ini_file:
         path: "{{ undercloud_conf }}"
         section: DEFAULT
-        option: docker_insecure_registries
+        option: container_insecure_registries
         value: "{{ def_namespace }},{{ ceph_namespace }}"
-      when: defined_insecure_registry.stdout_lines|length == 0
+      when: defined_container_registry.stdout_lines|length == 0
 
   when: custom_uc_containers.stat.exists
 
-- name: adjust existing docker_insecure_registries for undercloud upgrade
+- name: adjust existing container_insecure_registries for undercloud upgrade
   vars:
     reg_list: '{{ defined_insecure_registry.stdout.split(",")|union([def_namespace])|union([ceph_namespace])|unique|join(",") }}'
   replace:
     path: "{{ undercloud_conf }}"
-    regexp: '^(docker_insecure_registries\s*=)(.*)'
+    regexp: '^(container_insecure_registries\s*=)(.*)'
     replace: '\1 {{ reg_list }}'
   when:
     - defined_insecure_registry.stdout_lines|length != 0
     - def_namespace is defined
     - ceph_namespace is defined
+
+- name: adjust existing container_insecure_registries for undercloud upgrade from docker_insecure_registries
+  vars:
+    reg_list: '{{ defined_container_registry.stdout.split(",")|union([def_namespace])|union([ceph_namespace])|unique|join(",") }}'
+  replace:
+    path: "{{ undercloud_conf }}"
+    regexp: '^(container_insecure_registries\s*=)(.*)'
+    replace: '\1 {{ reg_list }}'
+  when:
+    - defined_container_registry.stdout_lines|length != 0
+    - def_namespace is defined
+    - ceph_namespace is defined
+
+- name: remove docker_insecure_registries from undercloud config file if present
+  ini_file:
+    path: "{{ undercloud_conf }}"
+    section: DEFAULT
+    option: docker_insecure_registries
+    state: absent
+
+- name: set hieradata_override to {{ undercloud_conf }} when not existing
+  block:
+    - name: Create undercloud hiera file
+      lineinfile:
+        state: present
+        create: true
+        path: "{{ undercloud_hiera }}"
+        regexp: '^glance_backend'
+        line: "glance_backend: 'file'"
+
+    - name: Configure hieradata_override parameter
+      ini_file:
+        path: "{{ undercloud_conf }}"
+        section: DEFAULT
+        option: hieradata_override
+        value: "{{ undercloud_hiera }}"
+
+  when: defined_hieradata_override.stdout_lines|length == 0
+
+- name: modify hieradata_override configuration when defined in {{ undercloud_conf }}
+  lineinfile:
+    state: present
+    path: "{{ defined_hieradata_override.stdout }}"
+    regexp: '^glance_backend'
+    line: "glance_backend: 'file'"
+  when: defined_hieradata_override.stdout_lines|length != 0
