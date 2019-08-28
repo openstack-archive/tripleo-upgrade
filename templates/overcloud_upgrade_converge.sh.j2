@@ -69,6 +69,9 @@ openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgra
     -e {{working_dir}}/ceph-ansible-env.yaml \
     {% endif -%}
     {% endif -%}
+    {% if deployment_with_ovs|default(true)|bool -%}
+    -e {{ tht_directory }}/environments/services/neutron-ovs.yaml \
+    {% endif -%}
     -e {{ working_dir }}/{{ uc_containers_prepare_file }} \
     {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
 
