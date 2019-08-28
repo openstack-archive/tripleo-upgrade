@@ -46,6 +46,9 @@ openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrad
     {% if use_oooq|default(false)|bool -%}
     -e {{ working_dir }}/disable-leapp.yaml \
     {% endif -%}
+    {% if deployment_with_ovs|default(true)|bool -%}
+    -e {{ tht_directory }}/environments/services/neutron-ovs.yaml \
+    {% endif -%}
     {% if upgrade_prepare_extra_params and upgrade_prepare_extra_params|string -%}
     -e {{ upgrade_prepare_extra_params }} \
     {% elif upgrade_prepare_extra_params and upgrade_prepare_extra_params|list -%}
