@@ -7,7 +7,8 @@ set -euo pipefail
 source {{undercloud_rc }}
 
 echo "Running {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade prepare step"
-openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}prepare --stack {{ overcloud_stack_name }} \
+# TODO: Remove OVERCLOUD_SKIP_UPGRADE_SUPPORT_CHECK=1 once upgrades are fully supported in Stein.
+OVERCLOUD_SKIP_UPGRADE_SUPPORT_CHECK=1 openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}prepare --stack {{ overcloud_stack_name }} \
     --templates {{ tht_directory }} \
     {% if ffu_overcloud_upgrade -%}
     --yes \
