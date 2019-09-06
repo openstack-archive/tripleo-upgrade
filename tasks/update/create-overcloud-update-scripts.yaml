@@ -20,13 +20,12 @@
     dest: "{{ working_dir }}/{{ item.script }}"
     mode: 0755
     force: true
-  loop:
-    - '{{ pre_overcloud_update_prepare_workarounds|default([]) }}'
-    - '{{ post_overcloud_update_prepare_workarounds|default([]) }}'
-    - '{{ pre_overcloud_update_run_workarounds|default([]) }}'
-    - '{{ post_overcloud_update_run_workarounds|default([]) }}'
-    - '{{ pre_overcloud_update_converge_workarounds|default([]) }}'
-    - '{{ post_overcloud_update_converge_workarounds|default([]) }}'
+  loop: '{{ pre_overcloud_update_prepare_workarounds|default([]) }}
+  + {{ post_overcloud_update_prepare_workarounds|default([]) }}
+  + {{ pre_overcloud_update_run_workarounds|default([]) }}
+  + {{ post_overcloud_update_run_workarounds|default([]) }}
+  + {{ pre_overcloud_update_converge_workarounds|default([]) }}
+  + {{ post_overcloud_update_converge_workarounds|default([]) }}'
   when: updates_workarounds|bool
 
 - name: include l3 agent tasks
