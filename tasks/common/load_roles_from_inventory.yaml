@@ -10,10 +10,14 @@
   command: cat {{ working_dir }}//tripleo-ansible-inventory.yaml
   register: upgrade_tripleo_inventory
 
+- name: set fact inventory_yaml
+  set_fact:
+    inventory_yaml: "{{ upgrade_tripleo_inventory.stdout | from_yaml }}"
+
 - name: store roles
   set_fact:
     oc_roles: "{{ oc_roles + [item.key] }}"
-  with_dict: "{{ (upgrade_tripleo_inventory.stdout | from_yaml).overcloud.children }}"
+  with_dict: "{{ inventory_yaml.overcloud.children }}"
 
 - name: register controller role name
   set_fact:
@@ -31,9 +35,22 @@
     oc_roles: "{{ roles_upgrade_order.split(';') }}"
   when: roles_upgrade_order != '__undefined__'
 
-- name: create hosts per role fact
+# In order to get the upgrade working, in the Controller role we
+# need to start always by the bootstrap node for Pacemaker.
+- name: Retrieve the pacemaker bootstrap controller node.
+  shell: "sudo hiera -c /etc/puppet/hiera.yaml pacemaker_short_bootstrap_node_name"
+  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+  delegate_to: "{{ inventory_yaml[controller_role_name]['hosts'].keys()|first }}"
+  register: pcmkr_bootstrap_node_out
+
+- name: Create ordered Controller's host set (bootstrap node first)
   vars:
-    inventory_yaml: "{{ upgrade_tripleo_inventory.stdout | from_yaml }}"
+    pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout }}"
+    controllers_from_inventory: "{{ inventory_yaml[controller_role_name]['hosts'].keys() }}"
   set_fact:
-    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : inventory_yaml[item.key]['hosts'].keys()|list }) }}"
+    controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
+
+- name: create hosts per role fact
+  set_fact:
+    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : controllers_ordered if item.key == controller_role_name else inventory_yaml[item.key]['hosts'].keys()|list }) }}"
   with_dict: "{{ inventory_yaml.overcloud.children }}"
