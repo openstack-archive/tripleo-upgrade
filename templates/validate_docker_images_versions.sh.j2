@@ -37,11 +37,11 @@ function assert_image_in_file {
 source {{ undercloud_rc }}
 for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $2 }' ) ; do
     echo "================================================================================"
-    echo "Validate docker images at host ${_ip}"
+    echo "Validate podman images at host ${_ip}"
     echo "================================================================================"
     CONTAINERS=$( ssh -q -o StrictHostKeyChecking=no \
                     {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                    "sudo docker ps 2>&1 | grep -v -e pcmk -e ID -e qrouter -e 'neutron.*ip netns exec' | awk '{ print \$2 }'" )
+                    "sudo podman ps 2>&1 | grep -v -e pcmk -e ID -e qrouter -e 'neutron.*ip netns exec' | awk '{ print \$2 }'" )
     for _container in ${CONTAINERS} ; do
         # non pcs managed containers
         assert_image_in_file {{ working_dir}}/{{ container_registry_file }} ${_container}
@@ -49,14 +49,14 @@ for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $
 
     CONTAINERS_PCMK=$( ssh -q -o StrictHostKeyChecking=no \
                         {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                        "sudo docker images 2>&1 | grep pcmk | {% if overcloud_validate_ap_services_list|length>0 %}grep -v -e {{ overcloud_validate_ap_services_list|join(' -e ') }} | {% endif %} awk '{ print \$3 }'" )
+                        "sudo podman images 2>&1 | grep pcmk | {% if overcloud_validate_ap_services_list|length>0 %}grep -v -e {{ overcloud_validate_ap_services_list|join(' -e ') }} | {% endif %} awk '{ print \$3 }'" )
 
     # check if any of defined A/P services has image on a node
     if [[ -n "${AP_SERVICES}" ]] ; then
         for _ap_service in ${AP_SERVICES} ; do
             CONTAINERS_PCMK_AP=$( ssh -q -o StrictHostKeyChecking=no \
                                 {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                                "sudo docker images 2>&1 | grep -e pcmk | grep ${_ap_service} | awk '{ print \$3 }'" )
+                                "sudo podman images 2>&1 | grep -e pcmk | grep ${_ap_service} | awk '{ print \$3 }'" )
             if [[ -n ${CONTAINERS_PCMK_AP} ]] ; then
                 echo "${_ip}" >> {{ working_dir }}/AP_SERVICES_${_ap_service}.txt
             fi
@@ -67,23 +67,23 @@ for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $
         echo "PCMKLATEST images not found on ${_ip}"
     else
         echo "================================================================================"
-        echo "Validate PCMKLATEST docker images at host ${_ip}"
+        echo "Validate PCMKLATEST podman images at host ${_ip}"
         echo "================================================================================"
         for _img_id in ${CONTAINERS_PCMK} ; do
             _pcmk_image=$( ssh -q -o StrictHostKeyChecking=no \
                             {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                            "sudo docker images 2>&1 | grep ${_img_id} | grep -v pcmklatest | awk '{ print \$1\":\"\$2}'" )
+                            "sudo podman images 2>&1 | grep ${_img_id} | grep -v pcmklatest | awk '{ print \$1\":\"\$2}'" )
             assert_image_in_file {{ working_dir }}/{{ container_registry_file }} ${_pcmk_image}
 
             _pcmk_container=$( ssh -q -o StrictHostKeyChecking=no \
                                 {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                                "sudo docker ps --filter ancestor=${_img_id} | grep pcmklatest | awk '{print \$2}'" )
+                                "sudo podman ps --filter ancestor=${_img_id} | grep -v clustercheck | awk '{if (NR>1){print \$2}}'" )
             if [[ -z ${_pcmk_container} ]] ; then
                 echo "PCMKLATEST container for image '${_pcmk_image}' is not running"
                 echo "Running container is '${_pcmk_container}'"
                 exit 2
             else
-                echo "PCMKLATES container ${_pcmk_container} usese image ${_pcmk_image}"
+                echo "PCMKLATES container ${_pcmk_container} uses image ${_pcmk_image}"
             fi
 
         done
@@ -95,26 +95,31 @@ done
 # Check for A/P services
 #
 for _ap_service in ${AP_SERVICES} ; do
+    echo "================================================================================"
     echo "Check A/P service ${_ap_service}"
+    echo "================================================================================"
+    rm -f {{ working_dir }}/${_ap_service}_found
     if [[ -e "{{ working_dir }}/AP_SERVICES_${_ap_service}.txt" ]] ; then
         for _ip in $(cat AP_SERVICES_${_ap_service}.txt ) ; do
             _image=$( ssh -q -o StrictHostKeyChecking=no \
                         {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                        "sudo docker images 2>&1" | awk '/'${_ap_service}'/ && !/pcmklatest/ { print $1":"$2}' )
+                        "sudo podman images 2>&1" | awk '/'${_ap_service}'/ && !/pcmklatest/ { print $1":"$2}' )
 
             assert_image_in_file {{ working_dir }}/{{ container_registry_file }} ${_image}
 
             _container=$( ssh -q -o StrictHostKeyChecking=no \
                             {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                            "sudo docker ps --filter ancestor=${_image} | awk '/:pcmklatest/ {print \$2}'" )
+                            "sudo podman ps --filter ancestor=${_ap_service} | awk '{if (NR>1){print \$2}}'" )
             if [[ -n ${_container} ]] ; then
                 # so there is container running on a node
-                touch {{ working_dir }}/${_ap_service}_found
+                echo "AP_PCMKLATES container ${_container} uses image ${_image} on host ${_ip}" > {{ working_dir }}/${_ap_service}_found
             fi
         done
         if [[ ! -e {{ working_dir }}/${_ap_service}_found ]] ; then
             echo "Error: A/P service ${_ap_service} not found running on any OC node"
             exit 2
+        else
+            cat /home/stack/${_ap_service}_found
         fi
     fi
 done
