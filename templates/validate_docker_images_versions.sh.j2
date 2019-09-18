@@ -53,6 +53,7 @@ for _ip in $( openstack server list -f value -c Networks | awk -F '=' '{ print $
 
     # check if any of defined A/P services has image on a node
     if [[ -n "${AP_SERVICES}" ]] ; then
+        rm -f {{ working_dir }}/AP_SERVICES_${_ap_service}.txt
         for _ap_service in ${AP_SERVICES} ; do
             CONTAINERS_PCMK_AP=$( ssh -q -o StrictHostKeyChecking=no \
                                 {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
@@ -103,7 +104,7 @@ for _ap_service in ${AP_SERVICES} ; do
         for _ip in $(cat AP_SERVICES_${_ap_service}.txt ) ; do
             _image=$( ssh -q -o StrictHostKeyChecking=no \
                         {% if overcloud_ssh_user != '' %}{{overcloud_ssh_user}}{% else %}heat-admin{% endif %}@${_ip} \
-                        "sudo podman images 2>&1" | awk '/'${_ap_service}'/ && !/pcmklatest/ { print $1":"$2}' )
+                        "sudo podman images --sort tag 2>&1" | awk '/'${_ap_service}'/ && !/pcmklatest/ { print $1":"$2}' | tail -1 )
 
             assert_image_in_file {{ working_dir }}/{{ container_registry_file }} ${_image}
 
