@@ -10,7 +10,7 @@ if [[ $EXT_LB != 'false' ]]; then
         rm -rf ~/haproxy.stats
         echo "Waiting for haproxy backend services to come up"
 ssh -q -o StrictHostKeyChecking=no heat-admin@$NODE_IP > ~/haproxy.stats <<-\SSH
-sudo docker exec $(sudo docker ps | grep -oP haproxy-bundle.*) bash -c 'echo "show stat" |  socat /var/lib/haproxy/stats stdio | grep -v redis'
+sudo podman exec $(sudo podman ps | grep -oP haproxy-bundle.*) bash -c 'echo "show stat" |  socat /var/lib/haproxy/stats stdio | grep -v redis'
 SSH
         grep DOWN ~/haproxy.stats > /dev/null
         if [[ $? != 0 ]]; then
