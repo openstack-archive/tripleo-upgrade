@@ -34,7 +34,7 @@
           set -o pipefail
           source {{ undercloud_rc }}
           bash {{ post_undercloud_update_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/uc_pre_update_workarounds.log
+            {{ working_dir }}/uc_post_update_workarounds.log
       when: updates_workarounds|bool
 
     - name: validate undercloud update
