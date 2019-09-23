@@ -42,8 +42,9 @@
         - name: set ceph_osds fact
           vars:
             ceph_yaml: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults }}"
+            ceph_osds_var: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osds']}}"
           set_fact:
-            ceph_osds: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osds'] | default([]) }}"
+            ceph_osds: "{{ (ceph_osds_var.keys()|list if ceph_osds_var | type_debug == 'dict' else ceph_osds_var) | default([]) }}"
 
         - name: set ceph_osds_pg fact
           vars:
