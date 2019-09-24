@@ -1,0 +1,30 @@
+---
+pre_undercloud_upgrade_workarounds:
+    - rhbz1:
+        patch: true
+        basedir: /home/stack/
+        id: 112233
+        command:
+    - rhbz2:
+        patch: true
+        basedir: /home/stack/
+        id: 112234
+        command:
+    - rhbz3:
+        patch: false
+        basedir: ''
+        id: ''
+        command: 'some command goes here'
+post_undercloud_upgrade_workarounds:
+    - rhbz10:
+        patch: true
+        basedir: /usr/share/
+        id: 223344
+        command: ''
+post_overcloud_upgrade_workarounds:
+    - rhbz11:
+        patch: false
+        basedir: ''
+        id: ''
+        ansible_hosts: "overcloud"
+        command: 'Ansible task to run in overcloud nodes'

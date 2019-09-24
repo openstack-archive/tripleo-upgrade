@@ -1,0 +1,40 @@
+---
+pre_undercloud_update_workarounds:
+    - rhbz1:
+        patch: true
+        basedir: /usr/share/openstack-tripleo-heat-templates
+        id: 112345
+        command:
+    - rhbz2:
+        patch: true
+        basedir: /usr/share/openstack-tripleo-heat-templates
+        id: 212321
+        command:
+    - rhbz3:
+        patch: false
+        basedir: ''
+        id: ''
+        command: 'some command goes here'
+post_undercloud_update_workarounds:
+    - rhbz10:
+        patch: false
+        basedir: ''
+        id: ''
+        command: |
+          echo "This is a nice workaround"
+pre_overcloud_update_run_workarounds:
+    - rhbz11:
+        patch: false
+        basedir: ''
+        id: ''
+        ansible_hosts: "overcloud"
+        command: |
+          cat /etc/redhat-release
+post_overcloud_update_converge_workarounds:
+    - rhbz12:
+        patch: false
+        basedir: ''
+        id: ''
+        ansible_hosts: "overcloud"
+        command: |
+          echo "Update finished, awesome!"
