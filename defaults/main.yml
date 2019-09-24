@@ -82,22 +82,11 @@ overcloud_upgrade_converge_script: "{{ working_dir }}/overcloud_upgrade_converge
 workload_launch_script: "{{ working_dir }}/workload_launch.sh"
 
 # overcloud jinja template name
-overcloud_pre_update_workarounds_template: overcloud_pre_update_workarounds.sh.j2
-update_workarounds_template: update_workarounds.sh.j2
 overcloud_update_prepare_template: overcloud_update_prepare.sh.j2
 overcloud_update_run_template: overcloud_update_run.sh.j2
 overcloud_update_converge_template: overcloud_update_converge.sh.j2
 
 # overcloud update scripts
-pre_undercloud_update_workarounds_script: "{{ working_dir }}/pre_undercloud_update_workarounds.sh"
-post_undercloud_update_workarounds_script: "{{ working_dir }}/post_undercloud_update_workarounds.sh"
-pre_overcloud_update_prepare_workarounds_script: "{{ working_dir }}/pre_overcloud_update_prepare_workarounds.sh"
-post_overcloud_update_prepare_workarounds_script: "{{ working_dir }}/post_overcloud_update_prepare_workarounds.sh"
-pre_overcloud_update_run_workarounds_script: "{{ working_dir }}/pre_overcloud_update_run_workarounds.sh"
-post_overcloud_update_run_workarounds_script: "{{ working_dir }}/post_overcloud_update_run_workarounds.sh"
-pre_overcloud_update_converge_workarounds_script: "{{ working_dir }}/pre_overcloud_update_converge_workarounds.sh"
-post_overcloud_update_converge_workarounds_script: "{{ working_dir }}/post_overcloud_update_converge_workarounds.sh"
-
 overcloud_update_prepare_script: "{{ working_dir }}/overcloud_update_prepare.sh"
 overcloud_update_run_script_base: "{{ working_dir }}/overcloud_update_run"
 overcloud_update_converge_script: "{{ working_dir }}/overcloud_update_converge.sh"

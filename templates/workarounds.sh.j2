@@ -20,9 +20,9 @@ function apply_patch {
 
     if sudo patch --dry-run --reverse --force -d ${patch_dir} -p1 < ${temp_dir}/patch.txt >/dev/null 2>&1
     then
-        echo "Patch ${patch_id} already applied, skipping"
-    else
         sudo patch -Ns  -d ${patch_dir} -p1 < ${temp_dir}/patch.txt
+    else
+        echo "Patch ${patch_id} already applied, skipping"
     fi
 
     sudo rm -Rf ${temp_dir}/
@@ -45,6 +45,7 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {% endif -%}
 {% endmacro -%}
 
+{% if upgrade_workarounds|bool -%}
 {{ render_workarounds(pre_undercloud_upgrade_workarounds|default([]),'pre_undercloud_upgrade_workarounds') }}
 {# finish pre_undercloud_upgrade_workarounds #}
 {{ render_workarounds(post_undercloud_upgrade_workarounds|default([]),'post_undercloud_upgrade_workarounds') }}
@@ -65,3 +66,24 @@ apply_patch {{ value.basedir }} {{ value.id }}
 {# finish pre_ceph_upgrade_workarounds #}
 {{ render_workarounds(post_ceph_upgrade_workarounds|default([]),'post_ceph_upgrade_workarounds') }}
 {# finish post_ceph_upgrade_workarounds #}
+{% endif -%}
+
+{% if updates_workarounds|bool -%}
+# Render for Updates
+{{ render_workarounds(pre_undercloud_update_workarounds|default([]),'pre_undercloud_update_workarounds') }}
+{# finish pre_undercloud_update_workarounds #}
+{{ render_workarounds(post_undercloud_update_workarounds|default([]),'post_undercloud_update_workarounds') }}
+{# finish post_undercloud_update_workarounds #}
+{{ render_workarounds(pre_overcloud_update_prepare_workarounds|default([]),'pre_overcloud_update_prepare_workarounds') }}
+{# finish pre_overcloud_update_prepare_workarounds #}
+{{ render_workarounds(post_overcloud_update_prepare_workarounds|default([]),'post_overcloud_update_prepare_workarounds') }}
+{# finish post_overcloud_update_prepare_workarounds #}
+{{ render_workarounds(pre_overcloud_update_run_workarounds|default([]),'pre_overcloud_update_run_workarounds') }}
+{# finish pre_overcloud_update_run_workarounds #}
+{{ render_workarounds(post_overcloud_update_run_workarounds|default([]),'post_overcloud_update_run_workarounds') }}
+{# finish post_overcloud_update_run_workarounds #}
+{{ render_workarounds(pre_overcloud_update_converge_workarounds|default([]),'pre_overcloud_update_converge_workarounds') }}
+{# finish pre_overcloud_update_converge_workarounds #}
+{{ render_workarounds(post_overcloud_update_converge_workarounds|default([]),'post_overcloud_update_converge_workarounds') }}
+{# finish post_overcloud_update_converge_workarounds #}
+{% endif -%}
