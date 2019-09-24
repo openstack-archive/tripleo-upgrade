@@ -14,18 +14,19 @@
 - name: get auxiliary facts for major upgrades
   import_tasks: ../common/auxilary-facts.yaml
 
-- name: create scripts with workarounds
+- name: create update workaround scripts
   template:
-    src: "{{ update_workarounds_template }}"
-    dest: "{{ working_dir }}/{{ item.script }}"
-    mode: 0755
+    src: workarounds.sh.j2
+    dest: "{{ working_dir }}/{{ item }}.sh"
+    mode: 0775
     force: true
-  loop: '{{ pre_overcloud_update_prepare_workarounds|default([]) }}
-  + {{ post_overcloud_update_prepare_workarounds|default([]) }}
-  + {{ pre_overcloud_update_run_workarounds|default([]) }}
-  + {{ post_overcloud_update_run_workarounds|default([]) }}
-  + {{ pre_overcloud_update_converge_workarounds|default([]) }}
-  + {{ post_overcloud_update_converge_workarounds|default([]) }}'
+  loop:
+    - 'pre_overcloud_update_prepare_workarounds'
+    - 'post_overcloud_update_prepare_workarounds'
+    - 'pre_overcloud_update_run_workarounds'
+    - 'post_overcloud_update_run_workarounds'
+    - 'pre_overcloud_update_converge_workarounds'
+    - 'post_overcloud_update_converge_workarounds'
   when: updates_workarounds|bool
 
 - name: include l3 agent tasks
