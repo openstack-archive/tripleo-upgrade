@@ -9,13 +9,17 @@
   when: update_noop|bool or undercloud_update|bool
 
 - block:
-    - name: undercloud pre-update workarounds
+    - name: apply pre undercloud update workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ pre_undercloud_update_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/uc_pre_update_workarounds.log
+          bash pre_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            pre_undercloud_update_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - undercloud_update
 
     - name: update undercloud
       shell: |
@@ -24,13 +28,17 @@
             {{ working_dir }}/undercloud_update.log
       tags: undercloud_update
 
-    - name: undercloud post-update workarounds
+    - name: apply post undercloud update workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ post_undercloud_update_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/uc_pre_update_workarounds.log
+          bash post_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            post_undercloud_update_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - undercloud_update
 
     - name: validate undercloud update
       import_tasks: ../common/undercloud_validate_upgrade.yaml
@@ -48,64 +56,86 @@
   when: update_noop|bool or overcloud_update|bool
 
 - block:
-    - name: overcloud pre-update prepare workarounds
+    - name: apply pre overcloud update prepare workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ pre_overcloud_update_prepare_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/pre_overcloud_update_prepare_workarounds.log
+          bash pre_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            pre_overcloud_update_prepare_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - overcloud_update_prepare
 
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
       tags:
-        - overcloud_update
         - overcloud_update_prepare
 
-    - name: overcloud post-update prepare workarounds
+    - name: apply post overcloud update prepare workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ post_overcloud_update_prepare_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/post_overcloud_update_prepare_workarounds.log
+          bash post_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            post_overcloud_update_prepare_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - overcloud_update_prepare
 
     - name: Ensure ansible-pacemaker module is present in CI.
       yum:
         name: ansible-pacemaker
         state: latest
       when: tripleo_ci|default(false)|bool
-      tags: overcloud_update
       become: true
+      tags:
+        - overcloud_update_run
 
-    - name: overcloud pre-update run workarounds
+    - name: apply pre overcloud update run workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ pre_overcloud_update_run_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/pre_overcloud_update_run_workarounds.log
+          bash pre_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            pre_overcloud_update_run_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - overcloud_update_run
 
     - name: import overcloud update run tasks
       import_tasks: overcloud_update_run.yml
       tags:
-        - overcloud_update
+        - overcloud_update_run
 
-    - name: overcloud post-update run workarounds
+    - name: apply post overcloud update run workarounds
       shell: |
           set -o pipefail
           source {{ undercloud_rc }}
-          bash {{ post_overcloud_update_run_workarounds_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/post_overcloud_update_run_workarounds.log
+          bash post_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            post_overcloud_update_run_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: updates_workarounds|bool
+      tags:
+        - overcloud_update_run
 
     - name: update Ceph
       include_tasks: ceph_update_run.yml
       when: ceph_osd_enabled|bool
 
     - name: apply pre overcloud update converge workarounds
-      command: "{{ working_dir }}/pre_overcloud_update_converge_workarounds.sh"
-      when: updates_workarounds
+      shell: |
+          set -o pipefail
+          source {{ undercloud_rc }}
+          bash pre_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            pre_overcloud_update_converge_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: updates_workarounds|bool
       tags: overcloud_update_converge
 
     - name: import overcloud update converge tasks
@@ -113,8 +143,14 @@
       tags: overcloud_update_converge
 
     - name: apply post overcloud update converge workarounds
-      command: "{{ working_dir }}/post_overcloud_update_converge_workarounds.sh"
-      when: updates_workarounds
+      shell: |
+          set -o pipefail
+          source {{ undercloud_rc }}
+          bash post_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+            post_overcloud_update_converge_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: updates_workarounds|bool
       tags: overcloud_update_converge
 
     - name: validate overcloud docker images/containers
@@ -125,7 +161,7 @@
             {{ working_dir }}/validate_oc_images_containers.log
       when: overcloud_images_validate|bool
       tags:
-        - overcloud_update
+        - overcloud_images_validate
 
     - name: import nova_actions_check tasks
       import_tasks: ../common/nova_actions_check.yml

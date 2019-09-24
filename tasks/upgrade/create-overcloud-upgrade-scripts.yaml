@@ -39,6 +39,7 @@
     src: workarounds.sh.j2
     dest: "{{ working_dir }}/{{ item }}.sh"
     mode: 0775
+    force: true
   loop:
     - 'pre_overcloud_upgrade_prepare_workarounds'
     - 'post_overcloud_upgrade_prepare_workarounds'
