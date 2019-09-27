@@ -1,0 +1,18 @@
+---
+- name: create overcloud system upgrade script for {{ role }}
+  vars:
+    role_hosts: "{{ oc_roles_hosts[role] }}"
+  template:
+    src: "{{ overcloud_system_upgrade_template }}"
+    dest: "{{ overcloud_system_upgrade_script_base }}-{{ item }}.sh"
+    mode: 0775
+    force: true
+  loop: "{{ oc_roles_hosts[role] }}"
+
+- name: create overcloud upgrade script for {{ role }}
+  template:
+    src: "{{ overcloud_upgrade_run_template }}"
+    dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
+    mode: 0775
+    force: true
+  loop: "{{ oc_roles_hosts[role] }}"

@@ -42,6 +42,8 @@
   loop:
     - 'pre_overcloud_upgrade_prepare_workarounds'
     - 'post_overcloud_upgrade_prepare_workarounds'
+    - 'pre_overcloud_system_upgrade_workarounds'
+    - 'post_overcloud_system_upgrade_workarounds'
     - 'pre_overcloud_upgrade_workarounds'
     - 'post_overcloud_upgrade_workarounds'
     - 'pre_overcloud_upgrade_converge_workarounds'
@@ -67,13 +69,10 @@
     mode: 0755
     force: true
 
-- name: create overcloud upgrade script
-  template:
-    src: "{{ overcloud_upgrade_run_template }}"
-    dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
-    mode: 0775
-    force: true
-  loop: "{{ oc_roles|default(['all']) }}"
+- include_tasks: create-overcloud-upgrade-hosts-scripts.yaml
+  loop: "{{ oc_roles }}"
+  loop_control:
+    loop_var: role
 
 - name: create online data migration script
   template:
