@@ -138,9 +138,9 @@
           source {{ undercloud_rc }}
           bash {{ overcloud_validate_images_script }} 2>&1 {{ timestamper_cmd }} > \
             {{ working_dir }}/validate_oc_images_containers.log
+      when: overcloud_images_validate|bool
       tags:
         - overcloud_update
-        - overcloud_images_validate
 
     - name: import nova_actions_check tasks
       import_tasks: ../common/nova_actions_check.yml

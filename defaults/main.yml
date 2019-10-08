@@ -20,6 +20,7 @@ containerized_undercloud_upgrade: true
 overcloud_upgrade: false
 undercloud_update: false
 overcloud_update: false
+overcloud_images_validate: false
 
 # enable ffu upgrade
 ffu_undercloud_upgrade: false
