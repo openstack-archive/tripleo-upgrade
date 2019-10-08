@@ -62,6 +62,10 @@ Run overcloud update::
 
     overcloud_deploy_script: "~/overcloud_deploy.sh"
 
+Validate overcloud after update::
+
+   overcloud_images_validate: false
+
 Location of the initial overcloud deploy script::
 
     undercloud_upgrade_script: "~/undercloud_upgrade.sh"
