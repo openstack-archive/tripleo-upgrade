@@ -2,20 +2,61 @@
 - project:
     templates:
       - check-requirements
+      - openstack-tox-molecule
     check:
       jobs:
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades
-        - tripleo-ci-centos-7-containerized-undercloud-upgrades
-        - tripleo-ci-centos-7-standalone-upgrade
-        - tripleo-ci-centos-7-standalone-upgrade-stein
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-containerized-undercloud-upgrades:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-standalone-upgrade:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-standalone-upgrade-stein:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
         - openstack-tox-linters
+        - tripleo-tox-molecule
+        - tripleo-upgrade-centos-7-molecule:
+            dependencies:
+              - tripleo-tox-molecule
     gate:
       queue: tripleo
       jobs:
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
-        - tripleo-ci-centos-7-standalone-upgrade-stein
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-standalone-upgrade-stein:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
         - openstack-tox-linters
+        - tripleo-upgrade-centos-7-molecule
     post:
       jobs:
         - publish-openstack-python-branch-tarball
+
+- job:
+    description: Base tripleo-upgrade job
+    name: tripleo-upgrade-centos-7-base
+    nodeset: centos-7
+    parent: base
+    success-url: "reports.html"
+    failure-url: "reports.html"
+    pre-run:
+      - zuul.d/playbooks/prepare-test-host.yml
+      - zuul.d/playbooks/pre.yml
+    run:
+      - zuul.d/playbooks/run.yml
+    timeout: 1800
+    voting: true
+
+- job:
+    files:
+      - ^.*
+    name: tripleo-upgrade-centos-7-molecule
+    parent: tripleo-upgrade-centos-7-base
