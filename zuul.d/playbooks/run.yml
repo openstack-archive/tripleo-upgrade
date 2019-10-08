@@ -1,0 +1,45 @@
+---
+
+- hosts: all
+  environment:
+    ANSIBLE_LOG_PATH: "{{ ansible_user_dir }}/zuul-output/logs/ansible-execution.log"
+    ANSIBLE_LOCAL_TEMP: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tmp/"
+    ANSIBLE_REMOTE_TEMP: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tmp/"
+    ZUUL_PROJECT_SRC_DIR: "{{ zuul.project.src_dir }}"
+  pre_tasks:
+    - name: Set project path fact
+      set_fact:
+        tripleo_upgrade_project_path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+
+    - name: Set action plugin path fact
+      set_fact:
+        tripleo_action_plugins_paths:
+          - "{{ tripleo_upgrade_project_path }}/molecule/roles.galaxy/config_template/action"
+          - "{{ tripleo_upgrade_project_path }}/molecule/ansible_plugins/action"
+          - "/usr/share/ansible/plugins/action"
+          - "/usr/share/ansible/tripleo-plugins/action"
+  tasks:
+    - name: Create tmp folder
+      file:
+        path: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tmp/"
+        state: directory
+        mode: "0777"
+        recurse: true
+
+    - name: Run role test job
+      shell: |-
+        . {{ ansible_user_dir }}/test-python/bin/activate
+        . {{ tripleo_upgrade_project_path }}/molecule/ansible-test-env.rc
+        pytest --color=no \
+               --html={{ ansible_user_dir }}/zuul-output/logs/reports.html \
+               --self-contained-html \
+               --ansible-args="{{ tripleo_job_ansible_args | default('') }}" \
+               {{ tripleo_upgrade_project_path }}/molecule/tests/test_molecule.py
+      args:
+        chdir: "{{ tripleo_upgrade_project_path }}"
+        executable: /bin/bash
+      environment:
+        ANSIBLE_ACTION_PLUGINS: "{{ tripleo_action_plugins_paths | join(':') }}"
+        ANSIBLE_LOCAL_TEMP: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tmp/"
+        ANSIBLE_REMOTE_TEMP: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/tmp/"
+        ZUUL_PROJECT_SRC_DIR: "{{ zuul.project.src_dir }}"
