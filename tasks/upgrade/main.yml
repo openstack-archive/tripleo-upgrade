@@ -4,7 +4,7 @@
   args:
     apply:
       tags: create_undercloud_upgrade_scripts
-  tags: create_undercloud_upgrade_scripts
+  tags: always
   when: >
       upgrade_noop|bool or
       undercloud_upgrade|bool or
@@ -121,35 +121,15 @@
       tags: overcloud_upgrade_run
       become: true
 
-    - name: apply pre overcloud upgrade workarounds
-      shell: |
-        set -o pipefail
-        bash {{ working_dir }}/pre_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-      when: upgrade_workarounds
-      tags: overcloud_upgrade_run
+    ######## OS upgrade + Overcloud node upgrade run #######
+    - include_tasks: overcloud_upgrade_roles.yaml
+      loop: "{{ oc_roles }}"
+      loop_control:
+        loop_var: role
+      tags:
+        - always
 
-    - name: launch workload
-      shell: |
-        set -o pipefail
-        bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
-      args:
-        chdir: "{{ working_dir }}"
-      when: workload_launch|bool
-
-    - import_tasks: overcloud_upgrade_run.yml
-      tags: overcloud_upgrade_run
-
-    - name: apply post overcloud upgrade workarounds
-      shell: |
-        set -o pipefail
-        bash {{ working_dir }}/post_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-      when: upgrade_workarounds
-      tags: overcloud_upgrade_run
-
+    ######## CEPH upgrade ########
     - name: apply pre Ceph upgrade workarounds
       shell: |
         set -o pipefail
@@ -177,6 +157,7 @@
         set -o pipefail
         bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_upgrade_data_migration.log
 
+    ######## Overcloud upgrade converge ########
     - name: apply pre overcloud upgrade converge workarounds
       shell: |
         set -o pipefail

@@ -1,0 +1,8 @@
+---
+- include_tasks: overcloud_upgrade_hosts.yaml
+  loop: "{{ oc_roles_hosts[role] }}"
+  loop_control:
+    loop_var: host
+  tags:
+    - always
+  when: "{{ role != 'all' }}"
