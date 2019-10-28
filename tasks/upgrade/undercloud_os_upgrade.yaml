@@ -35,6 +35,7 @@
         name: rhos-release
         state: absent
   when:
+    - not leapp_unsubscribed|bool
     - rhos_release_installed.rc == 0
     - not rhos_release_installed.changed
 
