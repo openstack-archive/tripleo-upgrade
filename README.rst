@@ -108,7 +108,7 @@ Set to true to launch an instance before starting upgrade. This can be useful fo
 
 Name of the external network providing floating IPs for instance connectivity. This provides external connectivity and needs to exist beforehand, created by the user::
 
-    workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
+    workload_image_url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
 
 URL of the image used for the workload instance::
 
