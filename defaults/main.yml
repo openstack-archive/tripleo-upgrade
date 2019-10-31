@@ -58,7 +58,7 @@ launch_sanity_workload: true
 # launch workload before update/upgrade
 workload_launch: false
 external_network_name: "public"
-workload_image_url: "http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img"
+workload_image_url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
 workload_memory: "512"
 workload_user: "cirros"
 workload_disk: 5
