@@ -22,7 +22,7 @@
 - name: include undercloud_ssl_camap.yaml
   include_tasks: undercloud_ssl_camap.yaml
   when:
-    - undercloud_ssl|succeeded
+    - undercloud_ssl is succeeded
     - not splitstack_deployment|bool
 
 - name: generate roles list from inventory file
