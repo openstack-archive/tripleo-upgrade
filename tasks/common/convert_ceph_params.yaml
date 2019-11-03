@@ -108,4 +108,4 @@
 
       when: ceph_env is defined
 
-  when: ceph_ansible|succeeded and not ceph_osd_adjusted.stat.exists
+  when: ceph_ansible is succeeded and not ceph_osd_adjusted.stat.exists
