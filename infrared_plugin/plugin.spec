@@ -181,6 +181,11 @@ subparsers:
                       help: |
                           Undercloud FFU upgrade releases
                       default: 11,12,13
+                  ffu-puddle-releases:
+                      type: ListValue
+                      help: |
+                          FFU upgrade release puddles
+                      default: latest,latest,latest
                   undercloud-ffu-repo:
                       type: Value
                       help: |
