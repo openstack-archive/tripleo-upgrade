@@ -4,12 +4,12 @@ parameter_defaults:
 {% endif %}
     CephAnsibleDisksConfig:
         devices:
-{% for key, value in ceph_osds.iteritems()|sort %}
-            - '{{ key }}'
+{% for osd in ceph_osds|sort %}
+            - '{{ osd }}'
 {% endfor %}
 {% if ceph_osds_non_collocated|default(false) %}
         dedicated_devices:
-{% for key, value in ceph_osds.iteritems()|sort %}
+{% for key, value in ceph_osds|sort %}
             - '{{ value.journal }}'
 {% endfor %}
         osd_scenario: non-collocated
