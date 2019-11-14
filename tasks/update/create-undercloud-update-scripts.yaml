@@ -6,12 +6,13 @@
     mode: 0775
     force: true
 
-- name: create scripts with workarounds
+- name: create update workaround scripts for undercloud
   template:
-    src: "{{ update_workarounds_template }}"
-    dest: "{{ working_dir }}/{{ item.script }}"
-    mode: 0755
+    src: workarounds.sh.j2
+    dest: "{{ working_dir }}/{{ item }}.sh"
+    mode: 0775
     force: true
-  loop: '{{ pre_undercloud_update_workarounds|default([])
-    + post_undercloud_update_workarounds|default([]) }}'
+  loop:
+    - 'pre_undercloud_update_workarounds'
+    - 'post_undercloud_update_workarounds'
   when: updates_workarounds|bool
