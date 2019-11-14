@@ -32,11 +32,11 @@ function apply_patch {
         exit 1
     fi
 
-    if sudo patch --dry-run --reverse --force -d ${patch_dir} -p1 < ${temp_dir}/patch.txt >/dev/null 2>&1
+    if sudo patch --dry-run --force -d ${patch_dir} -p1 < ${temp_dir}/patch.txt >/dev/null 2>&1
     then
         sudo patch -Ns  -d ${patch_dir} -p1 < ${temp_dir}/patch.txt
     else
-        echo "Patch ${patch_id} already applied, skipping"
+        echo "Patch ${patch_id} fails to apply - either already applied or you need to fix it."
     fi
 
     sudo rm -Rf ${temp_dir}
