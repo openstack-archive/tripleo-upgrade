@@ -35,3 +35,29 @@
     dest: "{{ roles_data }}"
     regexp: '(\s+)(- OS::TripleO::Services::MongoDb$)'
     replace: ''
+
+# By default we have update_serial either unset at all for OSP13 and OSP14 or
+# we have it set where Pacemaker enabled nodes, CephOSD nodes and Networkers
+# have it set to 1. This is mostly defensive precaution and we do allow running
+# in parallel for CephOSD and Networkers for production systems that did enough
+# testing on preprod or can take small outage. We should also parallelize it in
+# CI as we just waste time here.
+#
+# save roles_data
+# remove all update_serial
+# add update_serial: 25
+# set update_serial to 1 on roles with OS::TripleO::Services::Pacemaker
+# write new roles_data
+- name: Ensure we set update_serial in roles data
+  shell: |
+    set -o pipefail
+    cp -f "{{ roles_data }}" "{{ roles_data }}_update_serial"
+    python -c 'import sys, yaml, simplejson as json;
+    json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "{{roles_data}}_update_serial" |\
+    jq 'del(.[] | .update_serial)' |\
+    jq 'map(. |= (. += {update_serial: 25}  ))' |\
+    jq 'map( if .ServicesDefault | contains (["OS::TripleO::Services::Pacemaker"])
+             then .update_serial = 1  else . end)' |\
+    python -c 'import simplejson, sys, yaml;
+    print yaml.dump(simplejson.loads(str(sys.stdin.read())),
+    default_flow_style=False)' > "{{ roles_data }}"
