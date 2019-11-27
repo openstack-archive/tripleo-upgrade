@@ -3,6 +3,8 @@
   import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
 - name: run overcloud minor update in each of the roles/hostgroups
+  async: 25200
+  poll: 0
   shell: |
         set -o pipefail
         bash {{ overcloud_update_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} > \
@@ -11,10 +13,15 @@
   register: overcloud_update_nodes
   ignore_errors: true
 
-- name: was the overcloud minor update successful.
-  fail: msg="Overcloud minor update execution step failed..."
+- name: was the overcloud minor update successful?
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
   loop: "{{ overcloud_update_nodes.results }}"
-  when: item.rc != 0
+  loop_control:
+    loop_var: "async_result_item"
+  register: async_poll_results
+  until: async_poll_results.finished
+  retries: 25200
 
 - name: import tasks from l3_agent_connectivity_check_stop_script
   import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
