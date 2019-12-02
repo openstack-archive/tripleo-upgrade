@@ -97,13 +97,13 @@
 
 - name: set hieradata_override to {{ undercloud_conf }} when not existing
   block:
-    - name: Create undercloud hiera file
-      lineinfile:
-        state: present
-        create: true
-        path: "{{ undercloud_hiera }}"
-        regexp: '^glance_backend'
-        line: "glance_backend: 'file'"
+    - name: Create the hieradata_override file with the basic layout
+      copy:
+        dest: "{{ undercloud_hiera }}"
+        content: |
+          parameter_defaults:
+            UndercloudExtraConfig:
+              glance_backend: 'file'
 
     - name: Configure hieradata_override parameter
       ini_file:
@@ -112,12 +112,12 @@
         option: hieradata_override
         value: "{{ undercloud_hiera }}"
 
+  # This means that hieradata_override is empty
   when: defined_hieradata_override.stdout_lines|length == 0
 
 - name: modify hieradata_override configuration when defined in {{ undercloud_conf }}
-  lineinfile:
-    state: present
+  replace:
     path: "{{ defined_hieradata_override.stdout }}"
-    regexp: '^glance_backend'
-    line: "glance_backend: 'file'"
+    regexp: 'glance_backend(.*)'
+    replace: "glance_backend: 'file'"
   when: defined_hieradata_override.stdout_lines|length != 0
