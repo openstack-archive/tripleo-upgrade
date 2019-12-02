@@ -6,7 +6,8 @@
       jobs:
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades
-        - tripleo-ci-centos-7-containerized-undercloud-upgrades
+        - tripleo-ci-centos-7-containerized-undercloud-upgrades:
+            voting: true
         - tripleo-ci-centos-7-standalone-upgrade
         - tripleo-ci-centos-7-standalone-upgrade-stein
         - openstack-tox-linters
@@ -16,6 +17,8 @@
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
         - tripleo-ci-centos-7-standalone-upgrade-stein
         - openstack-tox-linters
+        - tripleo-ci-centos-7-containerized-undercloud-upgrades:
+            voting: true
     post:
       jobs:
         - publish-openstack-python-branch-tarball
