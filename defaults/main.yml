@@ -164,7 +164,6 @@ upgrade_init_command: false
 
 # ffu undercloud upgrade
 ffu_undercloud_releases: ['ocata', 'pike', 'queens']
-ffu_puddle_releases: ['latest', 'latest', 'latest']
 ffu_undercloud_repo_type: tripleo-repos
 ffu_undercloud_repo_args:
   tripleo_repos:

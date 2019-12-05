@@ -24,9 +24,7 @@
       include_tasks: undercloud-upgrade.yml
       loop_control:
         loop_var: current_release
-      loop:
-        - "{{ ffu_undercloud_releases }}"
-        - "{{ ffu_puddle_releases }}"
+      loop: "{{ ffu_undercloud_releases }}"
 
     - name: apply post ffu undercloud upgrade workarounds
       command: "{{ working_dir }}/post_ffu_undercloud_upgrade_workarounds.sh"
