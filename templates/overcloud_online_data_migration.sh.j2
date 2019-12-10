@@ -2,9 +2,9 @@
 #
 # Run online data migration for OpenStack services
 #
-{% if overcloud_update|bool -%}
+{% if overcloud_update|bool or update_noop|bool -%}
 {% set operation_type = 'update' -%}
-{% elif overcloud_upgrade|bool -%}
+{% elif overcloud_upgrade|bool or upgrade_noop|bool -%}
 {% set operation_type = 'upgrade' -%}
 {% endif -%}
 set -euo pipefail
