@@ -38,6 +38,7 @@ provisioner:
     ANSIBLE_STDOUT_CALLBACK: yaml
     ANSIBLE_ROLES_PATH: "${ANSIBLE_ROLES_PATH}:${TRIPLEO_UPGRADE_WORKPATH}/roles.galaxy/tripleo-ansible/tripleo-ansible/tripleo_ansible/roles:${HOME}/zuul-jobs/roles"
 
+
 scenario:
   test_sequence:
     - prepare

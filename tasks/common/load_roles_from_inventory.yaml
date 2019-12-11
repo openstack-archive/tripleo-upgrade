@@ -5,6 +5,7 @@
     /usr/bin/tripleo-ansible-inventory --plan {{ overcloud_stack_name }} \
         {% if overcloud_ssh_user %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
         --static-yaml-inventory {{ working_dir }}//tripleo-ansible-inventory.yaml
+  when: not mock_environment|bool
 
 - name: load inventory file
   slurp:
@@ -39,11 +40,13 @@
   become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
   delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
   register: pcmkr_bootstrap_node_out
-  when: not update_cell|bool
+  when:
+    - not update_cell|bool
+    - not mock_environment|bool
 
 - name: Create ordered Controller's host set (bootstrap node first)
   vars:
-    pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout }}"
+    pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout|default(inventory_hostmap[controller_role_name]|first) }}"
     controllers_from_inventory: "{{ inventory_hostmap[controller_role_name] | list }}"
   set_fact:
     controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
