@@ -7,7 +7,7 @@ set -euo pipefail
 
 source {{ undercloud_rc }}
 
-{% if enabled_services[role]|intersect(['ceph_osd','ceph_mon','ceph_mgr'])|length > 0 -%}
+{% if enabled_services and enabled_services[role]|intersect(['ceph_osd','ceph_mon','ceph_mgr'])|length > 0 -%}
 
 echo "[$(date)] Started ceph systemd units migration run for {{ item }} role"
 
@@ -68,7 +68,7 @@ openstack overcloud external-upgrade run \
 echo "[$(date)] Finished system upgrade transfer data for {{ item }} role"
 {% endif -%}
 
-{% if enabled_services[role]|intersect(['mysql'])|length > 0 and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
+{% if enabled_services and enabled_services[role]|intersect(['mysql'])|length > 0 and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
 
 echo "[$(date)] Started system upgrade transfer data for {{ item }} role"
 

@@ -17,5 +17,11 @@
 
 - name: Converge
   hosts: all
+  vars:
+    use_oooq: true
+    upgrade_noop: true
+    update_noop: true
+    ffu_noop: true
+    overcloud_stack_name: "qe-Cloud-0"
   roles:
     - tripleo-upgrade

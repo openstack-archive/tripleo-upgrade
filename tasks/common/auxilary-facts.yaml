@@ -5,32 +5,29 @@
   failed_when: false
   register: is_upstream
 
-- name: Check if overcloud deployed with pacemaker
+- name: get enabled services for each role
   shell: |
     source {{ undercloud_rc }}
-    openstack stack output show {{ overcloud_stack_name }} EnabledServices | grep 'pacemaker'
-  failed_when: false
-  register: pacemaker_present
+    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices -c output_value
+  register: enabled_services_out
+  when: not mock_environment|bool
 
-- name: Check if overcloud deployed with neutron ovn engine
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show {{ overcloud_stack_name }} EnabledServices | grep 'neutron_plugin_ml2_ovn'
-  failed_when: false
-  register: neutron_ovn_present
-
-- name: Check if overcloud deployed with neutron ovs engine
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show {{ overcloud_stack_name }} EnabledServices | grep 'neutron_ovs_agent'
-  failed_when: false
-  register: neutron_ovs_present
+- name: set enabled_services fact
+  vars:
+    default_stdout:
+      output_value: {}
+  set_fact:
+    enabled_services: "{{ dict(enabled_services_out.get('stdout', default_stdout)|from_yaml).get('output_value') }}"
 
 - name: set deployment_with_ha and deployment_with_ovs fact
   set_fact:
-    deployment_with_ha_upstream: "{{ is_upstream.rc == 0 and pacemaker_present.rc == 0 }}"
-    deployment_with_ovs: "{{ neutron_ovs_present.rc == 0 }}"
-    deployment_with_ovn: "{{ neutron_ovn_present.rc == 0 }}"
+    deployment_with_ha_upstream: "{{ is_upstream.rc == 0 and ('pacemaker' in enabled_services|string) }}"
+    deployment_with_ovs: "{{ 'neutron_ovs_agent' in enabled_services|string }}"
+    deployment_with_ovn: "{{ 'neutron_plugin_ml2_ovn' in enabled_services| string }}"
+
+- name: set ceph_osd_enabled fact
+  set_fact:
+    ceph_osd_enabled: "{{  enabled_services.values() | list | flatten | intersect(['ceph_osd','ceph_mgr','ceph_mon']) | length > 0 | bool }}"
 
 - name: get network-data-file
   shell: |
@@ -62,26 +59,13 @@
     roles_data: "{{ (roles_data_file.stdout) | ternary(roles_data, default_roles_data) }}"
     custom_roles_used: "{{ (roles_data_file.stdout) | ternary(true, false) }}"
 
-- name: get Enabled services for each role
-  shell: |
-    source {{ undercloud_rc }}
-    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices -c output_value
-  register: enabled_services_out
-
-- name: set enabled_services fact
-  set_fact:
-    enabled_services: "{{ dict(enabled_services_out.stdout|from_yaml).output_value }}"
-
-- name: set ceph_osd_enabled fact
-  set_fact:
-    ceph_osd_enabled: "{{  enabled_services.values() | list | flatten | intersect(['ceph_osd','ceph_mgr','ceph_mon']) | length > 0 | bool }}"
-
 - name: check if bm nodes are present
   shell: |
     source {{ undercloud_rc }} ;
     openstack baremetal node list -f value -c UUID
+  when: not mock_environment|bool
   register: bm_node_present
 
 - name: set fact splitstack_deployment
   set_fact:
-    splitstack_deployment: "{{ (bm_node_present.stdout_lines) | ternary(false, true) }}"
+    splitstack_deployment: "{{ (bm_node_present.get('stdout_lines', [])) | ternary(false, true) | default(false) }}"

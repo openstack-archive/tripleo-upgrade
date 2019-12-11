@@ -1,11 +1,5 @@
 ---
-- name: register controller nodes
-  shell: |
-    source {{ undercloud_rc }}
-    openstack server list -f json |  jq -r -c '.[] | select(.Name | contains("controller")) | .Name'
-  register: controllers
-
 - include_tasks: controller_post_script.yml
   loop_control:
     loop_var: node_name
-  loop: "{{ controllers.stdout_lines }}"
+  loop: "{{ inventory_hostmap[controller_role_name] }}"

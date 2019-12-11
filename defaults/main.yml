@@ -35,6 +35,11 @@ ffu_computes_rolling: false
 # enable cells update
 update_cell: false
 
+# the role isn't run agains a valid OpenStack
+# environment. This option (as well as the noop ones)
+# are used when testing role's code.
+mock_environment: "{{ upgrade_noop or update_noop or ffu_noop }}"
+
 # enable upgrade workarounds
 upgrade_workarounds: false
 
@@ -210,6 +215,9 @@ overcloud_update_playbooks: ['update_steps_playbook.yaml', 'deploy_steps_playboo
 
 # Post upgrade/update nova actions tests
 nova_actions_check: false
+
+# Enabled services yaml structure
+enabled_services: {}
 
 # Ceph OSD service present in overcloud
 ceph_osd_enabled: false
