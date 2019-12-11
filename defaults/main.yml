@@ -246,12 +246,15 @@ roles_upgrade_order: '__undefined__'
 # Packet loss threshold for a ping test
 loss_threshold: 1
 
+# Leapp OS upgrade variables
+#
 # Run leapp upgrade without RHSM subscription
 # Requires workarounds being applied.
 leapp_unsubscribed: false
 
-# Leapp OS upgrade variables
 leapp_unregister: true
+
+leapp_skip_release_check: false
 
 # Compact system upgrade prepare and
 # system upgrade run into a single step

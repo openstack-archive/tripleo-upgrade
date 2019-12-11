@@ -42,7 +42,8 @@
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
-    {% if leapp_unsubscribed|bool and upgrade_workarounds|bool %} LEAPP_DEVEL_SKIP_RHSM=1 sudo -E {% endif %}leapp upgrade --debug 2>&1 | \
+    {% if leapp_unsubscribed|bool and upgrade_workarounds|bool %} LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
+    {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Reboot the undercloud
