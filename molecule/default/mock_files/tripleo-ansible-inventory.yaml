@@ -1,0 +1,753 @@
+---
+CephStorage:
+  children:
+    qe-Cloud-0_CephStorage: {}
+Compute:
+  children:
+    qe-Cloud-0_Compute: {}
+ControllerOpenstack:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+Database:
+  children:
+    qe-Cloud-0_Database: {}
+Messaging:
+  children:
+    qe-Cloud-0_Messaging: {}
+Networker:
+  children:
+    qe-Cloud-0_Networker: {}
+Undercloud:
+  hosts:
+    undercloud: {}
+  vars:
+    ansible_connection: ssh
+    ansible_host: localhost
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_remote_tmp: /tmp/ansible-${USER}
+    ansible_ssh_private_key_file: /var/lib/mistral/.ssh/tripleo-admin-rsa
+    ansible_ssh_user: tripleo-admin
+    auth_url: https://192.168.24.2:13000
+    cacert: null
+    os_auth_token: gAAAAABes3cR-mLfqeB9GWHv-eGb8R7BYR0FaBqP_VLhV5fA7WK_ajYtdZ29-
+    overcloud_admin_password: ukPnO3gSPheHD0wQ1H6LPTLTe
+    overcloud_horizon_url: https://10.0.0.101:443/dashboard
+    overcloud_keystone_url: https://10.0.0.101:13000
+    plan: qe-Cloud-0
+    plans:
+      - qe-Cloud-0
+    project_name: admin
+    undercloud_service_list:
+      - tripleo_nova_compute
+      - tripleo_heat_engine
+      - tripleo_ironic_conductor
+      - tripleo_swift_container_server
+      - tripleo_swift_object_server
+      - tripleo_mistral_engine
+    undercloud_swift_url: https://192.168.24.2:13808/v1/AUTH_783a7dbfeec14726bef2fc60c4044129
+    username: admin
+allovercloud:
+  children:
+    qe-Cloud-0_allovercloud: {}
+boot_params_service:
+  children:
+    qe-Cloud-0_boot_params_service: {}
+ca_certs:
+  children:
+    qe-Cloud-0_ca_certs: {}
+ceph_client:
+  children:
+    qe-Cloud-0_ceph_client: {}
+ceph_mgr:
+  children:
+    qe-Cloud-0_ceph_mgr: {}
+ceph_mon:
+  children:
+    qe-Cloud-0_ceph_mon: {}
+ceph_osd:
+  children:
+    qe-Cloud-0_ceph_osd: {}
+certmonger_user:
+  children:
+    qe-Cloud-0_certmonger_user: {}
+chrony:
+  children:
+    qe-Cloud-0_chrony: {}
+cinder_api:
+  children:
+    qe-Cloud-0_cinder_api: {}
+cinder_backup:
+  children:
+    qe-Cloud-0_cinder_backup: {}
+cinder_scheduler:
+  children:
+    qe-Cloud-0_cinder_scheduler: {}
+cinder_volume:
+  children:
+    qe-Cloud-0_cinder_volume: {}
+clients:
+  children:
+    qe-Cloud-0_clients: {}
+clustercheck:
+  children:
+    qe-Cloud-0_clustercheck: {}
+container_image_prepare:
+  children:
+    qe-Cloud-0_container_image_prepare: {}
+glance_api:
+  children:
+    qe-Cloud-0_glance_api: {}
+haproxy:
+  children:
+    qe-Cloud-0_haproxy: {}
+heat_api:
+  children:
+    qe-Cloud-0_heat_api: {}
+heat_api_cfn:
+  children:
+    qe-Cloud-0_heat_api_cfn: {}
+heat_api_cloudwatch_disabled:
+  children:
+    qe-Cloud-0_heat_api_cloudwatch_disabled: {}
+heat_engine:
+  children:
+    qe-Cloud-0_heat_engine: {}
+horizon:
+  children:
+    qe-Cloud-0_horizon: {}
+iscsid:
+  children:
+    qe-Cloud-0_iscsid: {}
+kernel:
+  children:
+    qe-Cloud-0_kernel: {}
+keystone:
+  children:
+    qe-Cloud-0_keystone: {}
+keystone_admin_api:
+  children:
+    qe-Cloud-0_keystone_admin_api: {}
+keystone_public_api:
+  children:
+    qe-Cloud-0_keystone_public_api: {}
+logrotate_crond:
+  children:
+    qe-Cloud-0_logrotate_crond: {}
+memcached:
+  children:
+    qe-Cloud-0_memcached: {}
+mgrs:
+  children:
+    qe-Cloud-0_mgrs: {}
+mons:
+  children:
+    qe-Cloud-0_mons: {}
+mysql:
+  children:
+    qe-Cloud-0_mysql: {}
+mysql_client:
+  children:
+    qe-Cloud-0_mysql_client: {}
+neutron_api:
+  children:
+    qe-Cloud-0_neutron_api: {}
+neutron_plugin_ml2_ovn:
+  children:
+    qe-Cloud-0_neutron_plugin_ml2_ovn: {}
+nova_api:
+  children:
+    qe-Cloud-0_nova_api: {}
+nova_compute:
+  children:
+    qe-Cloud-0_nova_compute: {}
+nova_conductor:
+  children:
+    qe-Cloud-0_nova_conductor: {}
+nova_libvirt:
+  children:
+    qe-Cloud-0_nova_libvirt: {}
+nova_libvirt_guests:
+  children:
+    qe-Cloud-0_nova_libvirt_guests: {}
+nova_metadata:
+  children:
+    qe-Cloud-0_nova_metadata: {}
+nova_migration_target:
+  children:
+    qe-Cloud-0_nova_migration_target: {}
+nova_scheduler:
+  children:
+    qe-Cloud-0_nova_scheduler: {}
+nova_vnc_proxy:
+  children:
+    qe-Cloud-0_nova_vnc_proxy: {}
+osds:
+  children:
+    qe-Cloud-0_osds: {}
+oslo_messaging_notify:
+  children:
+    qe-Cloud-0_oslo_messaging_notify: {}
+oslo_messaging_rpc:
+  children:
+    qe-Cloud-0_oslo_messaging_rpc: {}
+overcloud:
+  children:
+    qe-Cloud-0: {}
+ovn_controller:
+  children:
+    qe-Cloud-0_ovn_controller: {}
+ovn_dbs:
+  children:
+    qe-Cloud-0_ovn_dbs: {}
+ovn_metadata:
+  children:
+    qe-Cloud-0_ovn_metadata: {}
+pacemaker:
+  children:
+    qe-Cloud-0_pacemaker: {}
+podman:
+  children:
+    qe-Cloud-0_podman: {}
+qe-Cloud-0:
+  children:
+    qe-Cloud-0_allovercloud: {}
+qe-Cloud-0_CephStorage:
+  hosts:
+    ceph-0:
+      ansible_host: 192.168.24.41
+      canonical_hostname: ceph-0.redhat.local
+      ctlplane_hostname: ceph-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.41
+      deploy_server_id: 021799e4-0d6e-4764-94c9-695b12ce29b3
+      storage_hostname: ceph-0.storage.redhat.local
+      storage_ip: 172.17.3.95
+      storage_mgmt_hostname: ceph-0.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.96
+    ceph-1:
+      ansible_host: 192.168.24.37
+      canonical_hostname: ceph-1.redhat.local
+      ctlplane_hostname: ceph-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.37
+      deploy_server_id: ead956a7-0e7e-45b3-b256-4cc52646b7d7
+      storage_hostname: ceph-1.storage.redhat.local
+      storage_ip: 172.17.3.28
+      storage_mgmt_hostname: ceph-1.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.127
+    ceph-2:
+      ansible_host: 192.168.24.18
+      canonical_hostname: ceph-2.redhat.local
+      ctlplane_hostname: ceph-2.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.18
+      deploy_server_id: 55a996c0-fe7a-48da-a0f8-bea48d4f7dae
+      storage_hostname: ceph-2.storage.redhat.local
+      storage_ip: 172.17.3.101
+      storage_mgmt_hostname: ceph-2.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.11
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: CephStorage
+    tripleo_role_networks:
+      - ctlplane
+      - storage
+      - storage_mgmt
+qe-Cloud-0_Compute:
+  hosts:
+    compute-0:
+      ansible_host: 192.168.24.13
+      canonical_hostname: compute-0.redhat.local
+      ctlplane_hostname: compute-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.13
+      deploy_server_id: f4b0c41c-6006-4c22-abcd-cea470087102
+      internal_api_hostname: compute-0.internalapi.redhat.local
+      internal_api_ip: 172.17.1.115
+      storage_hostname: compute-0.storage.redhat.local
+      storage_ip: 172.17.3.63
+      tenant_hostname: compute-0.tenant.redhat.local
+      tenant_ip: 172.17.2.92
+    compute-1:
+      ansible_host: 192.168.24.53
+      canonical_hostname: compute-1.redhat.local
+      ctlplane_hostname: compute-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.53
+      deploy_server_id: 95c5fe03-88f1-417a-926d-089e9b5f9e8e
+      internal_api_hostname: compute-1.internalapi.redhat.local
+      internal_api_ip: 172.17.1.147
+      storage_hostname: compute-1.storage.redhat.local
+      storage_ip: 172.17.3.112
+      tenant_hostname: compute-1.tenant.redhat.local
+      tenant_ip: 172.17.2.61
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: Compute
+    tripleo_role_networks:
+      - ctlplane
+      - internal_api
+      - storage
+      - tenant
+qe-Cloud-0_ControllerOpenstack:
+  hosts:
+    controller-0:
+      ansible_host: 192.168.24.28
+      canonical_hostname: controller-0.redhat.local
+      ctlplane_hostname: controller-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.28
+      deploy_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+      external_hostname: controller-0.external.redhat.local
+      external_ip: 10.0.0.142
+      internal_api_hostname: controller-0.internalapi.redhat.local
+      internal_api_ip: 172.17.1.46
+      storage_hostname: controller-0.storage.redhat.local
+      storage_ip: 172.17.3.27
+      storage_mgmt_hostname: controller-0.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.75
+      tenant_hostname: controller-0.tenant.redhat.local
+      tenant_ip: 172.17.2.66
+    controller-1:
+      ansible_host: 192.168.24.44
+      canonical_hostname: controller-1.redhat.local
+      ctlplane_hostname: controller-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.44
+      deploy_server_id: 3d4f0662-53db-4934-8307-faa85a4c3cd7
+      external_hostname: controller-1.external.redhat.local
+      external_ip: 10.0.0.139
+      internal_api_hostname: controller-1.internalapi.redhat.local
+      internal_api_ip: 172.17.1.42
+      storage_hostname: controller-1.storage.redhat.local
+      storage_ip: 172.17.3.133
+      storage_mgmt_hostname: controller-1.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.59
+      tenant_hostname: controller-1.tenant.redhat.local
+      tenant_ip: 172.17.2.40
+    controller-2:
+      ansible_host: 192.168.24.8
+      canonical_hostname: controller-2.redhat.local
+      ctlplane_hostname: controller-2.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.8
+      deploy_server_id: 08e2dbc4-d698-44f3-8b01-3e2bb96c2a2c
+      external_hostname: controller-2.external.redhat.local
+      external_ip: 10.0.0.137
+      internal_api_hostname: controller-2.internalapi.redhat.local
+      internal_api_ip: 172.17.1.41
+      storage_hostname: controller-2.storage.redhat.local
+      storage_ip: 172.17.3.57
+      storage_mgmt_hostname: controller-2.storagemgmt.redhat.local
+      storage_mgmt_ip: 172.17.4.86
+      tenant_hostname: controller-2.tenant.redhat.local
+      tenant_ip: 172.17.2.45
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: ControllerOpenstack
+    tripleo_role_networks:
+      - ctlplane
+      - external
+      - internal_api
+      - storage
+      - storage_mgmt
+      - tenant
+qe-Cloud-0_Database:
+  hosts:
+    database-0:
+      ansible_host: 192.168.24.40
+      canonical_hostname: database-0.redhat.local
+      ctlplane_hostname: database-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.40
+      deploy_server_id: c87f2577-c47f-4bca-b1b2-7f688bb84931
+      internal_api_hostname: database-0.internalapi.redhat.local
+      internal_api_ip: 172.17.1.81
+    database-1:
+      ansible_host: 192.168.24.30
+      canonical_hostname: database-1.redhat.local
+      ctlplane_hostname: database-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.30
+      deploy_server_id: 1bfc70d0-98c8-49bc-aab0-76ad5526091b
+      internal_api_hostname: database-1.internalapi.redhat.local
+      internal_api_ip: 172.17.1.125
+    database-2:
+      ansible_host: 192.168.24.32
+      canonical_hostname: database-2.redhat.local
+      ctlplane_hostname: database-2.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.32
+      deploy_server_id: 7758cf0f-4ae6-44c9-9c78-37ad2baf28ee
+      internal_api_hostname: database-2.internalapi.redhat.local
+      internal_api_ip: 172.17.1.63
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: Database
+    tripleo_role_networks:
+      - ctlplane
+      - internal_api
+qe-Cloud-0_Messaging:
+  hosts:
+    messaging-0:
+      ansible_host: 192.168.24.36
+      canonical_hostname: messaging-0.redhat.local
+      ctlplane_hostname: messaging-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.36
+      deploy_server_id: a5cbac81-462f-4bae-a43d-f3e207359c5c
+      internal_api_hostname: messaging-0.internalapi.redhat.local
+      internal_api_ip: 172.17.1.30
+    messaging-1:
+      ansible_host: 192.168.24.38
+      canonical_hostname: messaging-1.redhat.local
+      ctlplane_hostname: messaging-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.38
+      deploy_server_id: 608601da-5f38-4512-8856-7f325eef4eba
+      internal_api_hostname: messaging-1.internalapi.redhat.local
+      internal_api_ip: 172.17.1.117
+    messaging-2:
+      ansible_host: 192.168.24.17
+      canonical_hostname: messaging-2.redhat.local
+      ctlplane_hostname: messaging-2.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.17
+      deploy_server_id: 0224f4a5-20a8-403d-90ca-78aaca3e1f16
+      internal_api_hostname: messaging-2.internalapi.redhat.local
+      internal_api_ip: 172.17.1.23
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: Messaging
+    tripleo_role_networks:
+      - ctlplane
+      - internal_api
+qe-Cloud-0_Networker:
+  hosts:
+    networker-0:
+      ansible_host: 192.168.24.50
+      canonical_hostname: networker-0.redhat.local
+      ctlplane_hostname: networker-0.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.50
+      deploy_server_id: 1a2dee31-0c1d-4769-91c8-ff9bcb355ff2
+      internal_api_hostname: networker-0.internalapi.redhat.local
+      internal_api_ip: 172.17.1.82
+      tenant_hostname: networker-0.tenant.redhat.local
+      tenant_ip: 172.17.2.31
+    networker-1:
+      ansible_host: 192.168.24.35
+      canonical_hostname: networker-1.redhat.local
+      ctlplane_hostname: networker-1.ctlplane.redhat.local
+      ctlplane_ip: 192.168.24.35
+      deploy_server_id: b9fafe0f-f3b8-4b75-9e7a-35f844ea8ffa
+      internal_api_hostname: networker-1.internalapi.redhat.local
+      internal_api_ip: 172.17.1.133
+      tenant_hostname: networker-1.tenant.redhat.local
+      tenant_ip: 172.17.2.18
+  vars:
+    ansible_ssh_user: tripleo-admin
+    bootstrap_server_id: 662ffaba-c0ee-4113-b1ef-35d5f3ef29d7
+    serial: '1'
+    tripleo_role_name: Networker
+    tripleo_role_networks:
+      - ctlplane
+      - internal_api
+      - tenant
+qe-Cloud-0_allovercloud:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_boot_params_service:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_ca_certs:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_ceph_client:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_ceph_mgr:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_ceph_mon:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_ceph_osd:
+  children:
+    qe-Cloud-0_CephStorage: {}
+qe-Cloud-0_certmonger_user:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_chrony:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_cinder_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_cinder_backup:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_cinder_scheduler:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_cinder_volume:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_clients:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_clustercheck:
+  children:
+    qe-Cloud-0_Database: {}
+qe-Cloud-0_container_image_prepare:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_glance_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_haproxy:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_heat_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_heat_api_cfn:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_heat_api_cloudwatch_disabled:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_heat_engine:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_horizon:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_iscsid:
+  children:
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_kernel:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_keystone:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_keystone_admin_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_keystone_public_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_logrotate_crond:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_memcached:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_mgrs:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_mons:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_mysql:
+  children:
+    qe-Cloud-0_Database: {}
+qe-Cloud-0_mysql_client:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_neutron_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_neutron_plugin_ml2_ovn:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_nova_api:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_nova_compute:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_nova_conductor:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_nova_libvirt:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_nova_libvirt_guests:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_nova_metadata:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_nova_migration_target:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_nova_scheduler:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_nova_vnc_proxy:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_osds:
+  children:
+    qe-Cloud-0_CephStorage: {}
+qe-Cloud-0_oslo_messaging_notify:
+  children:
+    qe-Cloud-0_Messaging: {}
+qe-Cloud-0_oslo_messaging_rpc:
+  children:
+    qe-Cloud-0_Messaging: {}
+qe-Cloud-0_overcloud:
+  children:
+    qe-Cloud-0_allovercloud: {}
+qe-Cloud-0_ovn_controller:
+  children:
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_ovn_dbs:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_ovn_metadata:
+  children:
+    qe-Cloud-0_Compute: {}
+qe-Cloud-0_pacemaker:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+qe-Cloud-0_podman:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_qe-Cloud-0:
+  children:
+    qe-Cloud-0_allovercloud: {}
+qe-Cloud-0_redis:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_snmp:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_sshd:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_swift_proxy:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_swift_ringbuilder:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_swift_storage:
+  children:
+    qe-Cloud-0_ControllerOpenstack: {}
+qe-Cloud-0_timezone:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_tripleo_firewall:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_tripleo_packages:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+qe-Cloud-0_tuned:
+  children:
+    qe-Cloud-0_CephStorage: {}
+    qe-Cloud-0_Compute: {}
+    qe-Cloud-0_ControllerOpenstack: {}
+    qe-Cloud-0_Database: {}
+    qe-Cloud-0_Messaging: {}
+    qe-Cloud-0_Networker: {}
+redis:
+  children:
+    qe-Cloud-0_redis: {}
+snmp:
+  children:
+    qe-Cloud-0_snmp: {}
+sshd:
+  children:
+    qe-Cloud-0_sshd: {}
+swift_proxy:
+  children:
+    qe-Cloud-0_swift_proxy: {}
+swift_ringbuilder:
+  children:
+    qe-Cloud-0_swift_ringbuilder: {}
+swift_storage:
+  children:
+    qe-Cloud-0_swift_storage: {}
+timezone:
+  children:
+    qe-Cloud-0_timezone: {}
+tripleo_firewall:
+  children:
+    qe-Cloud-0_tripleo_firewall: {}
+tripleo_packages:
+  children:
+    qe-Cloud-0_tripleo_packages: {}
+tuned:
+  children:
+    qe-Cloud-0_tuned: {}

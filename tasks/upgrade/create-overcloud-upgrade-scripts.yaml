@@ -24,6 +24,7 @@
   when:
     - undercloud_ssl is succeeded
     - not splitstack_deployment|bool
+    - not mock_environment|bool
 
 - name: generate roles list from inventory file
   import_tasks: ../common/load_roles_from_inventory.yaml
