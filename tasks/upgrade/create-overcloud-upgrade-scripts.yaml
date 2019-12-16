@@ -70,10 +70,13 @@
     mode: 0755
     force: true
 
-- include_tasks: create-overcloud-upgrade-hosts-scripts.yaml
-  loop: "{{ oc_roles }}"
-  loop_control:
-    loop_var: role
+- name: create overcloud upgrade script
+  template:
+    src: "{{ overcloud_upgrade_run_template }}"
+    dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
+    mode: 0775
+    force: true
+  loop: "{{ oc_roles|default(['all']) }}"
 
 - name: create online data migration script
   template:
@@ -106,14 +109,6 @@
     force: true
   when: upgrade_remove_rpm|bool
 
-- name: create disable-leapp env file
-  template:
-    src: "disable-leapp.yaml.j2"
-    dest: "{{ working_dir }}/disable-leapp.yaml"
-    mode: 0755
-    force: true
-  when: use_oooq|default(false)|bool
-
 - name: import tasks from sh_config_skip_host
   import_tasks: ../common/ssh_config_skip_host.yml
 
@@ -129,5 +124,4 @@
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
 
-- name: update nic configs to stein format
-  import_tasks: ../common/rocky_to_stein_adjust_nic_templates.yaml
+# No nic templates adjusting needed from Stein to Train
