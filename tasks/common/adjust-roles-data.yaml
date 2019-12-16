@@ -14,6 +14,19 @@
     regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
     replace: ''
 
+- name: Replace Fluentd for Rsyslog service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::Fluentd$)'
+    replace: '\1- OS::TripleO::Services::Rsyslog'
+
+- name: Replace SensuClient for Collectd service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::SensuClient$)'
+    replace: '\1- OS::TripleO::Services::Collectd'
+
+
 - name: add ContainerImagePrepare service
   replace:
     path: "{{ roles_data }}"
