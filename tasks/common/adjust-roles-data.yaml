@@ -48,20 +48,35 @@
 # add update_serial: 25
 # set update_serial to 1 on roles with OS::TripleO::Services::Pacemaker
 # write new roles_data
+
+- name: copy roles_data in a variable
+  command: "cat {{ roles_data }}"
+  register: roles_data_yaml
+
+- name: save roles_data into json file
+  copy:
+    content: "{{ roles_data_yaml.stdout | from_yaml | to_nice_json }}"
+    dest: "{{ roles_data }}.json"
+
 - name: Ensure we set update_serial in roles data
+  vars:
+    python_bin: "{{ ansible_python_interpreter | default('python') }}"
   shell: |
     set -o pipefail
-    if grep -q OS::TripleO::Services::Pacemaker "{{ roles_data }}" ; then
-    cp -f "{{ roles_data }}" "{{ roles_data }}_update_serial"
-    python -c 'import sys, yaml, simplejson as json;
-    json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "{{roles_data}}_update_serial" |\
-    jq 'del(.[] | .update_serial)' |\
-    jq 'map(. |= (. += {update_serial: 25}  ))' |\
-    jq 'map( if .ServicesDefault | contains (["OS::TripleO::Services::Pacemaker"])
-             then .update_serial = 1  else . end)' |\
-    python -c 'import simplejson, sys, yaml;
-    print yaml.dump(simplejson.loads(str(sys.stdin.read())),
-    default_flow_style=False)' > "{{ roles_data }}"
+    if grep -q OS::TripleO::Services::Pacemaker "{{ roles_data }}.json"; then
+    cat {{ roles_data }}.json |\
+    jq 'del(.[] | .update_serial ) |
+        map(. |= (. += {update_serial: 25} )) |
+        map( if .ServicesDefault | contains (["OS::TripleO::Services::Pacemaker"]) then . += {update_serial: 1} else . += {update_serial: 25} end )'
     else
         echo "No service defined, not modifying the role file"
+        exit 2
     fi
+  register: modified_roles_data
+  failed_when: modified_roles_data.rc not in [0,2]
+  changed_when: modified_roles_data.rc == 2
+- name: "Dump the modified roles_data into {{ roles_data }}"
+  copy:
+    content: "{{ modified_roles_data.stdout | from_json | to_nice_yaml(indent=2) | trim}}"
+    dest: "{{ roles_data }}"
+  when: modified_roles_data.rc == 0
