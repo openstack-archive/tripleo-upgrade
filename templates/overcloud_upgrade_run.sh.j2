@@ -11,9 +11,14 @@ oc_roles_hosts = { 'Controller': ['controller-0', 'controller-1', 'controller-2'
                    'Compute' : ['compute-0'] }
 If role = 'Controller' and item = 'controller-1'
    elements = ['controller-0', 'controller-1']
+otherwise we upgrade item.
 #}
 
+{% if role == "Controller" %}
 {% set elements = oc_roles_hosts[role][0:oc_roles_hosts[role].index(item)+1] %}
+{% else %}
+{% set elements = [item] %}
+{% endif %}
 
 {% if overcloud_upgrade_multibooks|bool %}
 
