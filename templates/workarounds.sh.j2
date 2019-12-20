@@ -47,6 +47,7 @@ function ansible_patch {
     local ansible_filename=$1
     local ansible_limit=""
     local ansible_ssh_user="heat-admin"
+    local overcloud_stack_name="overcloud"
     local ansible_dir=$HOME/ansible_workarounds
 
     if [ ! -z $LIMIT ]
@@ -57,11 +58,14 @@ function ansible_patch {
     then
       ansible_ssh_user=$ANSIBLE_SSH_USER
     fi
-
+    if [ -n "${OVERCLOUD_STACK_NAME}" ];
+    then
+        overcloud_stack_name="${OVERCLOUD_STACK_NAME}"
+    fi
     inventory_file=${ansible_dir}/tripleo-inventory.yaml
     if [ ! -f "$inventory_file" ]; then
         source {{ undercloud_rc }}
-        tripleo-ansible-inventory --ansible_ssh_user ${ansible_ssh_user} --static-yaml-inventory ${inventory_file}
+        tripleo-ansible-inventory --plan "${overcloud_stack_name}" --ansible_ssh_user ${ansible_ssh_user} --static-yaml-inventory ${inventory_file}
     fi
 
     # Run ansible playbook
@@ -72,6 +76,7 @@ function ansible_patch {
 # Global vars
 LIMIT=""
 ANSIBLE_SSH_USER=""
+OVERCLOUD_STACK_NAME="{{ overcloud_stack_name }}"
 
 while [[ $# -gt 0 ]]
 do
@@ -85,6 +90,11 @@ case $key in
     ;;
     -u|--ssh-ansible-user)
     ANSIBLE_SSH_USER="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -o|--overcloud-stack-name)
+    OVERCLOUD_STACK_NAME="$2"
     shift # past argument
     shift # past value
     ;;
