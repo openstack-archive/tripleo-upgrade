@@ -42,40 +42,37 @@
 # in parallel for CephOSD and Networkers for production systems that did enough
 # testing on preprod or can take small outage. We should also parallelize it in
 # CI as we just waste time here.
-#
-# save roles_data
-# remove all update_serial
-# add update_serial: 25
-# set update_serial to 1 on roles with OS::TripleO::Services::Pacemaker
-# write new roles_data
 
-- name: copy roles_data in a variable
-  command: "cat {{ roles_data }}"
-  register: roles_data_yaml
+- name: Read the existing roles data file
+  slurp:
+    src: "{{ roles_data }}"
+  register: _roles_data_slurp
 
-- name: save roles_data into json file
-  copy:
-    content: "{{ roles_data_yaml.stdout | from_yaml | to_nice_json }}"
-    dest: "{{ roles_data }}.json"
+- name: Transform the roles data file update_serial values
+  vars:
+    old_roles_data: "{{ _roles_data_slurp['content'] | b64decode | from_yaml }}"
+  when: "'OS::TripleO::Services::Pacemaker' in old_roles_data | json_query('[].ServicesDefault[]')"
+  block:
+    - name: Backup original roles data file
+      copy:
+        src: "{{ roles_data }}"
+        dest: "{{ roles_data | regex_replace('.yaml$') }}.original.yaml"
+        remote_src: true
+        force: false
 
-- name: Ensure we set update_serial in roles data
-  shell: |
-    set -o pipefail
-    if grep -q OS::TripleO::Services::Pacemaker "{{ roles_data }}.json"; then
-    cat {{ roles_data }}.json |\
-    jq 'del(.[] | .update_serial ) |
-        map(. |= (. += {update_serial: 25} )) |
-        map( if .ServicesDefault | contains (["OS::TripleO::Services::Pacemaker"]) then . += {update_serial: 1} else . += {update_serial: 25} end )'
-    exit 2
-    else
-        echo "No service defined, not modifying the role file"
-    fi
-  register: modified_roles_data
-  failed_when: modified_roles_data.rc not in [0,2]
-  changed_when: modified_roles_data.rc == 2
-
-- name: "Dump the modified roles_data into {{ roles_data }}"
-  copy:
-    content: "{{ modified_roles_data.stdout | from_json | to_nice_yaml(indent=2) | trim}}"
-    dest: "{{ roles_data }}"
-  when: modified_roles_data.rc == 2
+    - name: Write new roles data file with revised update_serial
+      copy:
+        content: >-
+          {%- set new_data = [] %}
+          {%- for data_item in old_roles_data %}
+          {%-   if 'ServiceDefault' in data_item %}
+          {%-     if 'OS::TripleO::Services::Pacemaker' in data_item['ServicesDefault'] %}
+          {%-       set _ = data_item.update({'update_serial': 1}) %}
+          {%-     else %}
+          {%-       set _ = data_item.update({'update_serial': 25}) %}
+          {%-     endif %}
+          {%-   endif %}
+          {%-   set _ = new_data.append(data_item) %}
+          {%- endfor %}
+          {{- new_data | to_nice_yaml(indent=2) }}
+        dest: "{{ roles_data }}"
