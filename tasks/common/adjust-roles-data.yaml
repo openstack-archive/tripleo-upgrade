@@ -59,8 +59,6 @@
     dest: "{{ roles_data }}.json"
 
 - name: Ensure we set update_serial in roles data
-  vars:
-    python_bin: "{{ ansible_python_interpreter | default('python') }}"
   shell: |
     set -o pipefail
     if grep -q OS::TripleO::Services::Pacemaker "{{ roles_data }}.json"; then
@@ -68,15 +66,16 @@
     jq 'del(.[] | .update_serial ) |
         map(. |= (. += {update_serial: 25} )) |
         map( if .ServicesDefault | contains (["OS::TripleO::Services::Pacemaker"]) then . += {update_serial: 1} else . += {update_serial: 25} end )'
+    exit 2
     else
         echo "No service defined, not modifying the role file"
-        exit 2
     fi
   register: modified_roles_data
   failed_when: modified_roles_data.rc not in [0,2]
   changed_when: modified_roles_data.rc == 2
+
 - name: "Dump the modified roles_data into {{ roles_data }}"
   copy:
     content: "{{ modified_roles_data.stdout | from_json | to_nice_yaml(indent=2) | trim}}"
     dest: "{{ roles_data }}"
-  when: modified_roles_data.rc == 0
+  when: modified_roles_data.rc == 2
