@@ -73,6 +73,12 @@
     - NeutronLbaasv2Agent
     - NeutronLbaasv2Api
 
+- name: drop Tacker service
+  replace:
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::Tacker$)'
+    replace: ''
+
 # By default we have update_serial either unset at all for OSP13 and OSP14 or
 # we have it set where Pacemaker enabled nodes, CephOSD nodes and Networkers
 # have it set to 1. This is mostly defensive precaution and we do allow running
