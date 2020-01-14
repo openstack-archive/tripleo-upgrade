@@ -1,7 +1,7 @@
 ---
 - name: Remove old RHEL7 packages
   shell: |
-     yum -y remove *el7ost* -- \
+     yum -y remove *el7ost* qemu-kvm-common-rhev qemu-img-rhev -- \
        -*openvswitch* \
        -python2-babel \
        -python2-dateutil \
