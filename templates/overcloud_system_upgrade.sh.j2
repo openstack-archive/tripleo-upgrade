@@ -12,6 +12,7 @@ source {{ undercloud_rc }}
 echo "[$(date)] Started system upgrade step for {{ item }} role"
 
 openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
         --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade \
         --limit {{ item }} 2>&1
@@ -23,6 +24,7 @@ echo "[$(date)] Finished system upgrade step for {{ item }} role"
 echo "[$(date)] Started system upgrade prepare for {{ item }} role"
 
 openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
         --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade_prepare \
         --limit {{ item }} 2>&1
@@ -32,6 +34,7 @@ echo "[$(date)] Finished system upgrade prepare for {{ item }} role"
 echo "[$(date)] Started system upgrade run for {{ item }} role"
 
 openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
         --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade_run \
         --limit {{ item }} 2>&1
@@ -45,6 +48,7 @@ echo "[$(date)] Finished system upgrade run for {{ item }} role"
 echo "[$(date)] Started system upgrade transfer data for {{ item }} role"
 
 openstack overcloud external-upgrade run \
+        --stack {{ overcloud_stack_name }} \
         --tags system_upgrade_transfer_data 2>&1
 
 echo "[$(date)] Finished system upgrade transfer data for {{ item }} role"
