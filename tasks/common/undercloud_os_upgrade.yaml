@@ -47,7 +47,7 @@
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Reboot the undercloud
-  import_tasks: ../common/undercloud_reboot.yaml
+  import_tasks: undercloud_reboot.yaml
 
 - name: Unregister the node once the OS was upgraded if desired
   redhat_subscription:

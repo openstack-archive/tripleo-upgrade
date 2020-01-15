@@ -22,7 +22,7 @@
     - name: Upgrade operating system
       become: true
       become_user: root
-      import_tasks: undercloud_os_upgrade.yaml
+      import_tasks: ../common/undercloud_os_upgrade.yaml
       when: not use_oooq|bool
 
     - name: apply post undercloud OS upgrade workarounds
