@@ -17,6 +17,7 @@ overcloud_upgrade: false
 undercloud_update: false
 overcloud_update: false
 overcloud_images_validate: false
+overcloud_batch_update: false
 
 # enable ffu upgrade
 ffu_undercloud_upgrade: false
