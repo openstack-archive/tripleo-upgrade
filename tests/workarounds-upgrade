@@ -7,15 +7,45 @@ pre_undercloud_upgrade_workarounds:
         id: 112233
         command:
     - rhbz2:
-        patch: true
-        basedir: /home/stack/
-        id: 112234
-        command:
-    - rhbz3:
         patch: false
         basedir: ''
         id: ''
         command: 'some command goes here'
+    - rhbz3:
+        patch: false
+        containers: true
+        environment: undercloud
+        preparation_commands: |
+          echo "Updates undercloud containers command"
+        containers_file_modification:
+          modify_role: tripleo-modify-image
+          includes:
+            - ironic-inspector
+          modify_append_tag: "-updated"
+          modify_vars:
+            tasks_from: yum_update.yml
+            compare_host_packages: true
+            yum_repos_dir_path: /etc/yum.repos.d
+pre_overcloud_upgrade_prepare_workarounds:
+    - rhbz4:
+        patch: false
+        containers: true
+        environment: overcloud
+        deploy_scripts: overcloud_upgrade_prepare.sh,overcloud_upgrade_converge.sh
+        preparation_commands: |
+          echo "Updates overcloud containers command"
+        containers_file_modifications:
+          modify_role: tripleo-modify-image
+          includes:
+          - rabbitmq
+          - haproxy
+          - maria
+          - redis
+          modify_append_tag: "-updated"
+          modify_vars:
+            tasks_from: yum_update.yml
+            compare_host_packages: true
+            yum_repos_dir_path: /etc/yum.repos.d
 post_undercloud_upgrade_workarounds:
     - rhbz10:
         patch: true

@@ -46,6 +46,36 @@ function apply_patch {
 
 }
 
+# Applies a patch into overcloud containers with Container Image Preparation.
+function overcloud_container_apply_patch {
+    local bz_key=$1
+    local scripts=$2
+    PARAMS_FILE=$HOME/containers_workarounds/${bz_key}-params.yaml
+    IFS=',' read -ra SCRIPTS <<< "$scripts"
+    sudo openstack tripleo container image prepare -e $HOME/containers_workarounds/${bz_key}.yaml \
+    --output-env-file $PARAMS_FILE
+    for i in "${SCRIPTS[@]}"; do
+        cat /home/stack/$i | \
+            sed -e 's,2>&1,-e '${PARAMS_FILE}' \\\n 2>\&1,' \
+            > /home/stack/${i}.new.sh
+            cp "/home/stack/${i}"{,.original.sh}
+            cat "/home/stack/${i}".new.sh > "/home/stack/${i}"
+    done
+}
+
+# Applies a patch into undercloud containers with Container Image Preparation.
+function undercloud_container_apply_patch {
+    local bz_key=$1
+    local undercloud_conf=$HOME/undercloud.conf
+    PARAMS_FILE=$HOME/containers_workarounds/${bz_key}-params.yaml
+    sudo openstack tripleo container image prepare -e $HOME/containers_workarounds/${bz_key}.yaml --output-env-file $PARAMS_FILE
+    cat $undercloud_conf | \
+        sed "\|custom_env_files|s|$|,$PARAMS_FILE|" \
+        > ${undercloud_conf}.new.sh
+        cp "${undercloud_conf}"{,.original.sh}
+        cat "${undercloud_conf}".new.sh > "${undercloud_conf}"
+}
+
 function ansible_patch {
     local ansible_filename=$1
     local ansible_limit=""
@@ -122,6 +152,17 @@ echo {{ key }}
 {%                 set _patch_strip = value.patch_strip | default(1, True) -%}
 {%                 set _gerrit_url = value.gerrit_url | default('https://review.opendev.org', True) -%}
 apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_revision }} {{ _patch_strip }} {{ _gerrit_url }}
+{%             elif value.containers is defined and value.containers == true -%}
+{{ value.preparation_commands }}
+[ -d $HOME/containers_workarounds ] || mkdir $HOME/containers_workarounds
+cat << EOF | cat $HOME/containers-prepare-parameter.yaml - > "$HOME/containers_workarounds/{{ key }}.yaml"
+{{ value.containers_file_modifications | to_nice_yaml | indent(width=4, first=True) }}
+EOF
+{%                  if value.environment|lower == 'overcloud' -%}
+overcloud_container_apply_patch {{ key }} {{ value.deploy_scripts }}
+{%                  elif value.environment|lower == 'undercloud' -%}
+undercloud_container_apply_patch {{ key }}
+{%                  endif  -%}
 {%             elif value.ansible_hosts is defined and value.ansible_hosts != '' -%}
 
 [ -d $HOME/ansible_workarounds ] || mkdir $HOME/ansible_workarounds
