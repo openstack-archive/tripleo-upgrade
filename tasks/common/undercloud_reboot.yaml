@@ -41,5 +41,5 @@
 - name: waiting for the undercloud to be ssh-able
   wait_for_connection:
     connect_timeout: 5
-    sleep: 3
-    timeout: 900
+    sleep: 5
+    timeout: 1800
