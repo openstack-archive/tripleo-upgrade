@@ -121,13 +121,34 @@
       tags: overcloud_upgrade_run
       become: true
 
-    ######## OS upgrade + Overcloud node upgrade run #######
-    - include_tasks: overcloud_upgrade_roles.yaml
-      loop: "{{ oc_roles }}"
-      loop_control:
-        loop_var: role
-      tags:
-        - always
+    - name: apply pre overcloud upgrade workarounds
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/pre_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_overcloud_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: upgrade_workarounds
+      tags: overcloud_upgrade_run
+
+    - name: launch workload
+      shell: |
+        set -o pipefail
+        bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: workload_launch|bool
+
+    - import_tasks: overcloud_upgrade_run.yml
+      tags: overcloud_upgrade_run
+
+    - name: apply post overcloud upgrade workarounds
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/post_overcloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_overcloud_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: upgrade_workarounds
+      tags: overcloud_upgrade_run
 
     ######## CEPH upgrade ########
     - name: apply pre Ceph upgrade workarounds
