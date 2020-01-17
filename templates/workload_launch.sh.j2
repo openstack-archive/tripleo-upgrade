@@ -88,6 +88,8 @@ EXTERNAL_NET_NAME='{{ external_network_name }}'
 
 source ${OVERCLOUD_RC}
 
+export OS_COMPUTE_API_VERSION=2.72
+
 ## create image
 openstack image list | grep ${IMAGE_NAME}
 
