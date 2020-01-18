@@ -15,8 +15,29 @@
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-standalone-upgrade:
+            voting: false
             dependencies:
               - tripleo-upgrade-centos-7-molecule
+            files:
+              - ^ci-scripts\/.*$
+              - ^defaults\/.*$
+              - ^files\/.*$
+              - ^meta\/.*$
+              - ^tasks\/.*$
+              - ^templates\/.*$
+              - ^zuul.d\/.*$
+        - tripleo-ci-centos-7-standalone-upgrade-train:
+            voting: true
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+            files:
+              - ^ci-scripts\/.*$
+              - ^defaults\/.*$
+              - ^files\/.*$
+              - ^meta\/.*$
+              - ^tasks\/.*$
+              - ^templates\/.*$
+              - ^zuul.d\/.*$
         - tripleo-ci-centos-7-standalone-upgrade-stein:
             dependencies:
               - tripleo-upgrade-centos-7-molecule
@@ -36,6 +57,17 @@
               - tripleo-upgrade-centos-7-molecule
         - openstack-tox-linters
         - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-standalone-upgrade-train:
+            voting: true
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+            files:
+              - ^ci-scripts\/.*$
+              - ^defaults\/.*$
+              - ^files\/.*$
+              - ^meta\/.*$
+              - ^tasks\/.*$
+              - ^templates\/.*$
     post:
       jobs:
         - publish-openstack-python-branch-tarball
