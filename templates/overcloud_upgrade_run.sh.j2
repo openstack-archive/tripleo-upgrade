@@ -30,7 +30,7 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
-echo "[$(date)] Runing major upgrade {{ playbook }} playbook for {{ item }} role"
+echo "[$(date)] Running major upgrade {{ playbook }} playbook for {{ item }} role"
 openstack overcloud upgrade run \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool -%}
@@ -90,7 +90,7 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
-echo "[$(date)] Runing major upgrade for {{ item }} role"
+echo "[$(date)] Running major upgrade for {{ item }} role"
 
 openstack overcloud upgrade run \
         --stack {{ overcloud_stack_name }} \
