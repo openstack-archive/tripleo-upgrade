@@ -39,14 +39,14 @@
         value: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
 
     - name: get namespaces from {{ uc_containers_prepare_file }}
-      shell: |
-        cat {{ uc_containers_prepare_file }}
+      slurp:
+        src: "{{ uc_containers_prepare_file }}"
       register: prep_param_raw
 
     - name: set namespaces
       set_fact:
-        ceph_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_namespace.split('/')[0] }}"
-        def_namespace: "{{ (prep_param_raw.stdout|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.namespace.split('/')[0] }}"
+        ceph_namespace: "{{ (prep_param_raw.content|b64decode|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_namespace.split('/')[0] }}"
+        def_namespace: "{{ (prep_param_raw.content|b64decode|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.namespace.split('/')[0] }}"
 
     - name: set container_insecure_registries for undercloud upgrade
       ini_file:

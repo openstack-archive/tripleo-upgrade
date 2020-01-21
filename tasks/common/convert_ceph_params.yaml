@@ -36,19 +36,20 @@
             remote_src: true
 
         - name: register environment file
-          command: "cat {{ ceph_env }}"
+          slurp:
+            src: "{{ ceph_env }}"
           register: ceph_puppet
 
         - name: set ceph_osds fact
           vars:
-            ceph_yaml: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults }}"
+            ceph_yaml: "{{ (ceph_puppet.content | b64decode | from_yaml).parameter_defaults }}"
             ceph_osds_var: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osds']}}"
           set_fact:
             ceph_osds: "{{ (ceph_osds_var.keys()|list if ceph_osds_var | type_debug == 'dict' else ceph_osds_var) | default([]) }}"
 
         - name: set ceph_osds_pg fact
           vars:
-            ceph_yaml: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults }}"
+            ceph_yaml: "{{ (ceph_puppet.content | b64decode | from_yaml).parameter_defaults }}"
           set_fact:
             ceph_osds_pg: "{{ ceph_yaml.ExtraConfig['ceph::profile::params::osd_pool_default_pg_num'] }}"
           ignore_errors: true
@@ -56,7 +57,7 @@
         - name: set ceph_osds_non_collocated fact
           set_fact:
             ceph_osds_non_collocated: true
-          when: "'journal' in ceph_puppet.stdout"
+          when: "'journal' in ceph_puppet.content | b64decode"
 
         - name: generate new environment file
           template:
@@ -65,7 +66,7 @@
 
         - name: set extra_config fact
           set_fact:
-            extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+            extra_config: "{{ (ceph_puppet.content | b64decode | from_yaml).parameter_defaults.ExtraConfig }}"
 
         - name: remove unused ceph parameters.
           lineinfile:
@@ -91,12 +92,13 @@
           loop: "{{ ceph_osds }}"
 
         - name: register new environment file
-          command: "cat {{ ceph_env }}"
+          slurp:
+            src: "{{ ceph_env }}"
           register: ceph_puppet
 
         - name: set extra_config from ceph puppet.
           set_fact:
-            extra_config: "{{ (ceph_puppet.stdout | from_yaml).parameter_defaults.ExtraConfig }}"
+            extra_config: "{{ (ceph_puppet.content | b64decode | from_yaml).parameter_defaults.ExtraConfig }}"
 
         - name: replace empty extraconfig
           replace:
