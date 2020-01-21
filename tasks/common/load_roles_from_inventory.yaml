@@ -15,16 +15,10 @@
   set_fact:
     inventory_yaml: "{{ upgrade_tripleo_inventory.content | b64decode | from_yaml }}"
 
-- name: store roles
+- name: store roles and register controller role name
   set_fact:
-    oc_roles: "{{ oc_roles + [item.key] }}"
-  with_dict: "{{ inventory_yaml.overcloud.children }}"
-
-- name: register controller role name
-  set_fact:
-    controller_role_name: "{{ item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*') }}"
-  when: item|regex_search('[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*')
-  loop: "{{ oc_roles }}"
+    oc_roles: "{{ oc_roles + inventory_yaml.overcloud.children.keys() | list }}"
+    controller_role_name: "{{ inventory_yaml.overcloud.children.keys() | map('regex_search', '^[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*$') | select('string') | list | last }}"
 
 - name: store sorted roles with controller first(default)
   set_fact:
@@ -47,11 +41,11 @@
 - name: Create ordered Controller's host set (bootstrap node first)
   vars:
     pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout }}"
-    controllers_from_inventory: "{{ inventory_yaml[controller_role_name]['hosts'].keys() }}"
+    controllers_from_inventory: "{{ inventory_yaml[controller_role_name]['hosts'].keys() | list }}"
   set_fact:
     controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
 
 - name: create hosts per role fact
   set_fact:
     oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : controllers_ordered if item.key == controller_role_name else inventory_yaml[item.key]['hosts'].keys()|list }) }}"
-  with_dict: "{{ inventory_yaml.overcloud.children }}"
+  loop: "{{ inventory_yaml.overcloud.children | dict2items }}"
