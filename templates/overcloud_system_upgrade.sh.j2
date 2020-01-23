@@ -40,6 +40,18 @@ echo "[$(date)] Finished system upgrade run for {{ item }} role"
 
 {% endif -%}
 
+{% if ceph_osd_enabled|bool -%}
+
+echo "[$(date)] Started ceph systemd units migration run for {{ item }} role"
+
+openstack overcloud external-upgrade run \
+        --tags ceph_systemd \
+        -e ceph_ansible_limit={{ item }} 2>&1
+
+echo "[$(date)] Finished ceph systemd units migration run for {{ item }} role"
+
+{% endif -%}
+
 {% if role == 'Controller' and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
 
 echo "[$(date)] Started system upgrade transfer data for {{ item }} role"
