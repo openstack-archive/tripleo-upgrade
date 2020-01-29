@@ -219,6 +219,11 @@ subparsers:
                           NOTE: Upgrade require overcloud deployment script to be available in home directory of undercloud
                           user at undercloud node
                       default: false
+                  undercloud-ffu-os-upgrade:
+                      type: Bool
+                      help: |
+                          Fast Forward Operating System Upgrade Undercloud (Leapp)
+                      default: false
                   undercloud-ffu-upgrade:
                       type: Bool
                       help: |
@@ -228,7 +233,7 @@ subparsers:
                       type: ListValue
                       help: |
                           Undercloud FFU upgrade releases
-                      default: 11,12,13
+                      default: 14,15,16
                   undercloud-ffu-repo:
                       type: Value
                       help: |
@@ -243,7 +248,7 @@ subparsers:
                       type: ListValue
                       help: |
                           Overcloud FFU upgrade releases
-                      default: 11,12,13
+                      default: 14,15,16
                   overcloud-ffu-repo:
                       type: Value
                       help: |

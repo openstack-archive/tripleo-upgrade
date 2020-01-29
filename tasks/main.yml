@@ -26,5 +26,6 @@
 - include: fast-forward-upgrade/main.yml
   when: >
       ffu_noop|bool or
+      ffu_undercloud_os_upgrade|bool or
       ffu_undercloud_upgrade|bool or
       ffu_overcloud_upgrade|bool
