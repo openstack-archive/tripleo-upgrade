@@ -187,3 +187,34 @@ ansible_patch {{ key }}
 {{ render_workarounds(post_overcloud_update_converge_workarounds|default([]),'post_overcloud_update_converge_workarounds') }}
 {# finish post_overcloud_update_converge_workarounds #}
 {% endif -%}
+
+{% if ffu_upgrade_workarounds|bool -%}
+{{ render_workarounds(pre_ffu_undercloud_os_upgrade_workarounds|default([]),'pre_ffu_undercloud_os_upgrade_workarounds') }}
+{# finish pre_ffu_undercloud_os_upgrade_workarounds #}
+{{ render_workarounds(post_ffu_undercloud_os_upgrade_workarounds|default([]),'post_ffu_undercloud_os_upgrade_workarounds') }}
+{# finish post_ffu_undercloud_os_upgrade_workarounds #}
+{{ render_workarounds(pre_ffu_undercloud_upgrade_workarounds|default([]),'pre_ffu_undercloud_upgrade_workarounds') }}
+{# finish pre_ffu_undercloud_upgrade_workarounds #}
+{{ render_workarounds(post_ffu_undercloud_upgrade_workarounds|default([]),'post_ffu_undercloud_upgrade_workarounds') }}
+{# finish post_ffu_undercloud_upgrade_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_prepare_workarounds|default([]),'pre_ffu_overcloud_prepare_workarounds') }}
+{# finish pre_ffu_overcloud_prepare_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_prepare_workarounds|default([]),'post_ffu_overcloud_prepare_workarounds') }}
+{# finish post_ffu_overcloud_prepare_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_run_workarounds|default([]),'pre_ffu_overcloud_run_workarounds') }}
+{# finish pre_ffu_overcloud_run_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_run_workarounds|default([]),'post_ffu_overcloud_run_workarounds') }}
+{# finish post_ffu_overcloud_run_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_upgrade_workarounds|default([]),'pre_ffu_overcloud_upgrade_workarounds') }}
+{# finish pre_ffu_overcloud_upgrade_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_upgrade_workarounds|default([]),'post_ffu_overcloud_upgrade_workarounds') }}
+{# finish post_ffu_overcloud_upgrade_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_converge_workarounds|default([]),'pre_ffu_overcloud_converge_workarounds') }}
+{# finish pre_ffu_overcloud_converge_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_converge_workarounds|default([]),'post_ffu_overcloud_converge_workarounds') }}
+{# finish post_ffu_overcloud_converge_workarounds #}
+{{ render_workarounds(pre_ffu_overcloud_ceph_workarounds|default([]),'pre_ffu_overcloud_ceph_workarounds') }}
+{# finish pre_ffu_overcloud_ceph_workarounds #}
+{{ render_workarounds(post_ffu_overcloud_ceph_workarounds|default([]),'post_ffu_overcloud_ceph_workarounds') }}
+{# finish post_ffu_overcloud_ceph_workarounds #}
+{% endif -%}
