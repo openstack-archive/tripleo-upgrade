@@ -49,6 +49,12 @@
     regexp: '(\s+)(- OS::TripleO::Services::MongoDb$)'
     replace: ''
 
+- name: drop GlanceRegistry service
+  replace:
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::GlanceRegistry$)'
+    replace: ''
+
 - name: drop NovaConsoleAuth service
   replace:
     dest: "{{ roles_data }}"
