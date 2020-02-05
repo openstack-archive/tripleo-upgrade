@@ -62,15 +62,19 @@
     roles_data: "{{ (roles_data_file.stdout) | ternary(roles_data, default_roles_data) }}"
     custom_roles_used: "{{ (roles_data_file.stdout) | ternary(true, false) }}"
 
-- name: assert CephOSD is enabled
+- name: get Enabled services for each role
   shell: |
     source {{ undercloud_rc }}
-    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices | awk '/\s+- ceph_osd/'
-  register: ceph_osd_service
+    openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices -c output_value
+  register: enabled_services_out
+
+- name: set enabled_services fact
+  set_fact:
+    enabled_services: "{{ dict(enabled_services_out.stdout|from_yaml).output_value }}"
 
 - name: set ceph_osd_enabled fact
   set_fact:
-    ceph_osd_enabled: "{{ (ceph_osd_service.stdout) | ternary(true, false) }}"
+    ceph_osd_enabled: "{{  enabled_services.values() | list | flatten | intersect(['ceph_osd','ceph_mgr','ceph_mon']) | length > 0 | bool }}"
 
 - name: check if bm nodes are present
   shell: |
