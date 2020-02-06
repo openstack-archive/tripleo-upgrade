@@ -12,7 +12,16 @@
        -python2-markupsafe \
        -python2-jsonpatch \
        -python2-six \
-       -python-PyMySQL
+       -python-PyMySQL \
+       -python-pysocks \
+       -python2-asn1crypto \
+       -python2-cffi \
+       -python2-pyOpenSSL \
+       -python2-urllib3 \
+       -python2-requests \
+       -python2-idna \
+       -python-docker \
+       -python2-cryptography
 
 - name: Install leapp
   package:
@@ -34,7 +43,7 @@
 - name: Download required leapp files
   vars:
     # Add master revision when latest leapp will be available.
-    revision: "{{ '1405a623104fada7af29d8b0cb1ba5d7a821ea08' if leapp_version is version('0.9', '<') else 'edeb35b51e89716c47a552d6bcb3aa04bd556a82' }}"
+    revision: "{{ '1405a623104fada7af29d8b0cb1ba5d7a821ea08' if leapp_version is version('0.9', '<') else 'master' }}"
   get_url:
     url: "https://gitlab.cee.redhat.com/leapp/oamg-rhel7-vagrant/raw/{{ revision }}/roles/init/files/leapp-data/{{ item }}"
     dest: "/etc/leapp/files/{{ item }}"
@@ -68,8 +77,8 @@
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
-    {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds) %} LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
-    {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
+    {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds|bool) %} LEAPP_UNSUPPORTED=1 LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
+    {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Reboot the undercloud

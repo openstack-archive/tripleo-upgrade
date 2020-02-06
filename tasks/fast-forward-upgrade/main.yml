@@ -1,23 +1,11 @@
 ---
-- name: create upgrade prepare scripts
-  include_tasks: create-prepare-scripts.yaml
-  args:
-    apply:
-      tags:
-        - create_ffu_prepare_scripts
+- name: create Undercloud ffu prepare scripts
+  include_tasks: create-undercloud-ffu-scripts.yaml
   tags: create_ffu_prepare_scripts
-
-- name: create fast forward upgrade scripts
-  include_tasks: create-ffu-scripts.yaml
-  args:
-    apply:
-      tags:
-        - create_ffu_scripts
-  tags: create_ffu_scripts
-  loop_control:
-    loop_var: current_release
-  loop: "{{ ffu_undercloud_releases }}"
-  when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
+  when: >
+      ffu_noop|bool or
+      ffu_undercloud_upgrade|bool or
+      ffu_undercloud_os_upgrade|bool
 
 - block:
     - name: apply pre FFU undercloud OS upgrade workarounds
@@ -53,20 +41,48 @@
   tags: ffu_undercloud_os_upgrade
 
 - block:
-    - name: apply post ffu undercloud upgrade workarounds
-      command: "{{ working_dir }}/pre_ffu_undercloud_upgrade_workarounds.sh"
+    - name: apply pre ffu undercloud upgrade workarounds
+      shell: |
+        set -o pipefail
+        bash pre_ffu_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
+
+    - name: configure container specific parameters
+      import_tasks: ../common/configure_uc_containers.yml
+
+    - name: install/update required packages before upgrading the undercloud
+      become: true
+      become_user: root
+      import_tasks: ../common/undercloud_prerequisites.yaml
 
     - name: ffu undercloud upgrade
-      include_tasks: undercloud-upgrade.yml
-      loop_control:
-        loop_var: current_release
-      loop: "{{ ffu_undercloud_releases }}"
+      shell: |
+        set -o pipefail
+        bash {{ working_dir }}/ffu_undercloud_upgrade.sh 2>&1 {{ timestamper_cmd }} > ffu_undercloud_upgrade.log
+      args:
+        chdir: "{{ working_dir }}"
 
     - name: apply post ffu undercloud upgrade workarounds
-      command: "{{ working_dir }}/post_ffu_undercloud_upgrade_workarounds.sh"
+      shell: |
+        set -o pipefail
+        bash post_ffu_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_undercloud_upgrade_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
   when: ffu_undercloud_upgrade|bool
+
+- name: create overcloud FFU prepare scripts
+  include_tasks: create-overcloud-ffu-scripts.yaml
+  args:
+    apply:
+      tags:
+        - create_ffu_prepare_scripts
+  tags: create_ffu_prepare_scripts
+  when: >
+      ffu_noop|bool or
+      ffu_overcloud_upgrade|bool
 
 - block:
     - name: Ensure ansible-pacemaker module is present in CI.
