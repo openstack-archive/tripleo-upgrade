@@ -1,5 +1,11 @@
 ---
 - block:
+    - name: Ensure bc package is installed in the system
+      package:
+        name: "bc"
+        state: latest
+      become: true
+      become_user: root
     - name: create start l3 agent connectivity check scripts
       template:
         src: "{{ l3_agent_connectivity_check_start_template }}"
