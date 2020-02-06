@@ -46,7 +46,7 @@
       when: upgrade_workarounds
 
     - name: configure container specific parameters
-      import_tasks: configure_uc_containers.yml
+      import_tasks: ../common/configure_uc_containers.yml
 
     - name: install/update required packages before upgrading the undercloud
       become: true
