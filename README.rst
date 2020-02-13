@@ -125,6 +125,11 @@ Set to true when running the role in the TripleO CI jobs. It avoids losing conne
 
 Bash commands, defines a custom upgrade init to be taken into account during overcloud upgrade.
 
+    update_cell: false
+
+Set it to true to get a multi-cell update.  It changes the way the oc_roles_hosts is calculated.
+
+
 Dependencies
 ------------
 

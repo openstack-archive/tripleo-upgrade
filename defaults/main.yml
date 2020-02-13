@@ -30,6 +30,9 @@ ffu_noop: false
 ffu_bulk: true
 ffu_computes_rolling: false
 
+# enable cells update
+update_cell: false
+
 # enable upgrade workarounds
 upgrade_workarounds: false
 
