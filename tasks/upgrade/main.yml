@@ -138,8 +138,9 @@
         chdir: "{{ working_dir }}"
       when: workload_launch|bool
 
-    - import_tasks: overcloud_upgrade_run.yml
+    - include_tasks: overcloud_upgrade_run.yml
       tags: overcloud_upgrade_run
+      loop: "{{ oc_roles|default(['all']) }}"
 
     - name: apply post overcloud upgrade workarounds
       shell: |
