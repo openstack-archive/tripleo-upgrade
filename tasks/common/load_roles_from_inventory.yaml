@@ -7,12 +7,13 @@
         --static-yaml-inventory {{ working_dir }}//tripleo-ansible-inventory.yaml
 
 - name: load inventory file
-  command: cat {{ working_dir }}//tripleo-ansible-inventory.yaml
+  slurp:
+    src: "{{ working_dir }}//tripleo-ansible-inventory.yaml"
   register: upgrade_tripleo_inventory
 
 - name: set fact inventory_yaml
   set_fact:
-    inventory_yaml: "{{ upgrade_tripleo_inventory.stdout | from_yaml }}"
+    inventory_yaml: "{{ upgrade_tripleo_inventory.content | b64decode | from_yaml }}"
 
 - name: store roles
   set_fact:
