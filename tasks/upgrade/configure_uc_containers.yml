@@ -30,6 +30,14 @@
     value: "{{ undercloud_container_cli }}"
   when: undercloud_container_cli is defined
 
+- name: set undercloud_enable_paunch for undercloud
+  ini_file:
+    path: "{{ undercloud_conf }}"
+    section: DEFAULT
+    option: undercloud_enable_paunch
+    value: "{{ undercloud_enable_paunch }}"
+  when: undercloud_enable_paunch is defined
+
 - block:
     - name: set containers file for undercloud
       ini_file:
