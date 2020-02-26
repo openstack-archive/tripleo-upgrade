@@ -167,6 +167,49 @@ subparsers:
                       type: Value
                       help: Overcloud ssh user name name
                       default: ''
+                  config-heat:
+                      type: NestedDict
+                      action: append
+                      help: |
+                          Inject additional Tripleo Heat Templates configuration options under "paramater_defaults"
+                          entry point.
+                          Example:
+                              --config-heat ComputeExtraConfig.nova::allow_resize_to_same_host=true
+                              --config-heat NeutronOVSFirewallDriver=openvswitch
+                          should inject the following yaml to "overcloud deploy" command:
+
+                              ---
+                              parameter_defaults:
+                                  ComputeExtraConfig:
+                                      nova::allow_resize_to_same_host: true
+                                  NeutronOVSFirewallDriver: openvswitch
+
+                          It is also possible to have . (dot) included in key by escaping it.
+                          Example:
+                              --config-heat "ControllerExtraConfig.opendaylight::log_levels.org\.opendaylight\.netvirt\.elan=TRACE"
+
+                          should inject the following yaml to "overcloud deploy" command:
+
+                               ---
+                               parameter_defaults:
+                                   ControllerExtraConfig:
+                                       opendaylight::log_levels:
+                                           org.opendaylight.netvirt.elan: TRACE
+                  config-resource:
+                      type: NestedDict
+                      action: append
+                      help: |
+                          Inject additional Tripleo Heat Templates configuration options under "resource_registry"
+                          entry point.
+                          Example:
+                              --config-resource OS::TripleO::BlockStorage::Net::SoftwareConfig=/home/stack/nic-configs/cinder-storage.yaml
+                          should inject the following yaml to "overcloud deploy" command:
+
+                              ---
+                              resource_registry:
+                                  OS::TripleO::BlockStorage::Net::SoftwareConfig: /home/stack/nic-configs/cinder-storage.yaml
+
+
             - title: TripleO Fast Forward Upgrade
               options:
                   overcloud-ffu-upgrade:
