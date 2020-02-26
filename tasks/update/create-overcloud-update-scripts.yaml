@@ -14,6 +14,11 @@
 - name: get auxiliary facts for major upgrades
   import_tasks: ../common/auxilary-facts.yaml
 
+# TODO: Not comptatible with oooq
+- name: Build extra templates based on new options.
+  import_tasks: ../common/build_extra_template.yaml
+  when: not use_oooq|bool
+
 - name: create undercloud update script
   template:
     src: "undercloud_upgrade.sh.j2"
