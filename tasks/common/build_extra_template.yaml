@@ -1,0 +1,19 @@
+---
+- name: set parameter_defaults for config_heat_extra.yaml
+  set_fact:
+      config_heat_extra_yaml:
+          parameter_defaults: "{{ install.get('config', {}).get('heat', {}) }}"
+  when: install.get('config', {}).get('heat', {})
+
+- name: set resource_registry for config_heat_extra.yaml
+  vars:
+      config_resource: "{{ install.get('config', {}).get('resource', {}) }}"
+  set_fact:
+      config_heat_extra_yaml: "{{ config_heat_extra_yaml | default({}) | combine({'resource_registry': config_resource}) }}"
+  when: install.get('config', {}).get('resource', {})
+
+- name: inject config_heat_extra.yaml
+  copy:
+      dest: "{{ install.deployment.files | basename }}/config_heat_extra.yaml"
+      content: "{{ config_heat_extra_yaml | to_nice_yaml }}"
+  when: config_heat_extra_yaml is defined
