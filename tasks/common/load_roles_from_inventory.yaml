@@ -50,11 +50,11 @@
 - name: create hosts per role fact
   set_fact:
     oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : controllers_ordered if item.key == controller_role_name else inventory_yaml[item.key]['hosts'].keys()|list }) }}"
-  loop: "{{ inventory_yaml.overcloud.children | dict2items }}"
+  loop: "{{ inventory_yaml.overcloud.children | default({}) | dict2items }}"
   when: not update_cell | bool
 
 - name: create hosts per role fact for cells
   set_fact:
     oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : inventory_yaml[item.key]['hosts'].keys()|list }) }}"
-  loop: "{{ inventory_yaml.overcloud.children | dict2items }}"
+  loop: "{{ inventory_yaml.overcloud.children | default({}) | dict2items }}"
   when: update_cell | bool
