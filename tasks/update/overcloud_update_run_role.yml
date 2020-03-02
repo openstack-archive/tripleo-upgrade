@@ -1,0 +1,23 @@
+---
+- name: run overcloud minor update in each of the roles/hostgroups
+  async: 25200
+  poll: 0
+  shell: |
+        set -o pipefail
+        bash {{ overcloud_update_run_script_base }}-{{ oc_running_role }}.sh 2>&1 {{ timestamper_cmd }} > \
+          {{ working_dir }}/overcloud_update_run_{{ oc_running_role }}.log
+  loop: "{{ oc_current_role }}"
+  loop_control:
+    loop_var: "oc_running_role"
+  register: overcloud_update_nodes
+  ignore_errors: true
+
+- name: was the overcloud minor update successful?
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  loop: "{{ overcloud_update_nodes.results }}"
+  loop_control:
+    loop_var: "async_result_item"
+  register: async_poll_results
+  until: async_poll_results.finished
+  retries: 25200
