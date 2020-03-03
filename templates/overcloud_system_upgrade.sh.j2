@@ -43,7 +43,7 @@ echo "[$(date)] Finished system upgrade run for {{ item }} role"
 
 {% endif -%}
 
-{% if ceph_osd_enabled|bool -%}
+{% if enabled_services[role]|intersect(['ceph_osd','ceph_mon','ceph_mgr'])|length > 0 -%}
 
 echo "[$(date)] Started ceph systemd units migration run for {{ item }} role"
 
