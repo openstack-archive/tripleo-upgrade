@@ -10,7 +10,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ control_scale.stdout }}"
     state: absent
-  when: control_scale|succeeded
+  when: control_scale is succeeded
 
 - name: register compute-scale opts
   shell: |
@@ -23,7 +23,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ compute_scale.stdout }}"
     state: absent
-  when: compute_scale|succeeded
+  when: compute_scale is succeeded
 
 - name: register ceph-storage-scale opts
   shell: |
@@ -36,7 +36,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ ceph_scale.stdout }}"
     state: absent
-  when: ceph_scale|succeeded
+  when: ceph_scale is succeeded
 
 - name: register control-flavor opts
   shell: |
@@ -49,7 +49,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ control_flavor.stdout }}"
     state: absent
-  when: control_flavor|succeeded
+  when: control_flavor is succeeded
 
 - name: register compute-flavor opts
   shell: |
@@ -62,7 +62,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ compute_flavor.stdout }}"
     state: absent
-  when: compute_flavor|succeeded
+  when: compute_flavor is succeeded
 
 - name: register ceph-flavor opts
   shell: |
@@ -75,7 +75,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ ceph_flavor.stdout }}"
     state: absent
-  when: ceph_flavor|succeeded
+  when: ceph_flavor is succeeded
 
 - name: register ntp-server opts
   shell: |
@@ -88,7 +88,7 @@
     path: "{{ overcloud_deploy_script }}"
     regexp: "{{ ntp_server.stdout }}"
     state: absent
-  when: ntp_server|succeeded
+  when: ntp_server is succeeded
 
 - name: convert cli options into parameters
   template:
@@ -97,13 +97,13 @@
     force: false
   when:
     - >
-      control_scale|succeeded or
-      compute_scale|succeeded or
-      ceph_scale|succeeded or
-      control_flavor|succeeded or
-      compute_flavor|succeeded or
-      ceph_flavor|succeeded or
-      ntp_server|succeeded
+      control_scale is succeeded or
+      compute_scale is succeeded or
+      ceph_scale is succeeded or
+      control_flavor is succeeded or
+      compute_flavor is succeeded or
+      ceph_flavor is succeeded or
+      ntp_server is succeeded
 
 - name: check "{{ working_dir }}/cli_opts_params.yaml" exists
   stat:
