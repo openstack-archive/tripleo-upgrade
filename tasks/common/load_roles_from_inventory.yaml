@@ -37,7 +37,7 @@
   become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
   delegate_to: "{{ inventory_yaml[controller_role_name]['hosts'].keys()|first }}"
   register: pcmkr_bootstrap_node_out
-  when: update_cell is false
+  when: not update_cell|bool
 
 - name: Create ordered Controller's host set (bootstrap node first)
   vars:
@@ -45,7 +45,7 @@
     controllers_from_inventory: "{{ inventory_yaml[controller_role_name]['hosts'].keys() | list }}"
   set_fact:
     controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
-  when: update_cell is false
+  when: not update_cell|bool
 
 - name: create hosts per role fact
   set_fact:
