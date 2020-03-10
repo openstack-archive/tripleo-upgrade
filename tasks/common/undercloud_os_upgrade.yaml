@@ -2,26 +2,37 @@
 - name: Remove old RHEL7 packages
   # Remove all el7ost packages except those which could imply the removal
   # (direct or indirect) of the leapp and subscription-manager packages.
-  shell: |
-     yum -y remove *el7ost* qemu-kvm-common-rhev qemu-img-rhev httpd python-jsonpointer haproxy* pacemaker* galera* mysql* rabbit* redis* -- \
-       -*openvswitch* \
-       -python2-babel \
-       -python2-dateutil \
-       -python2-ipaddress \
-       -python2-jinja2 \
-       -python2-markupsafe \
-       -python2-jsonpatch \
-       -python2-six \
-       -python-PyMySQL \
-       -python-pysocks \
-       -python2-asn1crypto \
-       -python2-cffi \
-       -python2-pyOpenSSL \
-       -python2-urllib3 \
-       -python2-requests \
-       -python2-idna \
-       -python-docker \
-       -python2-cryptography
+  shell: >-
+     yum -y remove
+     *el7ost*
+     galera*
+     haproxy*
+     httpd
+     mysql*
+     pacemaker*
+     python-jsonpointer
+     qemu-kvm-common-rhev
+     qemu-img-rhev
+     rabbit*
+     redis*
+     --
+     -*openvswitch*
+     -python-docker
+     -python-PyMySQL
+     -python-pysocks
+     -python2-asn1crypto
+     -python2-babel
+     -python2-cffi
+     -python2-cryptography
+     -python2-dateutil
+     -python2-idna
+     -python2-ipaddress
+     -python2-jinja2
+     -python2-jsonpatch
+     -python2-markupsafe
+     -python2-pyOpenSSL
+     -python2-six
+     -python2-urllib3
 
 - name: Install leapp
   package:
