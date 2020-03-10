@@ -1,4 +1,10 @@
 ---
+- name: Make sure ceph-ansible is installed if ceph is deployed
+  package:
+    name: ceph-ansible
+    state: latest
+  when: ceph_osd_enabled|bool
+
 - name: adjust role-data for R->S upgrade
   include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
