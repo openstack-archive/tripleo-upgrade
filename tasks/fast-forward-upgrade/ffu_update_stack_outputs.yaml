@@ -11,15 +11,15 @@
     source {{ undercloud_rc }}
     openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
       tee {{ working_dir }}/ffu_update_stack_outputs_failed.log
-  when: ffu_stack_output|failed
+  when: ffu_stack_output is failed
 
 - name: print resource list
   shell: |
     source {{ undercloud_rc }}
     openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
       tee {{ working_dir }}/ffu_update_stack_outputs_failed_resources.log
-  when: ffu_stack_output|failed
+  when: ffu_stack_output is failed
 
 - name: was the ffu update stack outputs successful.
   fail: msg="FFU update stack outputs step failed... :("
-  when: ffu_stack_output|failed
+  when: ffu_stack_output is failed

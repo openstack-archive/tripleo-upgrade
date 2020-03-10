@@ -11,15 +11,15 @@
     source {{ undercloud_rc }}
     openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
     tee {{ working_dir }}/ffu_upgrade_converge_failed.log
-  when: ffu_converge|failed
+  when: ffu_converge is failed
 
 - name: print resource list
   shell: |
     source {{ undercloud_rc }}
     openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} \
     2>&1 {{ timestamper_cmd }} | tee {{ working_dir }}/ffu_upgrade_converge_failed_resources.log
-  when: ffu_converge|failed
+  when: ffu_converge is failed
 
 - name: was the ffu converge successful.
   fail: msg="FFU converge step failed... :("
-  when: ffu_converge|failed
+  when: ffu_converge is failed
