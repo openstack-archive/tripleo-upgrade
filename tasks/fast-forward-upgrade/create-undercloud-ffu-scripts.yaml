@@ -1,0 +1,19 @@
+---
+- name: create undercloud upgrade script
+  template:
+    src: "undercloud_upgrade.sh.j2"
+    dest: "{{ working_dir }}/ffu_undercloud_upgrade.sh"
+    mode: 0775
+    force: true
+
+- name: create ffu upgrade workaround scripts
+  template:
+    src: workarounds.sh.j2
+    dest: "{{ working_dir }}/{{ item }}.sh"
+    mode: 0775
+    force: true
+  loop:
+    - 'pre_ffu_undercloud_os_upgrade_workarounds'
+    - 'post_ffu_undercloud_os_upgrade_workarounds'
+    - 'pre_ffu_undercloud_upgrade_workarounds'
+    - 'post_ffu_undercloud_upgrade_workarounds'

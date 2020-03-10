@@ -42,10 +42,6 @@
     mode: 0775
     force: true
   loop:
-    - 'pre_ffu_undercloud_os_upgrade_workarounds'
-    - 'post_ffu_undercloud_os_upgrade_workarounds'
-    - 'pre_ffu_undercloud_upgrade_workarounds'
-    - 'post_ffu_undercloud_upgrade_workarounds'
     - 'pre_ffu_overcloud_prepare_workarounds'
     - 'post_ffu_overcloud_prepare_workarounds'
     - 'pre_ffu_overcloud_run_workarounds'
