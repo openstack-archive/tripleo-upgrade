@@ -1,7 +1,9 @@
 ---
 - name: Remove old RHEL7 packages
+  # Remove all el7ost packages except those which could imply the removal
+  # (direct or indirect) of the leapp and subscription-manager packages.
   shell: |
-     yum -y remove *el7ost* qemu-kvm-common-rhev qemu-img-rhev -- \
+     yum -y remove *el7ost* qemu-kvm-common-rhev qemu-img-rhev httpd python-jsonpointer haproxy* pacemaker* galera* mysql* rabbit* redis* -- \
        -*openvswitch* \
        -python2-babel \
        -python2-dateutil \
@@ -10,13 +12,37 @@
        -python2-markupsafe \
        -python2-jsonpatch \
        -python2-six \
-       -python-PyMySQL \
-       -python-jsonpointer
+       -python-PyMySQL
 
 - name: Install leapp
   package:
-    name: leapp
+    name:
+      - leapp
+      - leapp-repository
     state: latest
+  when:
+    - not leapp_unsubscribed|bool
+
+- name: Get packages facts to obtain leapp's package version installed
+  package_facts:
+    manager: "auto"
+
+- name: Get major leapp version
+  set_fact:
+    leapp_version: "{{ ansible_facts.packages.leapp[0].version }}"
+
+- name: Download required leapp files
+  vars:
+    # Add master revision when latest leapp will be available.
+    revision: "{{ '1405a623104fada7af29d8b0cb1ba5d7a821ea08' if leapp_version is version('0.9', '<') else 'edeb35b51e89716c47a552d6bcb3aa04bd556a82' }}"
+  get_url:
+    url: "https://gitlab.cee.redhat.com/leapp/oamg-rhel7-vagrant/raw/{{ revision }}/roles/init/files/leapp-data/{{ item }}"
+    dest: "/etc/leapp/files/{{ item }}"
+    validate_certs: false
+    mode: '0700'
+  loop:
+    - 'pes-events.json'
+    - 'repomap.csv'
 
 - name: Check if rhos-release is installed
   package:
@@ -42,7 +68,7 @@
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
-    {% if leapp_unsubscribed|bool and upgrade_workarounds|bool %} LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
+    {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds) %} LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
     {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 

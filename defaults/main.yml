@@ -26,6 +26,7 @@ overcloud_batch_update: false
 
 # enable ffu upgrade
 ffu_undercloud_upgrade: false
+ffu_undercloud_os_upgrade: false
 ffu_overcloud_upgrade: false
 ffu_noop: false
 ffu_bulk: true
@@ -172,20 +173,20 @@ upgrade_init_command_dest: "{{working_dir}}/UpgradeInitCommand.yaml"
 upgrade_init_command: false
 
 # ffu undercloud upgrade
-ffu_undercloud_releases: ['ocata', 'pike', 'queens']
+ffu_undercloud_releases: ['rocky', 'stein', 'train']
 ffu_undercloud_repo_type: tripleo-repos
 ffu_undercloud_repo_args:
   tripleo_repos:
-    ocata: "-b ocata current"
-    pike: "-b pike current"
-    queens: "-b queens current"
+    rocky: "-b rocky current"
+    stein: "-b stein current"
+    train: "-b train current"
 
 # Tripleo OOOQ variables.
 composable_scenario: ""
 upgrade_composable_scenario: ""
 
 ## ffu overcloud upgrade
-ffu_overcloud_releases: ['ocata', 'pike', 'queens']
+ffu_overcloud_releases: ['rocky', 'stein', 'train']
 
 ## ffu overcloud to use custom scripts instead of tripleo-repos
 ffu_overcloud_repo_type: tripleo-repos

@@ -144,6 +144,11 @@
           set_fact:
             overcloud_stack_name: "{{ install.overcloud.stack }}"
 
+        - name: Set undercloud Operating System FFU upgrade
+          set_fact:
+            ffu_undercloud_os_upgrade: true
+          when: install.undercloud.ffu.os.upgrade
+
         - name: Set undercloud FFU upgrade
           set_fact:
             ffu_undercloud_upgrade: true
