@@ -20,6 +20,12 @@
     regexp: '(\s+)(- OS::TripleO::Services::Docker$)'
     replace: '\1- OS::TripleO::Services::Podman'
 
+- name: drop Congress service
+  replace:
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::Congress$)'
+    replace: ''
+
 - name: Replace Fluentd for Rsyslog service
   replace:
     path: "{{ roles_data }}"
