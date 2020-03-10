@@ -24,4 +24,4 @@
 
     - name: was the ffu update ceph successful.
       fail: msg="FFU upgrade ceph step failed... :("
-  when: ffu_upgrade_ceph|failed
+  when: ffu_upgrade_ceph is failed

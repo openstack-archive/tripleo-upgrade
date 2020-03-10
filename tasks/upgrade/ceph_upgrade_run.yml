@@ -14,4 +14,4 @@
     - name: fail Ceph upgrade
       fail:
         msg: Ceph Upgrade Failed
-  when: ceph_upg_status|failed
+  when: ceph_upg_status is failed

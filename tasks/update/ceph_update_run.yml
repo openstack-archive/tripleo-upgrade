@@ -14,4 +14,4 @@
     - name: fail Ceph update
       fail:
         msg: Ceph minor update failed
-  when: ceph_update_status|failed
+  when: ceph_update_status is failed
