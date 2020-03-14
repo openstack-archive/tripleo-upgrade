@@ -14,6 +14,12 @@
     regexp: '(\s+)(- OS::TripleO::Services::RabbitMQ$)'
     replace: ''
 
+- name: Replace Docker for Podman service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::Docker$)'
+    replace: '\1- OS::TripleO::Services::Podman'
+
 - name: drop Congress service
   replace:
     dest: "{{ roles_data }}"
