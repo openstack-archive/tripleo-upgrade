@@ -6,12 +6,9 @@ set -euo pipefail
 
 source {{undercloud_rc }}
 
-echo "Running {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade prepare step"
-openstack overcloud{% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}prepare --stack {{ overcloud_stack_name }} \
+echo "Running major upgrade prepare step"
+openstack overcloud upgrade prepare --stack {{ overcloud_stack_name }} \
     --templates {{ tht_directory }} \
-    {% if ffu_overcloud_upgrade -%}
-    --yes \
-    {% endif -%}
     {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \
     {% endif -%}

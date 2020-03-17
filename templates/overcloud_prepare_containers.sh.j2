@@ -4,7 +4,7 @@
 #
 {% if overcloud_update|bool or update_noop|bool -%}
 {% set operation_type = 'update' -%}
-{% elif overcloud_upgrade|bool or upgrade_noop|bool -%}
+{% elif overcloud_upgrade|bool or upgrade_noop|bool or ffu_overcloud_upgrade|bool or ffu_noop|bool -%}
 {% set operation_type = 'upgrade' -%}
 {% endif -%}
 set -euo pipefail
