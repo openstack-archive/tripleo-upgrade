@@ -3,6 +3,8 @@
   package:
     name: ceph-ansible
     state: latest
+  become: true
+  become_user: root
   when: ceph_osd_enabled|bool
 
 - name: adjust role-data for R->S upgrade
