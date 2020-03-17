@@ -1,6 +1,142 @@
-#!/bin/bash
+#!/bin/env bash
+#
+# Run major upgrade on overcloud nodes
 #
 set -euo pipefail
 
+{# Elements will contain all the hosts in oc_roles_hosts for the
+role under loop from the first element of the list to the element in the item
+variable. Example:
+oc_roles_hosts = { 'Controller': ['controller-0', 'controller-1', 'controller-2',
+                   'Compute' : ['compute-0'] }
+If role = 'Controller' and item = 'controller-1'
+   elements = ['controller-0', 'controller-1']
+otherwise we upgrade item.
+#}
+
+{% if role == "Controller" %}
+{% set elements = oc_roles_hosts[role][0:oc_roles_hosts[role].index(item)+1] %}
+{% else %}
+{% set elements = [item] %}
+{% endif %}
+
+{% if overcloud_upgrade_multibooks|bool %}
+
+    {%- for playbook in overcloud_upgrade_playbooks -%}
+
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
+bash {{ working_dir }}/fip_http_check_start.sh &
+{% endif %}
+
 source {{ undercloud_rc }}
-openstack overcloud ffwd-upgrade run --yes --stack {{ overcloud_stack_name }} {% if overcloud_ssh_user != '' %} --ssh-user {{ overcloud_ssh_user }} {% endif %} | tee {{ working_dir}}/overcloud_upgrade_run.log
+
+echo "[$(date)] Running major upgrade {{ playbook }} playbook for {{ elements }} role"
+openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
+        {% if tripleo_upgrade_debug|bool -%}
+        --debug \
+        {% endif -%}
+        --limit {{ elements | join(',') }} --playbook {{ playbook }} 2>&1
+
+echo "[$(date)] Finished major upgrade {{ playbook }} playbook for {{ elements }} role"
+
+    {%- endfor %}
+{# validation scripts should run after all playbooks are finished #}
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
+
+{% if launch_sanity_workload|bool %}
+bash {{ working_dir }}/workload_launch.sh 'sanity'
+{% endif %}
+{# finished overcloud_upgrade_multibooks section #}
+{% else %}
+
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
+bash {{ working_dir }}/fip_http_check_start.sh &
+{% endif %}
+
+source {{ undercloud_rc }}
+
+echo "[$(date)] Running major upgrade for {{ elements }} hosts"
+
+openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
+        {% if tripleo_upgrade_debug|bool %}
+        --debug \
+        {% endif -%}
+        --limit {{ elements | join(',') }} --playbook all 2>&1
+
+echo "[$(date)] Finished major upgrade for {{ elements }} hosts"
+
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
+{% if launch_sanity_workload|bool %}
+bash {{ working_dir }}/workload_launch.sh 'sanity'
+{% endif %}
+{% endif %}

@@ -1,0 +1,22 @@
+---
+- name: look for OS::TripleO::NodeTLSData config
+  shell: |
+    grep "OS::TripleO::NodeTLSData" {{ item }}
+  ignore_errors: true
+  register: tls_config_envs
+  loop: "{{ initial_env_file.stdout_lines }}"
+
+- name: set tls_node_data fact
+  set_fact:
+    tls_node_data: "{{ item.item }}"
+  when: item.stdout|length > 0
+  loop: "{{ tls_config_envs.results }}"
+
+- block:
+    - name: add ContainerImagePrepare service
+      replace:
+        path: "{{ item }}"
+        regexp: '(\s+)(OS::TripleO::NodeTLSData)'
+        replace: '\1\2\1- OS::TripleO::NodeTLSData: OS::Heat::None'
+      loop: "{{ tls_node_data.stdout_lines }}"
+      when: nic_config_env is defined
