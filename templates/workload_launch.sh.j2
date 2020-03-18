@@ -87,8 +87,17 @@ TENANT_NET_NAME="internal_net_${SUFFIX}"
 EXTERNAL_NET_NAME='{{ external_network_name }}'
 
 source ${OVERCLOUD_RC}
-
+{% if ffu_overcloud_upgrade | bool %}
+# Pin the API's to Queens max versions
+export OS_COMPUTE_API_VERSION=2.60
+export OS_SHARE_API_VERSION=2.42
+export OS_VOLUME_API_VERSION=3
+{% elif overcloud_upgrade | bool %}
+# Pin the API's to Stein max versions
 export OS_COMPUTE_API_VERSION=2.72
+export OS_SHARE_API_VERSION=2.49
+export OS_VOLUME_API_VERSION=3
+{% endif %}
 
 ## create image
 openstack image list | grep ${IMAGE_NAME}
