@@ -70,15 +70,6 @@ workload_disk: 5
 workload_vcpu: 1
 workload_swap: 512
 
-# note that both UC upgrade and update use the same template
-undercloud_upgrade_template: undercloud_upgrade.sh.j2
-undercloud_update_template: undercloud_upgrade.sh.j2
-overcloud_upgrade_prepare_template: overcloud_upgrade_prepare.sh.j2
-overcloud_system_upgrade_template: overcloud_system_upgrade.sh.j2
-overcloud_upgrade_run_template: overcloud_upgrade_run.sh.j2
-overcloud_upgrade_converge_template: overcloud_upgrade_converge.sh.j2
-workload_launch_template: workload_launch.sh.j2
-
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"
 undercloud_update_script: "{{ working_dir }}/undercloud_update.sh"
@@ -89,20 +80,12 @@ overcloud_upgrade_run_script_base: "{{ working_dir }}/overcloud_upgrade_run"
 overcloud_upgrade_converge_script: "{{ working_dir }}/overcloud_upgrade_converge.sh"
 workload_launch_script: "{{ working_dir }}/workload_launch.sh"
 
-# overcloud jinja template name
-overcloud_update_prepare_template: overcloud_update_prepare.sh.j2
-overcloud_update_run_template: overcloud_update_run.sh.j2
-overcloud_update_converge_template: overcloud_update_converge.sh.j2
-
 # overcloud update scripts
 overcloud_update_prepare_script: "{{ working_dir }}/overcloud_update_prepare.sh"
 overcloud_update_run_script_base: "{{ working_dir }}/overcloud_update_run"
 overcloud_update_converge_script: "{{ working_dir }}/overcloud_update_converge.sh"
-
-overcloud_validate_images_template: validate_docker_images_versions.sh.j2
 overcloud_validate_images_script: "{{ working_dir }}/validate_docker_images_versions.sh"
 overcloud_validate_ap_services: openstack-cinder-volume openstack-cinder-backup openstack-manila-share
-
 
 # container registry file for overcloud
 container_registry_file: "docker-images.yaml"
@@ -143,8 +126,6 @@ node_reboot_timeout: 300
 l3_agent_connectivity_check: false
 l3_agent_connectivity_check_start_script: "{{ working_dir }}/l3_agent_start_ping.sh"
 l3_agent_connectivity_check_stop_script: "{{ working_dir }}/l3_agent_stop_ping.sh"
-l3_agent_connectivity_check_start_template: l3_agent_start_ping.sh.j2
-l3_agent_connectivity_check_stop_template: l3_agent_stop_ping.sh.j2
 l3_agent_failover_check: false
 
 # enable web load test
@@ -168,7 +149,6 @@ need_ssh_config: true
 upgrade_prepare_extra_params: []
 
 # No upgrade_init_command by default
-upgrade_init_command_template: upgrade_init_command.yaml.j2
 upgrade_init_command_dest: "{{working_dir}}/UpgradeInitCommand.yaml"
 upgrade_init_command: false
 
