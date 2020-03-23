@@ -6,7 +6,11 @@
       include: common/create_workload.yml
 
     - name: launch workload
-      command: "{{ workload_launch_script }}"
+      shell: |
+        set -o pipefail
+        bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+      args:
+        chdir: "{{ working_dir }}"
 
   when: workload_launch
 
