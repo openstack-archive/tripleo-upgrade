@@ -72,7 +72,7 @@
 
 - name: create overcloud upgrade script
   template:
-    src: "overcloud_update_run.sh.j2"
+    src: "overcloud_upgrade_run.sh.j2"
     dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
     mode: 0775
     force: true
