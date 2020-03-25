@@ -208,6 +208,10 @@ subparsers:
                               ---
                               resource_registry:
                                   OS::TripleO::BlockStorage::Net::SoftwareConfig: /home/stack/nic-configs/cinder-storage.yaml
+                  rhsm-overcloud-env:
+                      type: Value
+                      help: Rhsm environment location to be passed during upgrade/update prepare step ssh user name name
+                      default: ''
 
 
             - title: TripleO Fast Forward Upgrade

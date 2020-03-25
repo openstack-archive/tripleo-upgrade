@@ -256,3 +256,6 @@ stein_registry_params:
   namespace_stein: "{{ full_namespace }}"
   tag_stein: "20200115.1"
   name_prefix_stein: "rhosp15-openstack-"
+
+# rhsm overcloud environment location with subscription details
+rhsm_overcloud_env: ''

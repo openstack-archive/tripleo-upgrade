@@ -36,6 +36,11 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
     {% if config_heat_extra_yaml is defined -%}
     -e {{ working_dir }}/{{ install.deployment.files | basename }}/config_heat_extra.yaml \
     {% endif -%}
+    {% if rhsm_overcloud_env != '' -%}
+    # adding rhsm at the end so it overrides any other rhsm params passed.
+    -e /usr/share/openstack-tripleo-heat-templates/environments/rhsm.yaml \
+    -e {{ rhsm_overcloud_env }} \
+    {% endif -%}
     {% if roles_data != default_roles_data -%}
     --roles-file {{ roles_data }} \
     {% endif -%}
