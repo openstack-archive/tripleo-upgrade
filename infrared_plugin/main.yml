@@ -209,6 +209,10 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
+        - name: Set rhsm_overcloud_env
+          set_fact:
+            rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
+
       tags:
         - always
   roles:
