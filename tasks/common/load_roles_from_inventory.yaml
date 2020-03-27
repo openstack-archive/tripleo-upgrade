@@ -11,14 +11,15 @@
     src: "{{ working_dir }}//tripleo-ansible-inventory.yaml"
   register: upgrade_tripleo_inventory
 
-- name: set fact inventory_yaml
+- name: set inventory facts
   set_fact:
-    inventory_yaml: "{{ upgrade_tripleo_inventory.content | b64decode | from_yaml }}"
+    inventory_hostmap: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_hostmap }}"
+    inventory_roles: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_roles }}"
 
 - name: store roles and register controller role name
   set_fact:
-    oc_roles: "{{ oc_roles + inventory_yaml.overcloud.children.keys() | list }}"
-    controller_role_name: "{{ inventory_yaml.overcloud.children.keys() | map('regex_search', '^[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*$') | select('string') | list | last }}"
+    oc_roles: "{{ oc_roles + inventory_roles }}"
+    controller_role_name: "{{ inventory_roles | map('regex_search', '^[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*$') | select('string') | list | last }}"
 
 - name: store sorted roles with controller first(default)
   set_fact:
@@ -35,26 +36,26 @@
 - name: Retrieve the pacemaker bootstrap controller node.
   shell: "sudo hiera -c /etc/puppet/hiera.yaml pacemaker_short_bootstrap_node_name"
   become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
-  delegate_to: "{{ inventory_yaml[controller_role_name]['hosts'].keys()|first }}"
+  delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
   register: pcmkr_bootstrap_node_out
   when: not update_cell|bool
 
 - name: Create ordered Controller's host set (bootstrap node first)
   vars:
     pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout }}"
-    controllers_from_inventory: "{{ inventory_yaml[controller_role_name]['hosts'].keys() | list }}"
+    controllers_from_inventory: "{{ inventory_hostmap[controller_role_name] | list }}"
   set_fact:
     controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
   when: not update_cell|bool
 
 - name: create hosts per role fact
   set_fact:
-    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : controllers_ordered if item.key == controller_role_name else inventory_yaml[item.key]['hosts'].keys()|list }) }}"
-  loop: "{{ inventory_yaml.overcloud.children | default({}) | dict2items }}"
+    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item : controllers_ordered if item == controller_role_name else inventory_hostmap[item]|list }) }}"
+  loop: "{{ inventory_roles }}"
   when: not update_cell | bool
 
 - name: create hosts per role fact for cells
   set_fact:
-    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item.key : inventory_yaml[item.key]['hosts'].keys()|list }) }}"
-  loop: "{{ inventory_yaml.overcloud.children | default({}) | dict2items }}"
+    oc_roles_hosts: "{{ oc_roles_hosts | combine({ item : inventory_hostmap[item]|list }) }}"
+  loop: "{{ inventory_roles }}"
   when: update_cell | bool
