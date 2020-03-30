@@ -12,4 +12,5 @@
       - "openstack-tripleo-common"
       - "openstack-tripleo-heat-templates"
       - "openstack-tripleo-validations"
+      - "tripleo-ansible"
     state: latest
