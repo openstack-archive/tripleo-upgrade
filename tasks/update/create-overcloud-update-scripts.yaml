@@ -48,6 +48,8 @@
   import_tasks: ../common/load_roles_from_inventory.yaml
 
 - name: create overcloud update prepare script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
     src: "overcloud_update_prepare.sh.j2"
     dest: "{{ overcloud_update_prepare_script }}"
@@ -77,6 +79,8 @@
     force: true
 
 - name: create overcloud update converge script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
     src: "overcloud_update_converge.sh.j2"
     dest: "{{ overcloud_update_converge_script }}"
