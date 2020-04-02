@@ -10,7 +10,18 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
+- name: launch workload
+  shell: |
+    set -o pipefail
+    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: workload_launch|bool
+
 - name: run the RHEL upgrade steps for the host {{ host }}
+  retries: 2
+  delay: 1
+  until: overcloud_system_upgrade_res.rc == 0
   shell: |
     set -o pipefail
     bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} > \
@@ -45,19 +56,20 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_upgrade_run
 
-- name: launch workload
-  shell: |
-    set -o pipefail
-    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
-  args:
-    chdir: "{{ working_dir }}"
-  when: workload_launch|bool
+# HACK for ffwd upgrade
+- set_fact:
+    upgrade_host: "{{ host + ',' + pcs_host }}"
+- set_fact:
+    pcs_host: "{{ upgrade_host | regex_replace(',$', '') }}"
 
-- name: run overcloud major upgrade for the host {{ host }}
+- name: run overcloud major upgrade for the host {{ pcs_host if pcs_present else host }}
+  retries: 3
+  delay: 1
+  until: overcloud_upgrade_res.rc == 0
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_run_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} > \
-        {{ working_dir }}/overcloud_upgrade_run_{{ host }}.log
+    bash {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/overcloud_upgrade_run_{{ pcs_host if pcs_present else host }}.log
   register: overcloud_upgrade_res
   ignore_errors: true
   tags: ffu_overcloud_upgrade_run

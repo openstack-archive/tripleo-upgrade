@@ -1,18 +1,27 @@
 ---
-- name: create overcloud system upgrade script for {{ role }}
+- set_fact:
+    pcs_upgrade_hosts: "{{ item | reject('none') |  join(',') + ',' + pcs_upgrade_hosts }}"
+  when: pcs_present
+
+- name: create overcloud system upgrade script for {{ item }}
   vars:
-    role_hosts: "{{ oc_roles_hosts[role] }}"
+    hosts: "{{ item | reject('none') | join(',') }}"
   template:
-    src: "overcloud_system_upgrade.sh.j2"
-    dest: "{{ overcloud_system_upgrade_script_base }}-{{ item }}.sh"
+    src: "fast-forward-upgrade/overcloud_system_upgrade.sh.j2"
+    dest: "{{ overcloud_system_upgrade_script_base }}-{{ hosts }}.sh"
     mode: 0775
     force: true
-  loop: "{{ oc_roles_hosts[role] }}"
 
-- name: create overcloud upgrade script for {{ role }}
+- name: create overcloud upgrade script for {{ item }}
+  vars:
+    hosts: "{{ pcs_upgrade_hosts | regex_replace(',$', '')
+            if pcs_present else item | reject('none') | join(',') }}"
+    transfer_data: >
+      {{ inventory_hostmap.mysql | intersect (item) | length > 0}}
+    stop_services: >
+      {{ inventory_hostmap.pacemaker | intersect (item) | length > 0}}
   template:
     src: "fast-forward-upgrade/overcloud_upgrade_run.sh.j2"
-    dest: "{{ overcloud_upgrade_run_script_base }}-{{ item }}.sh"
+    dest: "{{ overcloud_upgrade_run_script_base }}-{{ hosts }}.sh"
     mode: 0775
     force: true
-  loop: "{{ oc_roles_hosts[role] }}"

@@ -1,0 +1,32 @@
+#!/bin/env bash
+#
+# Run overcloud Operating System upgrade on overcloud node {{ hosts }}
+#
+
+set -euo pipefail
+source {{ undercloud_rc }}
+
+
+{% if ceph_osd_enabled -%}
+
+echo "[$(date)] Started ceph systemd units migration run for {{ hosts }}"
+
+openstack overcloud external-upgrade run \
+        --skip-tags validation,opendev-validation-ceph,opendev-validation \
+        --stack {{ overcloud_stack_name }} \
+        --tags ceph_systemd \
+        -e ceph_ansible_limit={{ hosts }} 2>&1
+
+echo "[$(date)] Finished ceph systemd units migration run for {{ hosts }}"
+
+{% endif -%}
+
+echo "[$(date)] Started system upgrade step for {{ hosts }}"
+
+openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
+        --playbook upgrade_steps_playbook.yaml \
+        --tags system_upgrade \
+        --limit {{ hosts }} 2>&1
+
+echo "[$(date)] Finished system upgrade step for {{ hosts }}"
