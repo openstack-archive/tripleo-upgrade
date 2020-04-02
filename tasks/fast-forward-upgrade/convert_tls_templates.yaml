@@ -12,11 +12,9 @@
   when: item.stdout|length > 0
   loop: "{{ tls_config_envs.results }}"
 
-- block:
-    - name: add ContainerImagePrepare service
-      replace:
-        path: "{{ item }}"
-        regexp: '(\s+)(OS::TripleO::NodeTLSData)'
-        replace: '\1\2\1- OS::TripleO::NodeTLSData: OS::Heat::None'
-      loop: "{{ tls_node_data.stdout_lines }}"
-      when: nic_config_env is defined
+- name: Remove NodeTLSData service
+  replace:
+    path: "{{ tls_node_data }}"
+    regexp: '(\s+)(OS::TripleO::NodeTLSData).*'
+    replace: '\1OS::TripleO::NodeTLSData: OS::Heat::None'
+  when: tls_node_data is defined

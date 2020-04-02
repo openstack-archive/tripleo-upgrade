@@ -20,6 +20,12 @@
     regexp: '(\s+)(- OS::TripleO::Services::Docker$)'
     replace: '\1- OS::TripleO::Services::Podman'
 
+- name: Replace NovaPlacement for PlacementApi service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::NovaPlacement$)'
+    replace: '\1- OS::TripleO::Services::PlacementApi'
+
 - name: drop Congress service
   replace:
     dest: "{{ roles_data }}"

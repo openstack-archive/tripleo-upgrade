@@ -8,5 +8,5 @@ openstack overcloud upgrade run \
     {% if overcloud_ssh_user %}
     --ssh-user {{ overcloud_ssh_user }} \
     {% endif %}
-    --limit {{ item }} \
-    --skip-tags validation | tee {{ working_dir}}/overcloud_upgrade_{{ item }}.log
+    --limit {{ host }} \
+    --skip-tags validation | tee {{ working_dir}}/overcloud_upgrade_{{ host }}.log
