@@ -13,27 +13,14 @@
     src: "{{ overcloud_deploy_script }}"
     dest: "{{ overcloud_deploy_script }}.orig.sh"
 
-- name: Adjust ffu scenario file.
-  replace:
-    dest: "{{ overcloud_deploy_script }}"
-    regexp: "{{ composable_scenario }}"
-    replace: "{{ upgrade_composable_scenario }}"
-  when:
-    - tripleo_ci|bool
-    - upgrade_composable_scenario|default("")
-    - composable_scenario|default("")
-
 - name: Convert CLI options to parameters
   import_tasks: ../common/convert_cli_opts_params.yaml
 
 - name: get auxiliary facts for upgrade
   import_tasks: ../common/auxilary-facts.yaml
 
-- name: Convert Ceph parameters to ceph ansible
-  import_tasks: ../common/convert_ceph_params.yaml
-
-- name: Adjust custom roles data file during upgrade
-  import_tasks: convert_roles_data.yaml
+- name: generate roles list from inventory file
+  import_tasks: ../common/load_roles_from_inventory.yaml
 
 - name: create ffu upgrade workaround scripts
   template:
@@ -42,10 +29,10 @@
     mode: 0775
     force: true
   loop:
-    - 'pre_ffu_overcloud_prepare_workarounds'
-    - 'post_ffu_overcloud_prepare_workarounds'
-    - 'pre_ffu_overcloud_run_workarounds'
-    - 'post_ffu_overcloud_run_workarounds'
+    - 'pre_ffu_overcloud_upgrade_prepare_workarounds'
+    - 'post_ffu_overcloud_upgrade_prepare_workarounds'
+    - 'pre_ffu_overcloud_os_upgrade_workarounds'
+    - 'post_ffu_overcloud_os_upgrade_workarounds'
     - 'pre_ffu_overcloud_upgrade_workarounds'
     - 'post_ffu_overcloud_upgrade_workarounds'
     - 'pre_ffu_overcloud_converge_workarounds'
@@ -54,20 +41,36 @@
     - 'post_ffu_overcloud_ceph_workarounds'
   when: ffu_upgrade_workarounds
 
-- name: Create FFU custom repos environment
+- name: create the custom upgrade init commands
   template:
-    src: fast-forward-upgrade/ffu_repos.yaml.j2
-    dest: "{{ working_dir }}/ffu_repos.yaml"
-  when: "'tripleo-repos' not in ffu_overcloud_repo_type"
-
-- name: create overcloud ffwd run script
-  template:
-    src: "fast-forward-upgrade/overcloud_upgrade_run.sh.j2"
-    dest: "{{ working_dir }}/overcloud_upgrade_run.sh"
+    src: "upgrade_init_command.yaml.j2"
+    dest: "{{ upgrade_init_command_dest }}"
     mode: 0775
-    force: false
+  when: upgrade_init_command is string
+
+- name: create overcloud_prepare_containers.sh script
+  template:
+    src: overcloud_prepare_containers.sh.j2
+    dest: "{{ working_dir }}/overcloud_prepare_containers.sh"
+    mode: 0755
+    force: true
+
+- name: create system upgrade and upgrade scripts per host.
+  include_tasks: create-overcloud-ffu-hosts-scripts.yaml
+  loop: "{{ oc_roles }}"
+  loop_control:
+    loop_var: role
+
+- name: create online data migration script
+  template:
+    src: "overcloud_online_data_migration.sh.j2"
+    dest: "{{ working_dir }}/overcloud_online_data_migration.sh"
+    mode: 0755
+    force: true
 
 - name: create overcloud converge script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
   template:
     src: "overcloud_upgrade_converge.sh.j2"
     dest: "{{ working_dir }}/overcloud_upgrade_converge.sh"

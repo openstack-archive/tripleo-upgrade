@@ -104,7 +104,11 @@
       tags: ffu_overcloud_prepare
 
     - name: apply pre ffu overcloud prepare workarounds
-      command: "{{ working_dir }}/pre_ffu_overcloud_prepare_workarounds.sh"
+      shell: |
+        set -o pipefail
+        bash pre_ffu_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_overcloud_upgrade_prepare_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
 
@@ -112,24 +116,30 @@
       import_tasks: ../common/convert_nic_templates.yaml
       tags: ffu_overcloud_prepare
 
-    - name: set upgrade_prepare_extra_params for ffu prepare with custom repos
-      set_fact:
-        upgrade_prepare_extra_params: ["{{ working_dir }}/ffu_repos.yaml"]
-      when: "'tripleo-repos' not in ffu_overcloud_repo_type"
-
-    - name: set upgrade_prepare_extra_params for ffu prepare with deployed server
-      set_fact:
-        upgrade_prepare_extra_params: '{{ upgrade_prepare_extra_params + ["{{ tht_directory }}/environments/updates/update-from-deployed-server-newton.yaml"] }}'
-      when: deployed_server|default(false)|bool
+    - name: convert tls templates
+      import_tasks: convert_tls_templates.yaml
+      tags: ffu_overcloud_prepare
 
     - name: run overcloud upgrade prepare
       import_tasks: ../upgrade/overcloud_upgrade_prepare.yml
       tags: ffu_overcloud_prepare
 
     - name: apply post ffu overcloud prepare workarounds
-      command: "{{ working_dir }}/post_ffu_overcloud_prepare_workarounds.sh"
+      shell: |
+        set -o pipefail
+        bash post_ffu_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_overcloud_upgrade_prepare_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
+
+    - name: prepare containers for overcloud upgrade
+      args:
+        chdir: "{{ working_dir }}"
+      shell: |
+        set -o pipefail
+        bash overcloud_prepare_containers.sh {{ timestamper_cmd }} > overcloud_upgrade_prepare_containers.log
+      tags: overcloud_upgrade_prepare_containers
 
     - name: stop L3 verification scripts
       include_tasks: "{{ item }}"
@@ -141,54 +151,46 @@
         - '../common/l3_agent_failover_check_post_script.yml'
       tags: ffu_overcloud_prepare
 
-    - name: apply pre fast forward overcloud upgrade run workarounds
-      command: "{{ working_dir }}/pre_ffu_overcloud_run_workarounds.sh"
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_overcloud_run
-
     - name: start L3 connectivity script
       import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
       tags: ffu_overcloud_run
 
-    - name: run overcloud fast forward upgrade
-      command: "{{ working_dir }}/overcloud_upgrade_run.sh"
-      tags: ffu_overcloud_run
-
-    - name: apply post fast forward overcloud upgrade run workarounds
-      command: "{{ working_dir }}/post_ffu_overcloud_run_workarounds.sh"
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_overcloud_run
+    ############## OS upgrade + Overcloud node upgrade run ##############
+    - include_tasks: overcloud_upgrade_roles.yaml
+      loop: "{{ oc_roles }}"
+      loop_control:
+        loop_var: role
+      tags:
+        - always
 
     - name: stop L3 connectivity script
       import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
       tags: ffu_overcloud_run
 
-    ## we can either upgrade all overcloud nodes at one or per role/node
-    - name: upgrade all overcloud nodes at once
-      include_tasks: overcloud_bulk.yaml
-      args:
-        apply:
-          tags: ffu_overcloud_upgrade_bulk
-      tags: ffu_overcloud_upgrade_bulk
-      when: ffu_bulk|bool
+    # TODO(jfrancoa): We might need to do something like this to make the job quicker.
+    # we can either upgrade all overcloud nodes at one or per role/node
+    # - name: upgrade all overcloud nodes at once
+    #   include_tasks: overcloud_bulk.yaml
+    #   args:
+    #     apply:
+    #       tags: ffu_overcloud_upgrade_bulk
+    #   tags: ffu_overcloud_upgrade_bulk
+    #   when: ffu_bulk|bool
 
-    - name: upgrade overcloud nodes per roles
-      include_tasks: overcloud_role.yaml
-      args:
-        apply:
-          tags: ffu_overcloud_upgrade_role
-      tags: ffu_overcloud_upgrade_role
-      when: not ffu_bulk|bool
-
+    ############## CEPH upgrade ######################
     - when: ceph_osd_enabled|bool
       block:
         - name: apply pre ffu ceph upgrade workarounds
-          command: "{{ working_dir }}/pre_ffu_overcloud_ceph_workarounds.sh"
+          shell: |
+            set -o pipefail
+            bash pre_ffu_overcloud_ceph_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_overcloud_ceph_workarounds.log
+          args:
+            chdir: "{{ working_dir }}"
           when: ffu_upgrade_workarounds|bool
           tags: ffu_overcloud_ceph
 
         - name: run FFU ceph osd nodes upgrade scripts
-          command: "{{ working_dir }}/overcloud_upgrade_CephStorage.sh"
+          include_tasks: ../upgrade/ceph_upgrade_run.yml
           tags: ffu_overcloud_ceph
 
         - name: start L3 connectivity script
@@ -200,7 +202,11 @@
           tags: ffu_overcloud_ceph
 
         - name: apply post ffu ceph upgrade workarounds
-          command: "{{ working_dir }}/post_ffu_overcloud_ceph_workarounds.sh"
+          shell: |
+            set -o pipefail
+            bash post_ffu_overcloud_ceph_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_overcloud_ceph_workarounds.log
+          args:
+            chdir: "{{ working_dir }}"
           when: ffu_upgrade_workarounds|bool
           tags: ffu_overcloud_ceph
 
@@ -214,8 +220,21 @@
             - '../common/l3_agent_failover_check_post_script.yml'
           tags: ffu_overcloud_ceph
 
+    ################ ONLINE DATA MIGRATIONS ###############
+    - name: run online data migration
+      args:
+        chdir: "{{ working_dir }}"
+      shell: |
+        set -o pipefail
+        bash overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_upgrade_data_migration.log
+
+    ################ UPGRADE CONVERGE ###############
     - name: apply pre ffu overcloud converge workarounds
-      command: "{{ working_dir }}/pre_ffu_overcloud_converge_workarounds.sh"
+      shell: |
+        set -o pipefail
+        bash pre_ffu_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_converge
 
@@ -224,11 +243,24 @@
       tags: ffu_overcloud_converge
 
     - name: apply post ffu overcloud converge workarounds
-      command: "{{ working_dir }}/post_ffu_overcloud_converge_workarounds.sh"
+      shell: |
+        set -o pipefail
+        bash post_ffu_overcloud_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_overcloud_converge_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_converge
 
-    - name: run post upgrade actions
+    - name: run controller post upgrade steps
+      include_tasks: ../upgrade/controller_post_upgrade.yml
+      args:
+        apply:
+          tags:
+            - controller_post_upgrade
+      tags: controller_post_upgrade
+      when: controller_upgrade_post|bool
+
+    - name: run post upgrade nova actions
       import_tasks: ../common/nova_actions_check.yml
       tags: ffu_overcloud_post
 
