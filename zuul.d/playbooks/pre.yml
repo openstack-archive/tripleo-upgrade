@@ -52,7 +52,7 @@
         ANSIBLE_ROLES_PATH: "{{ tripleo_upgrade_project_path }}/molecule/roles.galaxy"
 
   roles:
-    - role: install-docker
+    - role: ensure-docker
   post_tasks:
     - name: Run docker vfs setup
       shell: |-
