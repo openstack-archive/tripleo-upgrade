@@ -302,7 +302,7 @@ Run the playbook including this role::
 License
 =======
 
-BSD
+Apache License 2.0
 
 ==================
 Author Information
