@@ -24,25 +24,44 @@ function prepare_env {
     export INSTANCE_NAME="instance_${SUFFIX}"
     export INSTANCE_USER='{{ workload_user }}'
     export KEYPAIR_NAME="userkey_${SUFFIX}"
-    export FLAVOR_NAME="v1-1G-{{ workload_disk}}G-${SUFFIX}"
+    export FLAVOR_NAME="v1-{{ workload_memory }}M-{{ workload_disk }}G-${SUFFIX}"
     export SECGROUP_NAME="allow-icmp-ssh-${SUFFIX}"
     export TENANT_NET_NAME="internal_net_${SUFFIX}"
     export EXTERNAL_NET_NAME='{{ external_network_name }}'
     export SRIOV_PORT="sriov_port_${SUFFIX}"
 
     source ${OVERCLOUD_RC}
-    {% if ffu_overcloud_upgrade | bool %}
+    {% if ffu_overcloud_upgrade | bool -%}
     # Pin the API's to Queens max versions
     export OS_COMPUTE_API_VERSION=2.60
     export OS_SHARE_API_VERSION=2.42
     export OS_VOLUME_API_VERSION=3
-    {% elif overcloud_upgrade | bool %}
+    {% elif overcloud_upgrade | bool -%}
     # Pin the API's to Train max versions
     export OS_COMPUTE_API_VERSION=2.79
     export OS_SHARE_API_VERSION=2.51
     export OS_VOLUME_API_VERSION=3
-    {% endif %}
+    {%- endif %}
 
+}
+
+function sanity_check {
+    local timeout_seconds=180
+    local elapsed_seconds=0
+
+    echo "Waiting for compute services to be up"
+
+    until openstack compute service list --service nova-compute -c State -f value | grep -qv down && openstack network agent list -f value -c Alive | grep -qv False; do
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: Some nova-compute or neutron services are down"
+            openstack compute service list --service nova-compute
+            openstack network agent list
+            exit 1
+        fi
+        sleep 5
+        elapsed_seconds=$(( ${elapsed_seconds} + 5 ))
+    done
+    echo "All compute services are up and running"
 }
 
 function sanity_teardown {
@@ -51,16 +70,16 @@ function sanity_teardown {
     local timeout_seconds=180
     local elapsed_seconds=0
 
-    {% if workload_sriov | bool %}
+    {% if workload_sriov | bool -%}
     openstack port delete ${SRIOV_PORT}
-    {% else %}
+    {% else -%}
     echo "Remove ${INSTANCE_FIP} from ${INSTANCE_NAME}"
     openstack server remove floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
     grep ${INSTANCE_FIP} vm_ip.sh  && rm vm_ip.sh
 
     echo "Delete floating ip ${INSTANCE_FIP}"
     openstack floating ip delete ${INSTANCE_FIP}
-    {% endif %}
+    {%- endif %}
 
     echo "Remove VM ${INSTANCE_NAME}"
     openstack server delete ${INSTANCE_NAME}
@@ -70,6 +89,7 @@ function sanity_teardown {
             echo "Instance ${INSTANCE_NAME} successfully removed"
             break
         fi
+        sleep 5
         elapsed_seconds=$(( ${elapsed_seconds} + 5 ))
         if [ $elapsed_seconds -ge $timeout_seconds ]; then
             echo "FAILURE: Failed to remove instance ${INSTANCE_NAME}"
@@ -104,6 +124,9 @@ function sanity_teardown {
     echo "Remove image ${IMAGE_NAME}"
     openstack image delete ${IMAGE_NAME}
 
+    echo "Remove flavor ${FLAVOR_NAME}"
+    openstack flavor delete ${FLAVOR_NAME}
+
     echo "Remove file ${IMAGE_FILE}"
     rm -Rf $(dirname ${IMAGE_FILE})
 
@@ -111,10 +134,6 @@ function sanity_teardown {
 
 function workload_launch {
     # create workload
-
-    SUFFIX=$(openssl rand -hex 5)
-    prepare_env
-
     ## create image
     openstack image list | grep ${IMAGE_NAME}
 
@@ -193,10 +212,10 @@ function workload_launch {
     fi
 
     ## create sriov port
-    {% if workload_sriov | bool %}
+    {% if workload_sriov | bool -%}
     openstack port create --vnic-type direct --network ${EXTERNAL_NET_NAME} \
         --binding-profile trusted=true ${SRIOV_PORT}
-    {% endif %}
+    {%- endif %}
 
 
 
@@ -204,14 +223,14 @@ function workload_launch {
     TENANT_NET_ID=$( openstack network show -f json ${TENANT_NET_NAME} |  jq -r -c '.id' )
 
     echo "Creating overcloud instance ${INSTANCE_NAME}"
-    {% if workload_sriov | bool %}
+    {% if workload_sriov | bool -%}
     openstack server create  \
         --image ${IMAGE_NAME} \
         --flavor ${FLAVOR_NAME} \
         --key-name  ${KEYPAIR_NAME} \
         --port ${SRIOV_PORT} \
         ${INSTANCE_NAME}
-    {% else %}
+    {% else -%}
     openstack server create  \
         --image ${IMAGE_NAME} \
         --flavor ${FLAVOR_NAME} \
@@ -219,7 +238,7 @@ function workload_launch {
         --key-name  ${KEYPAIR_NAME} \
         --nic net-id=${TENANT_NET_ID} \
         ${INSTANCE_NAME}
-    {% endif %}
+    {%- endif %}
 
     timeout_seconds=120
     elapsed_seconds=0
@@ -244,16 +263,16 @@ function workload_launch {
     done
 
     ## assign floating ip or external ip
-    {% if workload_sriov | bool %}
+    {% if workload_sriov | bool -%}
     EXTERNAL_IP=$(openstack port show ${SRIOV_PORT} -f json -c fixed_ips | jq -r -c '.fixed_ips[0]["ip_address"]')
     VM_IP=${EXTERNAL_IP}
-    {% else %}
+    {% else -%}
     INSTANCE_FIP=$(openstack floating ip create ${EXTERNAL_NET_NAME} -f json | jq -r -c '.floating_ip_address' )
 
     echo "Assign FIP[${INSTANCE_FIP}] to server ${INSTANCE_NAME}"
     openstack server add floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
     VM_IP=${INSTANCE_FIP}
-    {% endif %}
+    {%- endif %}
 
     ## create and attach a volume
     CINDER_VOL_ID=$(openstack volume create --size 1 vol_${SUFFIX} -f json | jq -r .id)
@@ -288,6 +307,9 @@ function workload_launch {
 }
 
 if [[ "${MODE}" == "workload" ]]; then
+    SUFFIX=$(openssl rand -hex 5)
+    prepare_env
+    sanity_check
     workload_launch
     echo "export SUFFIX=${SUFFIX}" > ~/workload_suffix
     echo "export CINDER_VOL_ID=${CINDER_VOL_ID}" >> ~/workload_suffix
@@ -298,11 +320,15 @@ if [[ "${MODE}" == "cleanup" ]]; then
     # obtain SUFFIX value generated during workload_launch
     source ~/workload_suffix
     prepare_env
+    sanity_check
     # cleanup workload
     sanity_teardown
 fi
 
 if [[ "${MODE}" == "sanity" ]]; then
+    SUFFIX=$(openssl rand -hex 5)
+    prepare_env
+    sanity_check
     workload_launch
     sanity_teardown
 fi
