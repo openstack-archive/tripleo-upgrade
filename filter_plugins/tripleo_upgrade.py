@@ -18,6 +18,10 @@ import collections
 import six
 import yaml
 
+# Note: duplicates of the tripleo-ansible filters
+#       tripleo-upgrade is used to update tripleo-ansible so we need to
+#       break the cyclic dependency
+
 
 def to_inventory_hostmap(data):
     # Flattens inventory to a group->host mapping
@@ -49,6 +53,38 @@ def to_inventory_hostmap(data):
     return group_host_map
 
 
+def to_inventory_rolemap(data):
+    # Falttens inventory to a group->role mapping
+    if isinstance(data, six.string_types):
+        inventory = yaml.safe_load(data)
+    else:
+        inventory = data
+
+    group_role_map = {}
+
+    todo = collections.deque(inventory.keys())
+    while todo:
+        group = todo.popleft()
+        if 'tripleo_role_name' in inventory[group].get('vars', {}):
+            group_role_map[group] = [
+                inventory[group]['vars']['tripleo_role_name']
+            ]
+        else:
+            if 'children' in inventory[group]:
+                for child in inventory[group]['children']:
+                    # Children have not all been flattened yet
+                    # so postpone flattening this group
+                    if child in todo:
+                        todo.append(group)
+                        break
+                else:
+                    group_role_map[group] = []
+                    for child in inventory[group]['children']:
+                        group_role_map[group] += group_role_map[child]
+                    group_role_map[group].sort()
+    return group_role_map
+
+
 def to_inventory_roles(data):
     # Returns list of tripleo roles in inventory
     if isinstance(data, six.string_types):
@@ -67,6 +103,7 @@ def to_inventory_roles(data):
 class FilterModule(object):
     def filters(self):
         return {
-            'tripleo_upgrade_to_inventory_hostmap': to_inventory_hostmap,
-            'tripleo_upgrade_to_inventory_roles': to_inventory_roles,
+            'to_inventory_hostmap': to_inventory_hostmap,
+            'to_inventory_rolemap': to_inventory_rolemap,
+            'to_inventory_roles': to_inventory_roles,
         }

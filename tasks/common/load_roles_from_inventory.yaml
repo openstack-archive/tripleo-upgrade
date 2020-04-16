@@ -13,8 +13,8 @@
 
 - name: set inventory facts
   set_fact:
-    inventory_hostmap: "{{ upgrade_tripleo_inventory.content | b64decode | tripleo_upgrade_to_inventory_hostmap }}"
-    inventory_roles: "{{ upgrade_tripleo_inventory.content | b64decode | tripleo_upgrade_to_inventory_roles }}"
+    inventory_hostmap: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_hostmap }}"
+    inventory_roles: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_roles }}"
 
 - name: store roles and register controller role name
   set_fact:
