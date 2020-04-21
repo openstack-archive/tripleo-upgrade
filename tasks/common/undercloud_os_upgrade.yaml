@@ -44,20 +44,10 @@
   when:
     - not leapp_unsubscribed|bool
 
-- name: Get packages facts to obtain leapp's package version installed
-  package_facts:
-    manager: "auto"
-
-- name: Get major leapp version
-  set_fact:
-    leapp_version: "{{ ansible_facts.packages.leapp[0].version }}"
 
 - name: Download required leapp files
-  vars:
-    # Add master revision when latest leapp will be available.
-    revision: "{{ '1405a623104fada7af29d8b0cb1ba5d7a821ea08' if leapp_version is version('0.9', '<') else 'master' }}"
   get_url:
-    url: "https://gitlab.cee.redhat.com/leapp/oamg-rhel7-vagrant/raw/{{ revision }}/roles/init/files/leapp-data/{{ item }}"
+    url: "https://gitlab.cee.redhat.com/leapp/oamg-rhel7-vagrant/raw/master/roles/init/files/leapp-data/{{ item }}"
     dest: "/etc/leapp/files/{{ item }}"
     validate_certs: false
     mode: '0700'
@@ -86,11 +76,19 @@
     - rhos_release_installed.rc == 0
     - not rhos_release_installed.changed
 
+- name: Get enablerepo line for leapp
+  shell: |
+      yum repolist -q 2> /dev/null | grep -e rhos-16 -e 'rhel-8.*baseos'  -e 'rhel-8.*appstream' -e 'rhel-8.*fdp' -e 'rhel-8.*av' -e 'ceph-4' | cut -d '/' -f1 | \
+      awk '{print "--enablerepo " $0 " "}' | tr  -d '\n'
+  when: leapp_unsubscribed|bool
+  register: leapp_unsubscribed_options
+
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
     {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds|bool) %} LEAPP_UNSUPPORTED=1 LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
-    {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
+    {% if leapp_skip_release_check|bool %} LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade \
+    {% if leapp_unsubscribed|bool %} {{ leapp_unsubscribed_options.stdout }} {% endif %} --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Reboot the undercloud
