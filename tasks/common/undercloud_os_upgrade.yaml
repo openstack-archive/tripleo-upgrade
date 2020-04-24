@@ -93,8 +93,10 @@
     {% if leapp_skip_release_check|bool %} LEAPP_SKIP_CHECK_OS_RELEASE=1 LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
+# Reboot, and wait for 30 mins
 - name: Reboot the undercloud
-  import_tasks: undercloud_reboot.yaml
+  reboot:
+    reboot_timeout: 1800
 
 - name: Unregister the node once the OS was upgraded if desired
   redhat_subscription:
