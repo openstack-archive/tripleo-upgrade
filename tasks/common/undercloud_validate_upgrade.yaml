@@ -22,8 +22,10 @@
 
 - name: handle undercloud reboot
   block:
+    # Reboot, and wait for 30 mins
     - name: Reboot the undercloud
-      import_tasks: undercloud_reboot.yaml
+      reboot:
+        reboot_timeout: 1800
 
     - name: assert UC services started
       shell: |
