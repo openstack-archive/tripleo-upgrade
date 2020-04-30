@@ -253,6 +253,6 @@ ceph3_registry_params:
 
 # stein registry parameters
 stein_registry_params:
-  namespace_stein: "rhos-qe-mirror-tlv.usersys.redhat.com:5002/rh-osbs"
+  namespace_stein: "{{ full_namespace }}"
   tag_stein: "20200115.1"
   name_prefix_stein: "rhosp15-openstack-"
