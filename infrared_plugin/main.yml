@@ -204,6 +204,11 @@
             nova_actions_check: true
           when: install.upgrade.nova.actions.check
 
+        - name: Set enforce_rhel
+          set_fact:
+            enforce_rhel: true
+          when: install.enforce.rhel
+
       tags:
         - always
   roles:

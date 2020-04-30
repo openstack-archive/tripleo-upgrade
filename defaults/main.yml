@@ -241,6 +241,9 @@ leapp_unregister: true
 
 leapp_skip_release_check: false
 
+# Avoid Rhel Enforcement policies.
+enforce_rhel: false
+
 # Compact system upgrade prepare and
 # system upgrade run into a single step
 system_upgrade_compact: true
