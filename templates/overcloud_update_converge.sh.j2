@@ -36,6 +36,9 @@ openstack overcloud update converge \
     {% if cli_converted_options|default(false)|bool -%}
     -e {{working_dir}}/cli_opts_params.yaml \
     {% endif -%}
+    {% if not ( enforce_rhel|bool ) -%}
+    -e {{ working_dir }}/skip_rhel_release.yaml \
+    {% endif -%}
     {% if config_heat_extra_yaml is defined -%}
     -e {{ working_dir }}/{{ install.deployment.files | basename }}/config_heat_extra.yaml \
     {% endif -%}

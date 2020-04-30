@@ -1,0 +1,16 @@
+---
+- name: Create the entry in undercloud.conf
+  ini_file:
+    path: "{{ working_dir }}/undercloud.conf"
+    section: DEFAULT
+    option: custom_env_files
+    value: "{{ working_dir }}/skip_rhel_release.yaml"
+
+- name: Create the heat parameter file for undercloud.
+  vars:
+    skip_rhel:
+      parameter_defaults:
+        SkipRhelEnforcement: true
+  copy:
+    content: "{{ skip_rhel | to_nice_yaml }}"
+    dest: "{{ working_dir }}/skip_rhel_release.yaml"

@@ -157,6 +157,11 @@ subparsers:
                       help: |
                           Directory containing the templates of the overcloud deployment.
                       default: virt
+                  enforce-rhel:
+                      type: Bool
+                      help: |
+                         Skip Rhel Enforcment, false by default, use only when registred.
+                      default: false
             - title: TripleO Options
               options:
                   overcloud-stack:

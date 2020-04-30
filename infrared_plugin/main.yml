@@ -208,6 +208,11 @@
           set_fact:
             rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
 
+        - name: Set enforce_rhel
+          set_fact:
+            enforce_rhel: true
+          when: install.enforce.rhel
+
       tags:
         - always
   roles:
