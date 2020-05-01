@@ -91,8 +91,10 @@
     {% if leapp_unsubscribed|bool %} {{ leapp_unsubscribed_options.stdout }} {% endif %} --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
+# Reboot, and wait for 30 mins
 - name: Reboot the undercloud
-  import_tasks: undercloud_reboot.yaml
+  reboot:
+    reboot_timeout: 1800
 
 - name: Unregister the node once the OS was upgraded if desired
   redhat_subscription:
