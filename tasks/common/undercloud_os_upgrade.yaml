@@ -44,6 +44,13 @@
   when:
     - not leapp_unsubscribed|bool
 
+- name: Add openvswitch into leapp's to_remove/to_install files
+  lineinfile:
+    path: "/etc/leapp/transaction/{{ item.file }}"
+    line: "{{ item.package }}"
+  loop:
+    - {file: 'to_remove', package: 'openvswitch2.11'}
+    - {file: 'to_install', package: 'openvswitch2.13'}
 
 - name: Download required leapp files
   get_url:
