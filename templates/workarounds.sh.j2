@@ -20,6 +20,7 @@ function usage {
 function apply_patch {
     local patch_dir=$1
     local patch_id=$2
+    local patch_strip=$3
     local temp_dir=''
 
     temp_dir=$( mktemp -d )
@@ -32,9 +33,9 @@ function apply_patch {
         exit 1
     fi
 
-    if sudo patch --dry-run --force -d ${patch_dir} -p1 < ${temp_dir}/patch.txt >/dev/null 2>&1
+    if sudo patch --dry-run --force -d ${patch_dir} -p${patch_strip} < ${temp_dir}/patch.txt >/dev/null 2>&1
     then
-        sudo patch -Ns  -d ${patch_dir} -p1 < ${temp_dir}/patch.txt
+        sudo patch -Ns  -d ${patch_dir} -p${patch_strip} < ${temp_dir}/patch.txt
     else
         echo "Patch ${patch_id} fails to apply - either already applied or you need to fix it."
     fi
@@ -111,12 +112,13 @@ done
 
 {% macro render_workarounds(workaround_var, workaround_name) -%}
 {% if workaround_name in item -%}
-{% for bugs in workaround_var -%}
-{% for key, value in bugs.items() -%}
+{%     for bugs in workaround_var -%}
+{%         for key, value in bugs.items() -%}
 echo {{ key }}
-{% if value.patch -%}
-apply_patch {{ value.basedir }} {{ value.id }}
-{% elif value.ansible_hosts is defined and  value.ansible_hosts != '' -%}
+{%             if value.patch -%}
+{%                 set _patch_strip = value.patch_strip | default(1, True) -%}
+apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_strip }}
+{%             elif value.ansible_hosts is defined and  value.ansible_hosts != '' -%}
 
 [ -d $HOME/ansible_workarounds ] || mkdir $HOME/ansible_workarounds
 
@@ -129,12 +131,12 @@ cat <<'EOF' > "$HOME/ansible_workarounds/{{ key }}.yaml"
 EOF
 
 ansible_patch {{ key }}
-{% else -%}
+{%             else -%}
 {{ value.command }}
-{% endif -%}
+{%             endif -%}
 ################################################################################
-{% endfor -%}
-{% endfor -%}
+{%         endfor -%}
+{%     endfor -%}
 {% endif -%}
 {% endmacro -%}
 

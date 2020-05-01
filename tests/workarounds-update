@@ -8,6 +8,7 @@ pre_undercloud_update_workarounds:
     - rhbz2:
         patch: true
         basedir: /usr/share/openstack-tripleo-heat-templates
+        patch_strip: 2
         id: 212321
         command:
     - rhbz3:
