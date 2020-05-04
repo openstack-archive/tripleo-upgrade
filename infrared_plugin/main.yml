@@ -204,6 +204,10 @@
             nova_actions_check: true
           when: install.upgrade.nova.actions.check
 
+        - name: Set rhsm_overcloud_env
+          set_fact:
+            rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
+
       tags:
         - always
   roles:

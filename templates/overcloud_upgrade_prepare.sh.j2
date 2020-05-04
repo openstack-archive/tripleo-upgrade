@@ -53,4 +53,9 @@ openstack overcloud upgrade prepare --stack {{ overcloud_stack_name }} \
     -e {{ upgrade_prepare_extra_params | join(' -e ') }} \
     {% endif -%}
     -e {{ working_dir }}/{{ uc_containers_prepare_file }} \
+    {% if rhsm_overcloud_env != '' -%}
+    # adding rhsm at the end so it overrides any other rhsm params passed.
+    -e {{ tht_directory }}/environments/rhsm.yaml \
+    -e {{ rhsm_overcloud_env }} \
+    {% endif -%}
     {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
