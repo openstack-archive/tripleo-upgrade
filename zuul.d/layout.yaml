@@ -12,7 +12,7 @@
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-containerized-undercloud-upgrades:
-            voting: true
+            voting: false
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-standalone-upgrade:
@@ -33,10 +33,6 @@
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-standalone-upgrade-stein:
-            dependencies:
-              - tripleo-upgrade-centos-7-molecule
-        - tripleo-ci-centos-7-containerized-undercloud-upgrades:
-            voting: true
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - openstack-tox-linters
