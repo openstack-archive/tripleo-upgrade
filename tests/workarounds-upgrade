@@ -3,6 +3,7 @@ pre_undercloud_upgrade_workarounds:
     - rhbz1:
         patch: true
         basedir: /home/stack/
+        patch_strip: 2
         id: 112233
         command:
     - rhbz2:
