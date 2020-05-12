@@ -13,6 +13,7 @@
 
 - name: set inventory facts
   set_fact:
+    inventory_rolemap: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_rolemap }}"
     inventory_hostmap: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_hostmap }}"
     inventory_roles: "{{ upgrade_tripleo_inventory.content | b64decode | to_inventory_roles }}"
 

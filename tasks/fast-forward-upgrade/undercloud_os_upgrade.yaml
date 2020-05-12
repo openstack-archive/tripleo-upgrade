@@ -1,0 +1,29 @@
+---
+- name: apply pre FFU undercloud OS upgrade workarounds
+  shell: |
+    set -o pipefail
+    bash pre_ffu_undercloud_os_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_undercloud_os_upgrade_workarounds.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: ffu_upgrade_workarounds|bool
+
+- name: Clean up httpd folder
+  become: true
+  become_user: root
+  file:
+    path: /etc/httpd
+    state: absent
+
+- name: Upgrade operating system
+  become: true
+  become_user: root
+  import_tasks: ../common/undercloud_os_upgrade.yaml
+  when: not use_oooq|bool
+
+- name: apply post FFU undercloud OS upgrade workarounds
+  shell: |
+    set -o pipefail
+    bash post_ffu_undercloud_os_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_undercloud_os_upgrade_workarounds.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: ffu_upgrade_workarounds|bool

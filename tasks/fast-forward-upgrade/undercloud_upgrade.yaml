@@ -1,0 +1,32 @@
+---
+- name: apply pre ffu undercloud upgrade workarounds
+  shell: |
+    set -o pipefail
+    bash pre_ffu_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > pre_ffu_undercloud_upgrade_workarounds.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: ffu_upgrade_workarounds|bool
+
+- name: configure container specific parameters
+  import_tasks: ../common/configure_uc_containers.yml
+
+- name: install/update required packages before upgrading the undercloud
+  become: true
+  become_user: root
+  import_tasks: ../common/undercloud_prerequisites.yaml
+
+- name: ffu undercloud upgrade
+  retries: 3
+  shell: |
+    set -o pipefail
+    bash {{ working_dir }}/ffu_undercloud_upgrade.sh 2>&1 {{ timestamper_cmd }} > ffu_undercloud_upgrade.log
+  args:
+    chdir: "{{ working_dir }}"
+
+- name: apply post ffu undercloud upgrade workarounds
+  shell: |
+    set -o pipefail
+    bash post_ffu_undercloud_upgrade_workarounds.sh 2>&1 {{ timestamper_cmd }} > post_ffu_undercloud_upgrade_workarounds.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: ffu_upgrade_workarounds|bool
