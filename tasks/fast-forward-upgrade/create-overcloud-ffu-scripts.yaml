@@ -131,6 +131,9 @@
 - name: import ssh_config_skip_host tasks
   import_tasks: ../common/ssh_config_skip_host.yml
 
+- name: Create post upgrade scripts for controller nodes
+  import_tasks: ../common/controller_post_scripts.yml
+
 - name: import create_l3_agent_connectivity_check_script tasks
   import_tasks: ../common/create_l3_agent_connectivity_check_script.yml
 
