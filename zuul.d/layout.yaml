@@ -39,6 +39,10 @@
       - zuul.d/playbooks/run.yml
     timeout: 1800
     voting: true
+    required-projects:
+      - name: openstack/ansible-role-openstack-operations
+      - name: openstack/ansible-config_template
+      - name: openstack/tripleo-ansible
 
 - job:
     files:
