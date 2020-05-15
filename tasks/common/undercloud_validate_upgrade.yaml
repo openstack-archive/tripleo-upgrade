@@ -26,6 +26,8 @@
     - name: Reboot the undercloud
       reboot:
         reboot_timeout: 1800
+      become: true
+      become_user: root
 
     - name: assert UC services started
       shell: |
