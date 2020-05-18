@@ -1,5 +1,6 @@
 ---
 # This is file and plugin.spec are required by Infrared project
+
 - hosts: undercloud
   gather_facts: true
   become: true
@@ -9,59 +10,210 @@
     # Explicit ansible_python_interpreter to allow connecting
     # to different OS releases (EL7/8) while using delegate_to.
     ansible_python_interpreter: /usr/libexec/platform-python
-    workload_launch: "{{ install.upgrade.workload | bool }}"
-    workload_memory: "{{ install.upgrade.workloadmemory }}"
-    workload_user: "{{ install.upgrade.workloaduser }}"
-    workload_disk: "{{ install.upgrade.workloaddisk }}"
-    workload_vcpu: "{{ install.upgrade.workloadvcpu }}"
-    workload_swap: "{{ install.upgrade.workloadswap }}"
-    undercloud_upgrade: "{{ install.undercloud.upgrade | bool }}"
-    undercloud_os_upgrade: "{{ install.undercloud.os.upgrade | bool }}"
-    undercloud_reboot: "{{ install.undercloud.reboot | bool }}"
-    overcloud_upgrade: "{{ install.overcloud.upgrade | bool }}"
-    upgrade_workarounds: "{{ install.upgrade.workarounds | bool }}"
-    upstream_container_images: "{{ install.upstream.container.images | bool }}"
-    use_local_docker_registry: "{{ install.upgrade.docker.local.registry | bool }}"
-    docker_registry_url: "{{ install.upgrade.docker.registry.url }}"
-    undercloud_update: "{{ install.undercloud.update | bool }}"
-    overcloud_update: "{{ install.overcloud.update | bool }}"
-    updates_workarounds: "{{ install.updates.workarounds | bool }}"
-    l3_agent_connectivity_check: "{{ install.upgrade.floatingip.check | bool }}"
-    compute_evacuate: "{{ install.upgrade.compute.evacuate | bool }}"
-    controller_reboot: "{{ install.upgrade.controller.reboot | bool }}"
-    controller_upgrade_post: "{{ install.upgrade.controller.post | bool }}"
-    force_reboot: "{{ install.upgrade.reboot.force | bool }}"
-    upgrade_remove_rpm: "{{ install.upgrade.remove.rpm | bool }}"
-    upgrade_hci: "{{ install.upgrade.hci | bool }}"
-    overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
-    overcloud_stack_name: "{{ install.overcloud.stack }}"
-    ffu_undercloud_os_upgrade: "{{ install.undercloud.ffu.os.upgrade | bool }}"
-    ffu_undercloud_upgrade: "{{ install.undercloud.ffu.upgrade | bool }}"
-    ffu_undercloud_releases: "{{ install.undercloud.ffu.releases }}"
-    ffu_undercloud_repo_type: "{{ install.undercloud.ffu.repo }}"
-    ffu_upgrade_workarounds: "{{ install.upgrade.ffu.workarounds | bool }}"
-    ffu_overcloud_upgrade: "{{ install.overcloud.ffu.upgrade | bool }}"
-    ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
-    ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
-    ffu_bulk: "{{ install.overcloud.ffu.bulk | bool }}"
-    ffu_computes_rolling: "{{ install.overcloud.ffu.compute.rolling }}"
-    overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
-    l3_agent_failover_check: "{{ install.upgrade.l3agent.failover.check | bool }}"
-    nova_actions_check: "{{ install.upgrade.nova.actions.check | bool }}"
-    rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
-    enforce_rhel: "{{ install.enforce.rhel | bool }}"
-  tasks:
+  pre_tasks:
     - block:
+        - name: Set upgrade workload launch
+          set_fact:
+            workload_launch: true
+          when: install.upgrade.workload
+
         - name: Set upgrade workload image
           set_fact:
             workload_image_url: "{{ install.upgrade.workloadimage }}"
           when: install.upgrade.workloadimage
 
+        - name: Set upgrade workload memory
+          set_fact:
+            workload_memory: "{{ install.upgrade.workloadmemory }}"
+
+        - name: Set upgrade workload user
+          set_fact:
+            workload_user: "{{ install.upgrade.workloaduser }}"
+
+        - name: Set upgrade workload disk size
+          set_fact:
+            workload_disk: "{{ install.upgrade.workloaddisk }}"
+
+        - name: Set upgrade workload vcpus
+          set_fact:
+            workload_vcpu: "{{ install.upgrade.workloadvcpu }}"
+
+        - name: Set upgrade workload swap
+          set_fact:
+            workload_swap: "{{ install.upgrade.workloadswap }}"
+
+        - name: Set undercloud upgrade
+          set_fact:
+            undercloud_upgrade: true
+          when: install.undercloud.upgrade
+
+        - name: Set undercloud operating system upgrade
+          set_fact:
+            undercloud_os_upgrade: true
+          when: install.undercloud.os.upgrade
+
+        - name: Set undercloud reboot
+          set_fact:
+            undercloud_reboot: true
+          when: install.undercloud.reboot
+
+        - name: Set overcloud upgrade
+          set_fact:
+            overcloud_upgrade: true
+          when: install.overcloud.upgrade
+
+        - name: Set upgrade workarounds
+          set_fact:
+            upgrade_workarounds: true
+          when: install.upgrade.workarounds
+
+        - name: Set upstream container images
+          set_fact:
+            upstream_container_images: false
+          when: not install.upstream.container.images
+
+        - name: Set use docker local registry
+          set_fact:
+            use_local_docker_registry: false
+          when: not install.upgrade.docker.local.registry
+
+        - name: Set docker registry url
+          set_fact:
+            docker_registry_url: "{{ install.upgrade.docker.registry.url }}"
+
+        - name: Set undercloud update
+          set_fact:
+            undercloud_update: true
+          when: install.undercloud.get('update', {})
+
+        - name: Set overcloud update
+          set_fact:
+            overcloud_update: true
+          when: install.overcloud.get('update', {})
+
+        - name: Set updates workarounds
+          set_fact:
+            updates_workarounds: true
+          when: install.updates.workarounds
+
+        - name: Set upgrade floating ip check
+          set_fact:
+            l3_agent_connectivity_check: true
+          when: install.upgrade.floatingip.check
+
+        - name: Set upgrade compute host evacuate
+          set_fact:
+            compute_evacuate: true
+          when: install.upgrade.compute.evacuate
+
         - name: Set deployment-files base
           set_fact:
             container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"
           when: install.deployment.files
+
+        - name: Set upgrade controller reboot
+          set_fact:
+            controller_reboot: true
+          when: install.upgrade.controller.reboot
+
+        - name: Set upgrade controller post
+          set_fact:
+            controller_upgrade_post: true
+          when: install.upgrade.controller.post
+
+        - name: Set upgrade force reboot
+          set_fact:
+            force_reboot: true
+          when: install.upgrade.reboot.force
+
+        - name: Set upgrade remove packages
+          set_fact:
+            upgrade_remove_rpm: true
+          when: install.upgrade.remove.rpm
+
+        - name: Set upgrade HCI
+          set_fact:
+            upgrade_hci: true
+          when: install.upgrade.hci
+
+        - name: Set overcloud credentials file
+          set_fact:
+            overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
+
+        - name: Set overcloud stack name
+          set_fact:
+            overcloud_stack_name: "{{ install.overcloud.stack }}"
+
+        - name: Set undercloud Operating System FFU upgrade
+          set_fact:
+            ffu_undercloud_os_upgrade: true
+          when: install.undercloud.ffu.os.upgrade
+
+        - name: Set undercloud FFU upgrade
+          set_fact:
+            ffu_undercloud_upgrade: true
+          when: install.undercloud.ffu.upgrade
+
+        - name: Set undercloud FFU upgrade releases
+          set_fact:
+            ffu_undercloud_releases: "{{ install.undercloud.ffu.releases }}"
+
+        - name: Set undercloud FFU upgrade repo
+          set_fact:
+            ffu_undercloud_repo_type: "{{ install.undercloud.ffu.repo }}"
+
+        - name: Set FFU upgrade workarounds
+          set_fact:
+            ffu_upgrade_workarounds: true
+          when: install.upgrade.ffu.workarounds
+
+        - name: Set overcloud FFU upgrade
+          set_fact:
+            ffu_overcloud_upgrade: true
+          when: install.overcloud.ffu.upgrade
+
+        - name: Set overcloud FFU upgrade releases
+          set_fact:
+            ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
+
+        - name: Set overcloud FFU upgrade repo
+          set_fact:
+            ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
+
+        - name: Set overcloud FFU bulk
+          set_fact:
+            ffu_bulk: false
+          when: not install.overcloud.ffu.bulk
+
+        - name: Set overcloud FFU compute rolling
+          set_fact:
+            ffu_computes_rolling: true
+          when: install.overcloud.ffu.compute.rolling
+
+        - name: Set overcloud ssh user name
+          set_fact:
+            overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
+
+        - name: Set upgrade l3 agent failover check
+          set_fact:
+            l3_agent_failover_check: true
+          when: install.upgrade.l3agent.failover.check
+
+        - name: Set upgrade nova_actions_check
+          set_fact:
+            nova_actions_check: true
+          when: install.upgrade.nova.actions.check
+
+        - name: Set rhsm_overcloud_env
+          set_fact:
+            rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
+
+        - name: Set enforce_rhel
+          set_fact:
+            enforce_rhel: true
+          when: install.enforce.rhel
+
       tags:
         - always
-    - include_role:
-        name: tripleo-upgrade
+  roles:
+    - tripleo-upgrade
