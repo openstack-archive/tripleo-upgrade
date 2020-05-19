@@ -2,52 +2,67 @@
 - set_fact:
     pcs_host: ""
 
+# The below filter chain does the following:
+# - Get the list of roles present in the pacemaker group, eg: ["ControllerOpenstack", "Database"]
+# - Get the list of hosts in each role into an array
+# - Sort the resulting list of hosts for each role
+# - Return a list of host lists. eg: [['ctrl-1', 'ctrl2', 'ctrl-3'], ['DB1']]
+# - OR if the role does not exist, it returns []
+- set_fact:
+    oc_role_host_list_pacemaker: >-
+      {{ (oc_roles_hosts|dict2items |
+          selectattr('key', 'in', inventory_rolemap['pacemaker'] | default([]))) |
+          map(attribute='value') | map('sort') | list }}
+
+# - Then with_together does a zip_longest to combine the list of lists,
+#   using None to fill the gaps. eg: [ctrl-1, DB1, ctrl2, None, ctrl-3, None]
+# - We take care of the possible [] value by replacing it with two empty lists.
 - name: upgrade pacemaker {{ item }}
   vars:
     host: "{{ item | reject('none') | join(',') }}"
     pcs_present: true
   include_tasks: overcloud_upgrade_hosts.yaml
-  # The below filter chain does the following:
-  # - Get the list of roles present in the pacemaker group, eg: ["ControllerOpenstack", "Database"]
-  # - Get the list of hosts in each role into an array
-  # - Sort the resulting list of hosts for each role
-  # - Return a list of host lists. eg: [['ctrl-1', 'ctrl2', 'ctrl-3'], ['DB1']]
-  # - Then with_together does a zip_longest to combine the list of lists,
-  #   using None to fill the gaps. eg: [ctrl-1, DB1, ctrl2, None, ctrl-3, None]
-  with_together: >
-    {{ oc_roles_hosts|dict2items |
-       selectattr('key', 'in', inventory_rolemap['pacemaker']) |
-       map(attribute='value') | map('sort') | list }}
+  with_together: "{{ (oc_role_host_list_pacemaker | length == 0) | ternary([[], []], oc_role_host_list_pacemaker) }}"
 
+# The below filter chain does the following:
+# - Get the list of roles NOT present in the pacemaker and nova_compute groups
+# - Get the list of hosts in each role into an array
+# - Sort the resulting list of hosts for each role
+# - Return a list of host lists
+# - OR if the role does not exist, it returns []
+- set_fact:
+    oc_role_host_list_not_pacemaker_or_nova_compute: >-
+      {{ ((oc_roles_hosts|dict2items |
+           rejectattr('key', 'in', inventory_rolemap['pacemaker'] | default([]))) |
+           rejectattr('key', 'in', inventory_rolemap['nova_compute'] | default([]))) |
+            map(attribute='value') | map('sort') | list }}
+
+# - Then with_together does a zip_longest to combine the list of lists,
+#   using None to fill the gaps.
+# - We take care of the possible [] value by replacing it with two empty lists.
 - name: upgrade non pacemaker and non compute {{ item }}
   vars:
     host: "{{ item | reject('none') | join(',') }}"
   include_tasks: overcloud_upgrade_hosts.yaml
-  # The below filter chain does the following:
-  # - Get the list of roles NOT present in the pacemaker and nova_compute groups
-  # - Get the list of hosts in each role into an array
-  # - Sort the resulting list of hosts for each role
-  # - Return a list of host lists
-  # - Then with_together does a zip_longest to combine the list of lists,
-  #   using None to fill the gaps.
-  with_together: >
-    {{ oc_roles_hosts|dict2items |
-       rejectattr('key', 'in', inventory_rolemap['pacemaker']) |
-       rejectattr('key', 'in', inventory_rolemap['nova_compute']) |
-       map(attribute='value') | map('sort') | list }}
+  with_together: "{{ (oc_role_host_list_not_pacemaker_or_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_not_pacemaker_or_nova_compute) }}"
 
+# The below filter chain does the following:
+# - Get the list of roles present in the nova_compute group
+# - Get the list of hosts in each role into an array
+# - Sort the resulting list of hosts for each role
+# - Return a list of host lists
+# - OR if the role does not exist, it returns []
+- set_fact:
+    oc_role_host_list_nova_compute: >-
+      {{ (oc_roles_hosts|dict2items |
+          selectattr('key', 'in', inventory_rolemap['nova_compute'] | default([]))) |
+           map(attribute='value') | map('sort') | list }}
+
+# - Then with_together does a zip_longest to combine the list of lists,
+#   using None to fill the gaps.
+# - We take care of the possible [] value by replacing it with two empty lists.
 - name: upgrade computes {{ item }}
   vars:
     host: "{{ item | reject('none') | join(',') }}"
   include_tasks: overcloud_upgrade_hosts.yaml
-  # The below filter chain does the following:
-  # - Get the list of roles present in the nova_compute group
-  # - Get the list of hosts in each role into an array
-  # - Sort the resulting list of hosts for each role
-  # - Return a list of host lists
-  # - Then with_together does a zip_longest to combine the list of lists,
-  #   using None to fill the gaps.
-  with_together: >
-    {{ oc_roles_hosts|dict2items |
-       selectattr('key', 'in', inventory_rolemap['nova_compute']) |
-       map(attribute='value') | map('sort') | list }}
+  with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"
