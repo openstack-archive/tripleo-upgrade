@@ -7,7 +7,7 @@
   become_user: root
   when: ceph_osd_enabled|bool
 
-- name: adjust role-data for R->S upgrade
+- name: adjust role-data for upgrade
   include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
 
