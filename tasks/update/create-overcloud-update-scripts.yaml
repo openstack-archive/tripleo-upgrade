@@ -1,6 +1,6 @@
 ---
 - name: Ensure we skip Rhel Enforcement
-  include_tasks: skip_rhel_enforcement.yaml
+  include_tasks: ../common/skip_rhel_enforcement.yaml
   when: not ( enforce_rhel|bool )
 
 - name: create a comptatible deployment scripts from oooq
