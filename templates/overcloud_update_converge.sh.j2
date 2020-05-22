@@ -4,9 +4,14 @@
 #
 set -euo pipefail
 
+CONVERGE_ANSWER=""
+if openstack overcloud update converge --help | grep -qe "--yes"; then
+    CONVERGE_ANSWER="--yes"
+fi
+
 source {{ undercloud_rc }}
 echo "Running minor update converge step"
-openstack overcloud update converge \
+openstack overcloud update converge ${CONVERGE_ANSWER} \
     {% if tripleo_upgrade_debug|bool -%}
     --debug \
     {% endif -%}
