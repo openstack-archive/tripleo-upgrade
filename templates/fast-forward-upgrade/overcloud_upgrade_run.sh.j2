@@ -26,13 +26,23 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
+EXTERNAL_ANSWER=""
+if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+
+RUN_ANSWER=""
+if openstack overcloud upgrade run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
+
 {% if transfer_data -%}
 
 if [ ! -f .system_upgrade_transfer_data ]; then
 
 echo "[$(date)] Started upgrade transfer data for {{ hosts }}"
 
-openstack overcloud external-upgrade run \
+openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --tags system_upgrade_transfer_data 2>&1 && touch .system_upgrade_transfer_data
 
@@ -44,7 +54,7 @@ fi
 
 echo "[$(date)] Started upgrade stop services for {{ hosts }}"
 
-openstack overcloud external-upgrade run \
+openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --tags system_upgrade_stop_services 2>&1
 
@@ -53,7 +63,7 @@ echo "[$(date)] Finished upgrade stop services for {{ hosts }}"
 
 echo "[$(date)] Running major upgrade for {{ hosts }} hosts"
 
-openstack overcloud upgrade run \
+openstack overcloud upgrade run ${RUN_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool %}
         --debug \

@@ -24,9 +24,14 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
+EXTERNAL_ANSWER=""
+if openstack overcloud external-update run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+
 echo "[$(date)] Started Ceph minor update step"
 
-openstack overcloud external-update run \
+openstack overcloud external-update run ${EXTERNAL_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     {% if overcloud_ssh_user != '' -%}
     --ssh-user {{ overcloud_ssh_user }} \
