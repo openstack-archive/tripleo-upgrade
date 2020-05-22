@@ -2,8 +2,13 @@
 #
 set -euo pipefail
 
+RUN_ANSWER=""
+if openstack overcloud upgrade run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
+
 source {{ undercloud_rc }}
-openstack overcloud upgrade run \
+openstack overcloud upgrade run ${RUN_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     {% if overcloud_ssh_user %}
     --ssh-user {{ overcloud_ssh_user }} \

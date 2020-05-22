@@ -23,9 +23,14 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
+EXTERNAL_ANSWER=""
+if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+
 echo "[$(date)] Major upgrade - Ceph upgrade step"
 
-openstack overcloud external-upgrade run \
+openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     {% if ceph_upgrade_skip_tags|default(false) -%}
     --skip-tags "{{ ceph_upgrade_skip_tags }}" \

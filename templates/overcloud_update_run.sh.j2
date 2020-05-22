@@ -4,6 +4,11 @@
 #
 set -euo pipefail
 
+RUN_ANSWER=""
+if openstack overcloud update run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
+
 source {{ undercloud_rc }}
 
 {% if overcloud_update_multibooks|bool %}
@@ -11,7 +16,7 @@ source {{ undercloud_rc }}
     {%- for playbook in overcloud_update_playbooks -%}
 
 echo "Running minor update {{ playbook }} playbook for {{ item }} role"
-openstack overcloud update run \
+openstack overcloud update run ${RUN_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
@@ -23,7 +28,7 @@ openstack overcloud update run \
 {% else %}
 
 echo "Running minor update all playbooks for {{ item }} role"
-openstack overcloud update run \
+openstack overcloud update run ${RUN_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
