@@ -217,14 +217,6 @@
             - '../common/l3_agent_failover_check_post_script.yml'
           tags: ffu_overcloud_ceph
 
-    ################ ONLINE DATA MIGRATIONS ###############
-    - name: run online data migration
-      args:
-        chdir: "{{ working_dir }}"
-      shell: |
-        set -o pipefail
-        bash overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_upgrade_data_migration.log
-
     ################ UPGRADE CONVERGE ###############
     - name: apply pre ffu overcloud converge workarounds
       shell: |
