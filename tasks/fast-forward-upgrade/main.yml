@@ -156,12 +156,9 @@
       tags: ffu_overcloud_run
 
     ############## OS upgrade + Overcloud node upgrade run ##############
-    - include_tasks: overcloud_upgrade_roles.yaml
-      loop: "{{ oc_roles }}"
-      loop_control:
-        loop_var: role
-      tags:
-        - always
+    - name: Start overcloud upgrade run for all roles.
+      import_tasks: overcloud_upgrade_roles.yaml
+      tags: ffu_overcloud_run
 
     - name: stop L3 connectivity script
       import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
