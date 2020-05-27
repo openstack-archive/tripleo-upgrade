@@ -9,6 +9,7 @@
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
+            voting: true
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-containerized-undercloud-upgrades:
@@ -30,6 +31,10 @@
       queue: tripleo
       jobs:
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
+            dependencies:
+              - tripleo-upgrade-centos-7-molecule
+        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
+            voting: true
             dependencies:
               - tripleo-upgrade-centos-7-molecule
         - tripleo-ci-centos-7-standalone-upgrade-stein:
