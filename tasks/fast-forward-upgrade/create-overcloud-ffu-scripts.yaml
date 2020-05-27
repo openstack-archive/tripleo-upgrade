@@ -121,13 +121,6 @@
   include_tasks: create-overcloud-ffu-hosts-scripts.yaml
   with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"
 
-- name: create online data migration script
-  template:
-    src: "overcloud_online_data_migration.sh.j2"
-    dest: "{{ working_dir }}/overcloud_online_data_migration.sh"
-    mode: 0755
-    force: true
-
 - name: create overcloud converge script
   vars:
     old_img: "{{ working_dir }}/{{ container_registry_file }}"
