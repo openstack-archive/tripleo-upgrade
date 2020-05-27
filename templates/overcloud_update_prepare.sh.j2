@@ -40,7 +40,7 @@ openstack overcloud update prepare --templates {{ tht_directory }} \
     -e {{ working_dir }}/{{ install.deployment.files | basename }}/config_heat_extra.yaml \
     {% endif -%}
     {% if rhsm_overcloud_env != '' -%}
-    # adding rhsm at the end so it overrides any other rhsm params passed.
+    {# adding rhsm at the end so it overrides any other rhsm params passed. -#}
     -e /usr/share/openstack-tripleo-heat-templates/environments/rhsm.yaml \
     -e {{ rhsm_overcloud_env }} \
     {% endif -%}
