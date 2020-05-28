@@ -19,6 +19,9 @@ openstack overcloud ceph-upgrade run \
     {% if tripleo_upgrade_validations_non_fatal|bool %}
     --validation-errors-nonfatal \
     {% endif %}
+    {% if network_data_file|length >0 -%}
+    -n {{ network_data_file }} \
+    {% endif -%}
     -e {{ working_dir }}/{{ container_registry_file }} \
     {% if roles_data != default_roles_data %}
     --roles-file {{ roles_data }}
