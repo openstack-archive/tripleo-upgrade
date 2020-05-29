@@ -36,9 +36,6 @@ openstack overcloud upgrade converge \
     {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
     {% endif -%}
-    {% if tripleo_upgrade_converge_plan_only|bool or ffu_overcloud_upgrade|bool -%}
-    --stack-only \
-    {% endif -%}
     --templates {{ tht_directory }} \
     --stack {{ overcloud_stack_name }} \
     {% if splitstack_deployment|bool -%}
