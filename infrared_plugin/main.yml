@@ -8,192 +8,194 @@
   become_user: stack
 
   pre_tasks:
+    - block:
+        - name: Set upgrade workload launch
+          set_fact:
+            workload_launch: true
+          when: install.upgrade.workload
 
-    - name: Set upgrade workload launch
-      set_fact:
-        workload_launch: true
-      when: install.upgrade.workload
+        - name: Set upgrade workload image
+          set_fact:
+            workload_image_url: "{{ install.upgrade.workloadimage }}"
+          when: install.upgrade.workloadimage
 
-    - name: Set upgrade workload image
-      set_fact:
-        workload_image_url: "{{ install.upgrade.workloadimage }}"
-      when: install.upgrade.workloadimage
+        - name: Set upgrade workload memory
+          set_fact:
+            workload_memory: "{{ install.upgrade.workloadmemory }}"
 
-    - name: Set upgrade workload memory
-      set_fact:
-        workload_memory: "{{ install.upgrade.workloadmemory }}"
+        - name: Set upgrade workload user
+          set_fact:
+            workload_user: "{{ install.upgrade.workloaduser }}"
 
-    - name: Set upgrade workload user
-      set_fact:
-        workload_user: "{{ install.upgrade.workloaduser }}"
+        - name: Set upgrade workload disk size
+          set_fact:
+            workload_disk: "{{ install.upgrade.workloaddisk }}"
 
-    - name: Set upgrade workload disk size
-      set_fact:
-        workload_disk: "{{ install.upgrade.workloaddisk }}"
+        - name: Set upgrade workload vcpus
+          set_fact:
+            workload_vcpu: "{{ install.upgrade.workloadvcpu }}"
 
-    - name: Set upgrade workload vcpus
-      set_fact:
-        workload_vcpu: "{{ install.upgrade.workloadvcpu }}"
+        - name: Set upgrade workload swap
+          set_fact:
+            workload_swap: "{{ install.upgrade.workloadswap }}"
 
-    - name: Set upgrade workload swap
-      set_fact:
-        workload_swap: "{{ install.upgrade.workloadswap }}"
+        - name: Set upgrade workload post_composable_upgrade launch
+          set_fact:
+            workload_launch_post_composable_upgrade: true
+          when: install.upgrade.postcomposable.workload
 
-    - name: Set upgrade workload post_composable_upgrade launch
-      set_fact:
-        workload_launch_post_composable_upgrade: true
-      when: install.upgrade.postcomposable.workload
+        - name: Set undercloud upgrade
+          set_fact:
+            undercloud_upgrade: true
+          when: install.undercloud.upgrade
 
-    - name: Set undercloud upgrade
-      set_fact:
-        undercloud_upgrade: true
-      when: install.undercloud.upgrade
+        - name: Set undercloud reboot
+          set_fact:
+            undercloud_reboot: true
+          when: install.undercloud.reboot
 
-    - name: Set undercloud reboot
-      set_fact:
-        undercloud_reboot: true
-      when: install.undercloud.reboot
+        - name: Set overcloud upgrade
+          set_fact:
+            overcloud_upgrade: true
+          when: install.overcloud.upgrade
 
-    - name: Set overcloud upgrade
-      set_fact:
-        overcloud_upgrade: true
-      when: install.overcloud.upgrade
+        - name: Set upgrade workarounds
+          set_fact:
+            upgrade_workarounds: true
+          when: install.upgrade.workarounds
 
-    - name: Set upgrade workarounds
-      set_fact:
-        upgrade_workarounds: true
-      when: install.upgrade.workarounds
+        - name: Set upstream container images
+          set_fact:
+            upstream_container_images: false
+          when: not install.upstream.container.images
 
-    - name: Set upstream container images
-      set_fact:
-        upstream_container_images: false
-      when: not install.upstream.container.images
+        - name: Set use docker local registry
+          set_fact:
+            use_local_docker_registry: false
+          when: not install.upgrade.docker.local.registry
 
-    - name: Set use docker local registry
-      set_fact:
-        use_local_docker_registry: false
-      when: not install.upgrade.docker.local.registry
+        - name: Set docker registry url
+          set_fact:
+            docker_registry_url: "{{ install.upgrade.docker.registry.url }}"
 
-    - name: Set docker registry url
-      set_fact:
-        docker_registry_url: "{{ install.upgrade.docker.registry.url }}"
+        - name: Set undercloud update
+          set_fact:
+            undercloud_update: true
+          when: install.undercloud.get('update', {})
 
-    - name: Set undercloud update
-      set_fact:
-        undercloud_update: true
-      when: install.undercloud.get('update', {})
+        - name: Set overcloud update
+          set_fact:
+            overcloud_update: true
+          when: install.overcloud.get('update', {})
 
-    - name: Set overcloud update
-      set_fact:
-        overcloud_update: true
-      when: install.overcloud.get('update', {})
+        - name: Set updates workarounds
+          set_fact:
+            updates_workarounds: true
+          when: install.updates.workarounds
 
-    - name: Set updates workarounds
-      set_fact:
-        updates_workarounds: true
-      when: install.updates.workarounds
+        - name: Set upgrade floating ip check
+          set_fact:
+            l3_agent_connectivity_check: true
+          when: install.upgrade.floatingip.check
 
-    - name: Set upgrade floating ip check
-      set_fact:
-        l3_agent_connectivity_check: true
-      when: install.upgrade.floatingip.check
+        - name: Set upgrade compute host evacuate
+          set_fact:
+            compute_evacuate: true
+          when: install.upgrade.compute.evacuate
 
-    - name: Set upgrade compute host evacuate
-      set_fact:
-        compute_evacuate: true
-      when: install.upgrade.compute.evacuate
+        - name: Set deployment-files base
+          set_fact:
+            container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"
+          when: install.deployment.files
 
-    - name: Set deployment-files base
-      set_fact:
-        container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"
-      when: install.deployment.files
+        - name: Set upgrade controller reboot
+          set_fact:
+            controller_reboot: true
+          when: install.upgrade.controller.reboot
 
-    - name: Set upgrade controller reboot
-      set_fact:
-        controller_reboot: true
-      when: install.upgrade.controller.reboot
+        - name: Set upgrade controller post
+          set_fact:
+            controller_upgrade_post: true
+          when: install.upgrade.controller.post
 
-    - name: Set upgrade controller post
-      set_fact:
-        controller_upgrade_post: true
-      when: install.upgrade.controller.post
+        - name: Set upgrade force reboot
+          set_fact:
+            force_reboot: true
+          when: install.upgrade.reboot.force
 
-    - name: Set upgrade force reboot
-      set_fact:
-        force_reboot: true
-      when: install.upgrade.reboot.force
+        - name: Set upgrade remove packages
+          set_fact:
+            upgrade_remove_rpm: true
+          when: install.upgrade.remove.rpm
 
-    - name: Set upgrade remove packages
-      set_fact:
-        upgrade_remove_rpm: true
-      when: install.upgrade.remove.rpm
+        - name: Set upgrade HCI
+          set_fact:
+            upgrade_hci: true
+          when: install.upgrade.hci
 
-    - name: Set upgrade HCI
-      set_fact:
-        upgrade_hci: true
-      when: install.upgrade.hci
+        - name: Set overcloud credentials file
+          set_fact:
+            overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
 
-    - name: Set overcloud credentials file
-      set_fact:
-        overcloud_rc: "{{ working_dir }}/{{ install.overcloud.stack }}rc"
+        - name: Set overcloud stack name
+          set_fact:
+            overcloud_stack_name: "{{ install.overcloud.stack }}"
 
-    - name: Set overcloud stack name
-      set_fact:
-        overcloud_stack_name: "{{ install.overcloud.stack }}"
+        - name: Set undercloud FFU upgrade
+          set_fact:
+            ffu_undercloud_upgrade: true
+          when: install.undercloud.ffu.upgrade
 
-    - name: Set undercloud FFU upgrade
-      set_fact:
-        ffu_undercloud_upgrade: true
-      when: install.undercloud.ffu.upgrade
+        - name: Set undercloud FFU upgrade releases
+          set_fact:
+            ffu_undercloud_releases: "{{ install.undercloud.ffu.releases }}"
 
-    - name: Set undercloud FFU upgrade releases
-      set_fact:
-        ffu_undercloud_releases: "{{ install.undercloud.ffu.releases }}"
+        - name: Set undercloud FFU upgrade repo
+          set_fact:
+            ffu_undercloud_repo_type: "{{ install.undercloud.ffu.repo }}"
 
-    - name: Set undercloud FFU upgrade repo
-      set_fact:
-        ffu_undercloud_repo_type: "{{ install.undercloud.ffu.repo }}"
+        - name: Set FFU upgrade workarounds
+          set_fact:
+            ffu_upgrade_workarounds: true
+          when: install.upgrade.ffu.workarounds
 
-    - name: Set FFU upgrade workarounds
-      set_fact:
-        ffu_upgrade_workarounds: true
-      when: install.upgrade.ffu.workarounds
+        - name: Set overcloud FFU upgrade
+          set_fact:
+            ffu_overcloud_upgrade: true
+          when: install.overcloud.ffu.upgrade
 
-    - name: Set overcloud FFU upgrade
-      set_fact:
-        ffu_overcloud_upgrade: true
-      when: install.overcloud.ffu.upgrade
+        - name: Set overcloud FFU upgrade releases
+          set_fact:
+            ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
 
-    - name: Set overcloud FFU upgrade releases
-      set_fact:
-        ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
+        - name: Set overcloud FFU upgrade repo
+          set_fact:
+            ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
 
-    - name: Set overcloud FFU upgrade repo
-      set_fact:
-        ffu_overcloud_repo_type: "{{ install.overcloud.ffu.repo }}"
+        - name: Set overcloud FFU bulk
+          set_fact:
+            ffu_bulk: false
+          when: not install.overcloud.ffu.bulk
 
-    - name: Set overcloud FFU bulk
-      set_fact:
-        ffu_bulk: false
-      when: not install.overcloud.ffu.bulk
+        - name: Set overcloud FFU compute rolling
+          set_fact:
+            ffu_computes_rolling: true
+          when: install.overcloud.ffu.compute.rolling
 
-    - name: Set overcloud FFU compute rolling
-      set_fact:
-        ffu_computes_rolling: true
-      when: install.overcloud.ffu.compute.rolling
+        - name: Set overcloud ssh user name
+          set_fact:
+            overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
 
-    - name: Set overcloud ssh user name
-      set_fact:
-        overcloud_ssh_user: "{{ install.overcloud.ssh.user }}"
+        - name: Set upgrade l3 agent failover check
+          set_fact:
+            l3_agent_failover_check: true
+          when: install.upgrade.l3agent.failover.check
 
-    - name: Set upgrade l3 agent failover check
-      set_fact:
-        l3_agent_failover_check: true
-      when: install.upgrade.l3agent.failover.check
-
-    - name: Set upgrade nova_actions_check
-      set_fact:
-        nova_actions_check: true
-      when: install.upgrade.nova.actions.check
+        - name: Set upgrade nova_actions_check
+          set_fact:
+            nova_actions_check: true
+          when: install.upgrade.nova.actions.check
+      tags:
+        - always
   roles:
     - tripleo-upgrade
