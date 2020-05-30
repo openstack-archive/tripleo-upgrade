@@ -1,6 +1,6 @@
 #!/bin/env bash
 #
-# Run major upgrade converge step on overcloud nodes
+# Run upgrade converge step on overcloud nodes
 #
 set -euo pipefail
 {% if l3_agent_connectivity_check|bool %}
@@ -25,11 +25,8 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 
 source {{ undercloud_rc }}
-echo "[$(date)] Running {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade converge step"
-openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgrade {% endif %}converge \
-    {% if ffu_overcloud_upgrade -%}
-        --yes \
-    {% endif -%}
+echo "[$(date)] Running upgrade converge step"
+openstack overcloud upgrade converge \
     {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \
     {% endif -%}
@@ -39,8 +36,8 @@ openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgra
     {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
     {% endif -%}
-    {% if tripleo_upgrade_converge_plan_only|bool -%}
-    --update-plan-only \
+    {% if tripleo_upgrade_converge_plan_only|bool or ffu_overcloud_upgrade|bool -%}
+    --stack-only \
     {% endif -%}
     --templates {{ tht_directory }} \
     --stack {{ overcloud_stack_name }} \
@@ -76,7 +73,7 @@ openstack overcloud {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} upgra
     {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
 
 
-echo "[$(date)] Finished {% if ffu_overcloud_upgrade %} ffwd-upgrade {% else %} major {% endif %}upgrade converge step"
+echo "[$(date)] Finished upgrade converge step"
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
     source {{ overcloud_rc }}
