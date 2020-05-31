@@ -21,7 +21,7 @@
 - name: store roles and register controller role name
   set_fact:
     oc_roles: "{{ oc_roles + inventory_roles }}"
-    controller_role_name: "{{ inventory_roles | map('regex_search', '^[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*$') | select('string') | list | last }}"
+    controller_role_name: "{{ inventory_roles | map('regex_search', '^[A-Za-z0-9]*[Cc]ontroller[A-Za-z0-9]*$') | select('string') | list | last | default('') }}"
 
 - name: store sorted roles with controller first(default)
   set_fact:
@@ -43,11 +43,13 @@
   when:
     - not update_cell|bool
     - not mock_environment|bool
+    - controller_role_name|length > 0
+
 
 - name: Create ordered Controller's host set (bootstrap node first)
   vars:
-    pcmkr_bootstrap_node: "{{ pcmkr_bootstrap_node_out.stdout|default(inventory_hostmap[controller_role_name]|first) }}"
-    controllers_from_inventory: "{{ inventory_hostmap[controller_role_name] | list }}"
+    pcmkr_bootstrap_node: "{{ (pcmkr_bootstrap_node_out|default(omit)).get('stdout', '') }}"
+    controllers_from_inventory: "{{ (inventory_hostmap[controller_role_name] | default('')) | list }}"
   set_fact:
     controllers_ordered: "{{ controllers_from_inventory|intersect([pcmkr_bootstrap_node]) + controllers_from_inventory|difference([pcmkr_bootstrap_node]) }}"
   when: not update_cell|bool
