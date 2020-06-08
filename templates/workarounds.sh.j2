@@ -20,12 +20,13 @@ function usage {
 function apply_patch {
     local patch_dir=$1
     local patch_id=$2
-    local patch_strip=$3
+    local patch_revision=$3
+    local patch_strip=$4
     local temp_dir=''
 
     temp_dir=$( mktemp -d )
 
-    curl -4 --retry 5 https://review.opendev.org/changes/${patch_id}/revisions/current/patch?download | \
+    curl -4 --retry 5 https://review.opendev.org/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
         base64 -d > ${temp_dir}/patch.txt
 
     if [[ ${?} -ne 0 ]] ; then
@@ -116,9 +117,10 @@ done
 {%         for key, value in bugs.items() -%}
 echo {{ key }}
 {%             if value.patch -%}
+{%                 set _patch_revision = value.patch_revision | default('current', True) -%}
 {%                 set _patch_strip = value.patch_strip | default(1, True) -%}
-apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_strip }}
-{%             elif value.ansible_hosts is defined and  value.ansible_hosts != '' -%}
+apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_revision }} {{ _patch_strip }}
+{%             elif value.ansible_hosts is defined and value.ansible_hosts != '' -%}
 
 [ -d $HOME/ansible_workarounds ] || mkdir $HOME/ansible_workarounds
 
