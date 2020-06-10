@@ -17,6 +17,11 @@
             workload_launch: true
           when: install.upgrade.workload
 
+        - name: Set upgrade workload cleanup
+          set_fact:
+            workload_cleanup: true
+          when: install.upgrade.workloadcleanup
+
         - name: Set upgrade workload image
           set_fact:
             workload_image_url: "{{ install.upgrade.workloadimage }}"
@@ -41,6 +46,15 @@
         - name: Set upgrade workload swap
           set_fact:
             workload_swap: "{{ install.upgrade.workloadswap }}"
+
+        - name: Set upgrade workload sriov
+          set_fact:
+            workload_sriov: true
+          when: install.upgrade.workloadsriov
+
+        - name: Set external network name
+          set_fact:
+            external_network_name: "{{ install.public.net.name }}"
 
         - name: Set undercloud upgrade
           set_fact:

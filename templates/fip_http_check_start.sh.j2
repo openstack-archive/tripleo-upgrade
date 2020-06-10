@@ -2,15 +2,19 @@
 
 set -euo pipefail
 
-if [[ ! -s {{ working_dir }}/fip.sh ]]; then
-    echo export FIP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1) > {{ working_dir }}/fip.sh
+if [[ ! -s {{ working_dir }}/vm_ip.sh ]]; then
+    {% if workload_sriov | bool %}
+    echo export VM_IP=$(openstack server list -f json | jq -r -c '.[0]["Networks"]' | cut -d"=" -f2) > {{ working_dir }}/vm_ip.sh
+    {% else %}
+    echo export VM_IP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1) > {{ working_dir }}/vm_ip.sh
+    {% endif %}
 fi
 
-source {{ working_dir }}/fip.sh
+source {{ working_dir }}/vm_ip.sh
 
 while true; do
     curl --location --silent --show-error --max-time 5 \
         --write-out "HTTP Code: %{http_code}\nTotal Time: %{time_total} sec\nEffective URL: %{url_effective}\n\n" \
-        http://${FIP}/ 2>/dev/null >> {{ working_dir }}/http_response.log
+        http://${VM_IP}/ 2>/dev/null >> {{ working_dir }}/http_response.log
     sleep 1
 done
