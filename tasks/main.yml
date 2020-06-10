@@ -12,7 +12,7 @@
       args:
         chdir: "{{ working_dir }}"
 
-  when: workload_launch
+  when: workload_launch|bool
 
 - include: upgrade/main.yml
   when: >
@@ -33,3 +33,11 @@
       ffu_undercloud_os_upgrade|bool or
       ffu_undercloud_upgrade|bool or
       ffu_overcloud_upgrade|bool
+
+- name: workload cleanup
+  shell: |
+    set -o pipefail
+    bash {{ workload_launch_script }} cleanup 2>&1 {{ timestamper_cmd }} > workload_cleanup.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: workload_cleanup|bool
