@@ -104,6 +104,10 @@ Set to true when the deployment has been done by tripleo quickstart::
 
 Set to true to launch an instance before starting upgrade. This can be useful for running tests during upgrade such as live migration or floating IP connectivity checks::
 
+    workload_cleanup: false
+
+Set to true to cleanup previously launched workload when update/upgrade finishes::
+
     external_network_name: "public"
 
 Name of the external network providing floating IPs for instance connectivity. This provides external connectivity and needs to exist beforehand, created by the user::
@@ -115,6 +119,10 @@ URL of the image used for the workload instance::
     workload_memory: "512"
 
 Amount of memory assigned for the workload instance::
+
+    workload_sriov: false
+
+Set to true to use an SRIOV PF port when workload is created. Notice this will not work with cirros images::
 
     tripleo_ci: false
 
