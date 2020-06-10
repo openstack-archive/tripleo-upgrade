@@ -51,6 +51,7 @@ timestamper_cmd: >-
 
 # launch workload before update/upgrade
 workload_launch: false
+workload_cleanup: false
 external_network_name: "public"
 workload_image_url: "https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img"
 workload_memory: "512"
@@ -67,6 +68,7 @@ overcloud_upgrade_prepare_template: overcloud_upgrade_prepare.sh.j2
 overcloud_upgrade_run_template: overcloud_upgrade_run.sh.j2
 overcloud_upgrade_converge_template: overcloud_upgrade_converge.sh.j2
 workload_launch_template: workload_launch.sh.j2
+workload_sriov: false
 
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"

@@ -2,8 +2,12 @@
 set -eux
 
 SERVER_ID=$(openstack server list -f json | jq -r -c '.[0] | .ID')
-SERVER_FIP=$(openstack server show -f json ${SERVER_ID} | jq -r -c '.addresses' | grep -oP ',.*' | sed s/,\ //)
 SERVER_SSH_USER={{ workload_user }}
+{% if workload_sriov | bool %}
+SERVER_IP=$(openstack server show -f json ${SERVER_ID} | jq -r -c '.["addresses"]' | cut -d"=" -f2)
+{% else %}
+SERVER_IP=$(openstack server show -f json ${SERVER_ID} | jq -r -c '.addresses' | grep -oP ',.*' | sed s/,\ //)
+{% endif %}
 
 ## reboot
 echo "Rebooting ${SERVER_ID} nova instance"
@@ -21,8 +25,8 @@ fi
 timeout_seconds=240
 elapsed_seconds=0
 while true; do
-    echo "Waiting for ${SERVER_ID} to be reachable over its floating IP"
-    INSTANCE_UPTIME=$(ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=1 ${SERVER_SSH_USER}@${SERVER_FIP} 'uptime' | awk {'print $3$4'} | sed s/,//)
+    echo "Waiting for ${SERVER_ID} to be reachable over its floating IP or external IP"
+    INSTANCE_UPTIME=$(ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=1 ${SERVER_SSH_USER}@${SERVER_IP} 'uptime' | awk {'print $3$4'} | sed s/,//)
     if [ "$INSTANCE_UPTIME" == '0min' ]; then
         echo "SUCCESS: ${SERVER_ID} nova instance successfully rebooted and is reachable via its floating IP"
         break

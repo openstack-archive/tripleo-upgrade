@@ -8,7 +8,7 @@
     - name: launch workload
       command: "{{ workload_launch_script }}"
 
-  when: workload_launch
+  when: workload_launch|bool
 
 - include: upgrade/main.yml
   when: upgrade_noop|bool or undercloud_upgrade|bool or overcloud_upgrade|bool
@@ -18,3 +18,11 @@
 
 - include: fast-forward-upgrade/main.yml
   when: ffu_noop|bool or ffu_undercloud_upgrade|bool or ffu_overcloud_upgrade|bool
+
+- name: workload cleanup
+  shell: |
+    set -o pipefail
+    bash {{ workload_launch_script }} cleanup 2>&1 {{ timestamper_cmd }} > workload_cleanup.log
+  args:
+    chdir: "{{ working_dir }}"
+  when: workload_cleanup|bool

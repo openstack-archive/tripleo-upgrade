@@ -39,11 +39,18 @@ subparsers:
                       help: |
                           Check floating ip connectivity during upgrade.
                           Note: This requires a running instance with attached floating ip and allowed icmp traffic.
+                          When upgrade-workloadsriov flag is set, external IP
+                          is used instead of FIP
                       default: false
                   upgrade-workload:
                       type: Bool
                       help: |
                           Launch workload before starting upgrade
+                      default: false
+                  upgrade-workloadcleanup:
+                      type: Bool
+                      help: |
+                          Cleanup previously launched workload when update/upgrade ends
                       default: false
                   upgrade-workloadimage:
                       type: Value
@@ -75,6 +82,15 @@ subparsers:
                       help: |
                           Swap size assigned to the instance spawned before upgrade
                       default: 512
+                  upgrade-workloadsriov:
+                      type: Bool
+                      help: |
+                          Workload is created with an SRIOV PF port
+                          This option is not supported with cirros images
+                          Correct values need to be set for upgrade-workloaduser,
+                          upgrade-workloaddisk, upgrade-workloadvcpu,
+                          upgrade-workloadmemory, upgrade-workloadimage
+                      default: false
                   upgrade-compute-evacuate:
                       type: Bool
                       help: |
@@ -130,6 +146,12 @@ subparsers:
                           Check Nova actions can be performed to an already existing
                           instance post upgrade.
                       default: false
+                  public-net-name:
+                      type: Value
+                      help: |
+                          Specifies the name of the public network.
+                          NOTE: If not provided it will use the default one for the OSP version
+                      default: public
             - title: TripleO Update
               options:
                   overcloud-update:
