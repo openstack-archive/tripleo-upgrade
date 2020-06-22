@@ -19,15 +19,14 @@
         path: "{{ ansible_user_dir }}/zuul-output/logs"
         state: directory
 
-    - name: Ensure pip is available
+    - name: Ensure virtualenv is available
       include_role:
-        name: ensure-pip
+        name: ensure-virtualenv
 
     - name: Setup bindep
       pip:
         name: "bindep"
         virtualenv: "{{ ansible_user_dir }}/test-python"
-        virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
 
     - name: Run bindep
@@ -40,7 +39,6 @@
       pip:
         requirements: "{{ tripleo_upgrade_project_path }}/molecule/molecule-requirements.txt"
         virtualenv: "{{ ansible_user_dir }}/test-python"
-        virtualenv_command: "{{ ensure_pip_virtualenv_command }}"
         virtualenv_site_packages: true
 
     - name: Change role requirements to use zuul sources, if any are available
