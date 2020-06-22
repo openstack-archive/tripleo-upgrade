@@ -19,6 +19,10 @@
         path: "{{ ansible_user_dir }}/zuul-output/logs"
         state: directory
 
+    - name: Ensure virtualenv is available
+      include_role:
+        name: ensure-virtualenv
+
     - name: Setup bindep
       pip:
         name: "bindep"
