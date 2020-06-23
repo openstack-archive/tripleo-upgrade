@@ -38,6 +38,13 @@ openstack overcloud external-upgrade run \
 
 echo "[$(date)] Finished upgrade transfer data for {{ hosts }}"
 
+echo "[$(date)] Setting up hybrid state for computes"
+openstack overcloud upgrade run \
+        --stack {{ overcloud_stack_name }} \
+        --playbook upgrade_steps_playbook.yaml \
+        --tags nova_hybrid_state --limit all 2>&1
+echo "[$(date)] Finished setting up hybrid state for computes"
+
 fi
 
 {% elif stop_services -%}
