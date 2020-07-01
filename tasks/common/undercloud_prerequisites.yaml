@@ -13,3 +13,14 @@
       - "openstack-tripleo-heat-templates"
       - "openstack-tripleo-validations"
     state: latest
+
+- name: get installed package fact
+  package_facts:
+    manager: "auto"
+
+- name: Update Ceph Ansible prior upgrade
+  package:
+    name:
+      - "ceph-ansible"
+    state: latest
+  when: "'ceph-ansible' in ansible_facts.packages"
