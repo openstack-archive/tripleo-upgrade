@@ -21,6 +21,7 @@
   vars:
     host: "{{ item | reject('none') | join(',') }}"
     pcs_present: true
+    compute_present: false
   include_tasks: overcloud_upgrade_hosts.yaml
   with_together: "{{ (oc_role_host_list_pacemaker | length == 0) | ternary([[], []], oc_role_host_list_pacemaker) }}"
 
@@ -43,6 +44,7 @@
 - name: upgrade non pacemaker and non compute {{ item }}
   vars:
     host: "{{ item | reject('none') | join(',') }}"
+    compute_present: false
   include_tasks: overcloud_upgrade_hosts.yaml
   with_together: "{{ (oc_role_host_list_not_pacemaker_or_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_not_pacemaker_or_nova_compute) }}"
 
@@ -64,5 +66,6 @@
 - name: upgrade computes {{ item }}
   vars:
     host: "{{ item | reject('none') | join(',') }}"
+    compute_present: true
   include_tasks: overcloud_upgrade_hosts.yaml
   with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"

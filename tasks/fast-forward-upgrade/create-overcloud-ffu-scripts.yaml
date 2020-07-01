@@ -75,12 +75,14 @@
 #   using None to fill the gaps.
 # - We take care of the possible [] value by replacing it with two empty lists.
 - name: create pacemaker based overcloud system upgrade script for {{ item }}
+  vars:
+    pcs_present: true
+    compute_present: false
   include_tasks: create-overcloud-ffu-hosts-scripts.yaml
   with_together: "{{ (oc_role_host_list_pacemaker | length == 0) | ternary([[], []], oc_role_host_list_pacemaker) }}"
 
 - set_fact:
     pcs_upgrade_hosts: ""
-    pcs_present: false
 
 # The below filter chain does the following:
 # - Get the list of roles NOT present in the pacemaker and nova_compute groups
@@ -99,6 +101,9 @@
 #   using None to fill the gaps.
 # - We take care of the possible [] value by replacing it with two empty lists.
 - name: create non-pacemaker and non-compute based overcloud system upgrade script for {{ item }}
+  vars:
+    pcs_present: false
+    compute_present: false
   include_tasks: create-overcloud-ffu-hosts-scripts.yaml
   with_together: "{{ (oc_role_host_list_not_pacemaker_or_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_not_pacemaker_or_nova_compute) }}"
 
@@ -118,6 +123,9 @@
 #   using None to fill the gaps.
 # - We take care of the possible [] value by replacing it with two empty lists.
 - name: create compute based overcloud system upgrade script for {{ item }}
+  vars:
+    pcs_present: false
+    compute_present: true
   include_tasks: create-overcloud-ffu-hosts-scripts.yaml
   with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"
 
