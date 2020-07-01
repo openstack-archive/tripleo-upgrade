@@ -3,6 +3,16 @@
     pcs_upgrade_hosts: "{{ item | reject('none') |  join(',') + ',' + pcs_upgrade_hosts }}"
   when: pcs_present
 
+- name: create compute pre upgrade script for {{ item }}
+  when: compute_present|bool
+  vars:
+    node_name: "{{ item | reject('none') | join(',') }}"
+  template:
+    src: "node_upgrade_pre.sh.j2"
+    dest: "{{ node_name }}_upgrade_pre.sh"
+    mode: 0775
+    force: true
+
 - name: create overcloud system upgrade script for {{ item }}
   vars:
     hosts: "{{ item | reject('none') | join(',') }}"
