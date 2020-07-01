@@ -14,8 +14,8 @@ sudo tripleo-repos {{ cmd_args }} ceph
 sudo systemctl stop openstack-* neutron-* httpd
 sudo yum update -y instack-undercloud openstack-puppet-modules openstack-tripleo-common python-tripleoclient
 {% else %}
-sudo yum -y install ceph-ansible
-sudo yum -y update python-tripleoclient
+rpm -q ceph-ansible && yum -y upgrade ceph-ansible || yum install -y ceph-ansible
+sudo yum -y update {{ (current_release < 15) | ternary('python-tripleoclient', 'python3-tripleoclient') }}
 {% endif %}
 
 openstack undercloud upgrade &> {{ working_dir }}/undercloud_upgrade_{{ current_release }}.log
