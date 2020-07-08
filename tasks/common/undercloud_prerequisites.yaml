@@ -8,7 +8,7 @@
 - name: Update needed packages prior the undercloud upgrade
   package:
     name:
-      - "{{ 'python-tripleoclient' if use_oooq|bool else 'python3-tripleoclient' }}"
+      - "{{ (ansible_python.version.major is version('3', '>=')) | ternary('python3-tripleoclient', 'python-tripleoclient') }}"
       - "openstack-tripleo-common"
       - "openstack-tripleo-heat-templates"
       - "openstack-tripleo-validations"
