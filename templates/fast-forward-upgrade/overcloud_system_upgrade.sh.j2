@@ -2,16 +2,26 @@
 #
 # Run overcloud Operating System upgrade on overcloud node {{ hosts }}
 #
-
 set -euo pipefail
-source {{ undercloud_rc }}
 
+source {{ undercloud_rc }}
 
 {% if ceph_osd_enabled -%}
 if [ ! -f .ceph_ran_{{ hosts }} ]; then
+
+EXTERNAL_ANSWER=""
+if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+
+RUN_ANSWER=""
+if openstack overcloud upgrade run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
+
 echo "[$(date)] Started ceph systemd units migration run for {{ hosts }}"
 
-openstack overcloud external-upgrade run \
+openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --skip-tags validation,opendev-validation-ceph,opendev-validation \
         --stack {{ overcloud_stack_name }} \
         --tags ceph_systemd \
@@ -23,7 +33,7 @@ fi
 
 echo "[$(date)] Started system upgrade step for {{ hosts }}"
 
-openstack overcloud upgrade run \
+openstack overcloud upgrade run ${RUN_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade \

@@ -4,10 +4,16 @@
 #
 set -euo pipefail
 
+PREPARE_ANSWER=""
+if openstack overcloud upgrade prepare --help | grep -qe "--yes"; then
+    PREPARE_ANSWER="--yes"
+fi
+
 source {{undercloud_rc }}
 
 echo "Running major upgrade prepare step"
-openstack overcloud upgrade prepare --stack {{ overcloud_stack_name }} \
+openstack overcloud upgrade prepare ${PREPARE_ANSWER} \
+    --stack {{ overcloud_stack_name }} \
     --templates {{ tht_directory }} \
     {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \

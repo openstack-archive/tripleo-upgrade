@@ -11,8 +11,13 @@ set -euo pipefail
 
 source {{undercloud_rc }}
 
+EXTERNAL_ANSWER=""
+if openstack overcloud external-{{ operation_type }} run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+
 echo "[$(date)] Start preparing container images for overcloud {{ operation_type }}"
 
-openstack overcloud external-{{ operation_type }} run \
+openstack overcloud external-{{ operation_type }} run ${EXTERNAL_ANSWER} \
     --stack {{ overcloud_stack_name }} \
     --tags container_image_prepare 2>&1
