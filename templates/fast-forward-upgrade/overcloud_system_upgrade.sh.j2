@@ -14,11 +14,6 @@ if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
     EXTERNAL_ANSWER="--yes"
 fi
 
-RUN_ANSWER=""
-if openstack overcloud upgrade run --help | grep -qe "--yes"; then
-    RUN_ANSWER="--yes"
-fi
-
 echo "[$(date)] Started ceph systemd units migration run for {{ hosts }}"
 
 openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
@@ -30,6 +25,11 @@ openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
 echo "[$(date)] Finished ceph systemd units migration run for {{ hosts }}"
 fi
 {% endif -%}
+
+RUN_ANSWER=""
+if openstack overcloud upgrade run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
 
 echo "[$(date)] Started system upgrade step for {{ hosts }}"
 
