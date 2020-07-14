@@ -3,6 +3,7 @@
 # Run upgrade converge step on overcloud nodes
 #
 set -euo pipefail
+
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
     source {{ overcloud_rc }}
@@ -25,8 +26,14 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 
 source {{ undercloud_rc }}
+
+CONVERGE_ANSWER=""
+if openstack overcloud upgrade converge --help | grep -qe "--yes"; then
+    CONVERGE_ANSWER="--yes"
+fi
+
 echo "[$(date)] Running upgrade converge step"
-openstack overcloud upgrade converge \
+openstack overcloud upgrade converge ${CONVERGE_ANSWER} \
     {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \
     {% endif -%}

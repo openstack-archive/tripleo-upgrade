@@ -18,4 +18,9 @@ rpm -q ceph-ansible && yum -y upgrade ceph-ansible || yum install -y ceph-ansibl
 sudo yum -y update {{ (current_release < 15) | ternary('python-tripleoclient', 'python3-tripleoclient') }}
 {% endif %}
 
-openstack undercloud upgrade &> {{ working_dir }}/undercloud_upgrade_{{ current_release }}.log
+UPGRADE_ANSWER=""
+if openstack undercloud upgrade --help | grep -qe "--yes"; then
+    UPGRADE_ANSWER="--yes"
+fi
+
+openstack undercloud upgrade ${UPGRADE_ANSWER} &> {{ working_dir }}/undercloud_upgrade_{{ current_release }}.log

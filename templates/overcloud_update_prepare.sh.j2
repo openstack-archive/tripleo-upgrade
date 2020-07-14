@@ -4,10 +4,16 @@
 #
 set -euo pipefail
 
+PREPARE_ANSWER=""
+if openstack overcloud update prepare --help | grep -qe "--yes"; then
+    PREPARE_ANSWER="--yes"
+fi
+
 # FIXME: Remove --validation-errors-nonfatal. In local testing it was
 # not necessary but in RDO cloud validations seem to produce errors.
 echo "Setting up HEAT's output for minor update"
-openstack overcloud update prepare --templates {{ tht_directory }} \
+openstack overcloud update prepare ${PREPARE_ANSWER} \
+    --templates {{ tht_directory }} \
     --stack {{ overcloud_stack_name }} \
     {% if overcloud_ssh_user != '' -%}
     --overcloud-ssh-user {{ overcloud_ssh_user }} \

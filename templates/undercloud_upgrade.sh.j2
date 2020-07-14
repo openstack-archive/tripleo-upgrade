@@ -3,8 +3,9 @@
 # Perform undercloud upgrade and related steps
 set -euo pipefail
 
-{% if containerized_undercloud_upgrade|bool %}
-openstack undercloud upgrade -y
-{% else %}
-openstack undercloud upgrade
-{% endif %}
+UPGRADE_ANSWER=""
+if openstack undercloud upgrade --help | grep -qe "--yes"; then
+    UPGRADE_ANSWER="--yes"
+fi
+
+openstack undercloud upgrade ${UPGRADE_ANSWER}
