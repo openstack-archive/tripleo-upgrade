@@ -7,7 +7,7 @@
 {% elif overcloud_upgrade|bool or upgrade_noop|bool or ffu_overcloud_upgrade|bool or ffu_noop|bool -%}
 {% set operation_type = 'upgrade' -%}
 {% endif -%}
-set -euo pipefail
+set -eu
 
 source {{undercloud_rc }}
 
@@ -15,6 +15,7 @@ EXTERNAL_ANSWER=""
 if openstack overcloud external-{{ operation_type }} run --help | grep -qe "--yes"; then
     EXTERNAL_ANSWER="--yes"
 fi
+set -o pipefail
 
 echo "[$(date)] Start preparing container images for overcloud {{ operation_type }}"
 

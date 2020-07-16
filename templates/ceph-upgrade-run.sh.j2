@@ -23,10 +23,12 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
+set +o pipefail
 EXTERNAL_ANSWER=""
 if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
     EXTERNAL_ANSWER="--yes"
 fi
+set -o pipefail
 
 echo "[$(date)] Major upgrade - Ceph upgrade step"
 
