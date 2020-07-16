@@ -2,12 +2,13 @@
 #
 # Setup HEAT's output
 #
-set -euo pipefail
+set -eu
 
 PREPARE_ANSWER=""
 if openstack overcloud update prepare --help | grep -qe "--yes"; then
     PREPARE_ANSWER="--yes"
 fi
+set -o pipefail
 
 # FIXME: Remove --validation-errors-nonfatal. In local testing it was
 # not necessary but in RDO cloud validations seem to produce errors.

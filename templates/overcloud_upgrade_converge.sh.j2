@@ -2,7 +2,7 @@
 #
 # Run upgrade converge step on overcloud nodes
 #
-set -euo pipefail
+set -eu
 
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
@@ -31,6 +31,7 @@ CONVERGE_ANSWER=""
 if openstack overcloud upgrade converge --help | grep -qe "--yes"; then
     CONVERGE_ANSWER="--yes"
 fi
+set -o pipefail
 
 echo "[$(date)] Running upgrade converge step"
 openstack overcloud upgrade converge ${CONVERGE_ANSWER} \

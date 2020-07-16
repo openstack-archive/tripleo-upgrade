@@ -1,11 +1,12 @@
 #!/bin/bash
 #
-set -euo pipefail
+set -eu
 
 RUN_ANSWER=""
 if openstack overcloud upgrade run --help | grep -qe "--yes"; then
     RUN_ANSWER="--yes"
 fi
+set -o pipefail
 
 source {{ undercloud_rc }}
 openstack overcloud upgrade run ${RUN_ANSWER} \

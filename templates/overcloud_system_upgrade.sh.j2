@@ -3,7 +3,7 @@
 # Run overcloud Operating System upgrade on overcloud node {{ item }}
 #
 
-set -euo pipefail
+set -eu
 
 source {{ undercloud_rc }}
 
@@ -16,6 +16,7 @@ RUN_ANSWER=""
 if openstack overcloud upgrade run --help | grep -qe "--yes"; then
     RUN_ANSWER="--yes"
 fi
+set -o pipefail
 
 {% if enabled_services[role]|intersect(['ceph_osd','ceph_mon','ceph_mgr'])|length > 0 -%}
 

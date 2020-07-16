@@ -2,12 +2,13 @@
 #
 # Run minor update on overcloud nodes
 #
-set -euo pipefail
+set -eu
 
 RUN_ANSWER=""
 if openstack overcloud update run --help | grep -qe "--yes"; then
     RUN_ANSWER="--yes"
 fi
+set -o pipefail
 
 source {{ undercloud_rc }}
 

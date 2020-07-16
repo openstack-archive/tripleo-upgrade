@@ -1,7 +1,5 @@
 #!/bin/env bash
 set -euo pipefail
-
-set -euo pipefail
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
     source {{ overcloud_rc }}
@@ -24,10 +22,12 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
+set +o pipefail
 EXTERNAL_ANSWER=""
 if openstack overcloud external-update run --help | grep -qe "--yes"; then
     EXTERNAL_ANSWER="--yes"
 fi
+set -o pipefail
 
 echo "[$(date)] Started Ceph minor update step"
 
