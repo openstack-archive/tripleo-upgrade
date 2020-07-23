@@ -46,7 +46,7 @@ echo "[$(date)] Finished CEPH minor update"
 {% if l3_agent_connectivity_check|bool %}
 if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
     source {{ overcloud_rc }}
-    bash {{ working_dir }}/l3_agent_stop_ping.sh
+    bash {{ working_dir }}/l3_agent_stop_ping.sh {{ update_loss_threshold }}
 fi
 {% endif %}
 

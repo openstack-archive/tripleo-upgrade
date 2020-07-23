@@ -238,8 +238,13 @@ oc_roles_hosts: {}
 # Roles upgrade order
 roles_upgrade_order: '__undefined__'
 
-# Packet loss threshold for a ping test
-loss_threshold: 1
+# Packet loss threshold for a ping test in seconds.
+loss_threshold: 60
+# and in %
+loss_threshold_percent: 1
+
+# default for update run tasks
+update_loss_threshold: 0
 
 # Leapp OS upgrade variables
 #
