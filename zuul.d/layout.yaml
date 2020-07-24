@@ -5,26 +5,23 @@
       - openstack-tox-molecule
     check:
       jobs:
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
+        - tripleo-ci-centos-8-scenario000-multinode-oooq-container-updates-train:
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
             voting: true
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - tripleo-ci-centos-7-containerized-undercloud-upgrades:
             voting: false
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - tripleo-ci-centos-7-standalone-upgrade:
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
-        - tripleo-ci-centos-7-standalone-upgrade-stein:
-            dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
-        - tripleo-upgrade-centos-7-molecule:
+        - tripleo-upgrade-centos-8-molecule:
             dependencies:
               - tripleo-tox-molecule
     gate:
@@ -32,17 +29,14 @@
       jobs:
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
             voting: true
             dependencies:
-              - tripleo-upgrade-centos-7-molecule
-        - tripleo-ci-centos-7-standalone-upgrade-stein:
-            dependencies:
-              - tripleo-upgrade-centos-7-molecule
+              - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
-        - tripleo-upgrade-centos-7-molecule:
+        - tripleo-upgrade-centos-8-molecule:
             dependencies:
               - tripleo-tox-molecule
     post:
@@ -51,8 +45,8 @@
 
 - job:
     description: Base tripleo-upgrade job
-    name: tripleo-upgrade-centos-7-base
-    nodeset: centos-7
+    name: tripleo-upgrade-centos-8-base
+    nodeset: centos-8
     parent: base
     success-url: "reports.html"
     failure-url: "reports.html"
@@ -71,5 +65,5 @@
 - job:
     files:
       - ^.*
-    name: tripleo-upgrade-centos-7-molecule
-    parent: tripleo-upgrade-centos-7-base
+    name: tripleo-upgrade-centos-8-molecule
+    parent: tripleo-upgrade-centos-8-base
