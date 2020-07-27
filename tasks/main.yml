@@ -3,7 +3,7 @@
 
 - block:
     - name: prepare workload scripts
-      include: common/create_workload.yml
+      include_tasks: common/create_workload.yml
 
     - name: launch workload
       shell: |
@@ -11,28 +11,31 @@
         bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
       args:
         chdir: "{{ working_dir }}"
-
   when: workload_launch|bool
+  tags: always
 
-- include: upgrade/main.yml
+- include_tasks: upgrade/main.yml
   when: >
       upgrade_noop|bool or
       undercloud_upgrade|bool or
       undercloud_os_upgrade|bool or
       overcloud_upgrade|bool
+  tags: always
 
-- include: update/main.yml
+- include_tasks: update/main.yml
   when: >
       update_noop|bool or
       undercloud_update|bool or
       overcloud_update|bool
+  tags: always
 
-- include: fast-forward-upgrade/main.yml
+- include_tasks: fast-forward-upgrade/main.yml
   when: >
       ffu_noop|bool or
       ffu_undercloud_os_upgrade|bool or
       ffu_undercloud_upgrade|bool or
       ffu_overcloud_upgrade|bool
+  tags: always
 
 - name: workload cleanup
   shell: |
