@@ -15,6 +15,7 @@
      qemu-img-rhev
      rabbit*
      redis*
+     python3*
      --
      -*openvswitch*
      -python-docker
