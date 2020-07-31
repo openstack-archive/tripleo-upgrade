@@ -34,6 +34,11 @@
      -python2-requests
      -python2-six
      -python2-urllib3
+     -python-httplib2
+     -python-passlib
+     -python2-netaddr
+     -ceph-ansible
+
 
 - name: Install leapp
   package:
@@ -44,13 +49,17 @@
   when:
     - not leapp_unsubscribed|bool
 
-- name: Add openvswitch into leapp's to_remove/to_install files
+- name: "Add packages into leapp's to_remove/to_install/to_keep files"
   lineinfile:
     path: "/etc/leapp/transaction/{{ item.file }}"
     line: "{{ item.package }}"
   loop:
-    - {file: 'to_remove', package: 'openvswitch2.11'}
-    - {file: 'to_install', package: 'openvswitch2.13'}
+    - file: 'to_remove'
+      package: 'openvswitch2.11'
+    - file: 'to_install'
+      package: 'openvswitch2.13'
+    - file: 'to_keep'
+      package: 'ceph-ansible'
 
 - name: Download required leapp files
   get_url:
@@ -85,7 +94,7 @@
 
 - name: Get enablerepo line for leapp
   shell: |
-      yum repolist -q 2> /dev/null | grep -e rhos-16 -e 'rhel-8.*baseos'  -e 'rhel-8.*appstream' -e 'rhel-8.*fdp' -e 'rhel-8.*av' -e 'ceph-4' | cut -d '/' -f1 | \
+      yum repolist -q 2> /dev/null | grep -e rhos-16 -e 'rhel-8.*baseos'  -e 'rhel-8.*appstream' -e 'rhel-8.*fdp' -e 'rhel-8.*av' -e 'ansible' | cut -d '/' -f1 | \
       awk '{print "--enablerepo " $0 " "}' | tr  -d '\n'
   when: leapp_unsubscribed|bool
   register: leapp_unsubscribed_options
@@ -97,6 +106,11 @@
     {% if leapp_skip_release_check|bool %} LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade \
     {% if leapp_unsubscribed|bool %} {{ leapp_unsubscribed_options.stdout }} {% endif %} --debug 2>&1 | \
         tee {{ working_dir }}/undercloud_leapp_upgrade.log
+
+- name: Relabel SELinux for filesystem after reboot.
+  file:
+    path: /.autorelabel
+    state: touch
 
 # Reboot, and wait for 30 mins
 - name: Reboot the undercloud
