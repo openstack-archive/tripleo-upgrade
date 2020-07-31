@@ -137,6 +137,21 @@ Bash commands, defines a custom upgrade init to be taken into account during ove
 
 Set it to true to get a multi-cell update.  It changes the way the oc_roles_hosts is calculated.
 
+     l3_agent_connectivity_check: false
+
+When set to true add a vm with attached fip and monitor ping from the undercloud.  If ping loss time is higher than `loss_threshold` seconds or `loss_threshold_percent` in percentage we fail.
+
+     update_loss_threshold: 0
+
+For update run tasks we set a 0 seconds loss threshold by default.
+
+     loss_threshold: 60
+
+Default time is second for ping loss.
+
+     loss_threshold_percent: 1
+
+Failsafe percentage check for loss threashold in percentage
 
 Dependencies
 ------------
