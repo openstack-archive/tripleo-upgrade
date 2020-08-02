@@ -51,6 +51,12 @@
     regexp: '(\s+)(- OS::TripleO::Services::HAproxy$)'
     replace: '\1\2\1- OS::TripleO::Services::ContainerImagePrepare'
 
+- name: add BootParams service
+  replace:
+    path: "{{ roles_data }}"
+    regexp: '(\s+)(- OS::TripleO::Services::AuditD$)'
+    replace: '\1\2\1- OS::TripleO::Services::BootParams'
+
 - name: drop deprecated telemetry services
   replace:
     dest: "{{ roles_data }}"
