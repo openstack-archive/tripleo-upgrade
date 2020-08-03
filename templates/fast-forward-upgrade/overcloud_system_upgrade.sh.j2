@@ -17,7 +17,6 @@ fi
 echo "[$(date)] Started ceph systemd units migration run for {{ hosts }}"
 
 openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
-        --skip-tags validation,opendev-validation-ceph,opendev-validation \
         --stack {{ overcloud_stack_name }} \
         --tags ceph_systemd \
         -e ceph_ansible_limit={{ hosts }} 2>&1 && touch .ceph_ran_{{ hosts }}
@@ -35,7 +34,6 @@ echo "[$(date)] Started system upgrade step for {{ hosts }}"
 
 openstack overcloud upgrade run ${RUN_ANSWER} \
         --stack {{ overcloud_stack_name }} \
-        --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade \
         --limit {{ hosts }} 2>&1
 
