@@ -55,7 +55,7 @@ openstack overcloud upgrade converge ${CONVERGE_ANSWER} \
     {% endif -%}
     {% if initial_env_file is defined and initial_env_file.stdout_lines|length > 0 -%}
     {% for _env in initial_env_file.stdout_lines|difference(old_img|default([])) -%}
-        -e {{ _env }} \
+        -e {{ _env  | replace('services-docker', 'services') }} \
     {% endfor -%}
     {% endif -%}
     {% if ffu_overcloud_upgrade and deployment_with_ha_upstream -%}
