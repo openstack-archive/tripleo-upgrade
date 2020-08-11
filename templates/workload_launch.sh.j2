@@ -56,6 +56,7 @@ function sanity_teardown {
     {% else %}
     echo "Remove ${INSTANCE_FIP} from ${INSTANCE_NAME}"
     openstack server remove floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
+    grep ${INSTANCE_FIP} vm_ip.sh  && rm vm_ip.sh
 
     echo "Delete floating ip ${INSTANCE_FIP}"
     openstack floating ip delete ${INSTANCE_FIP}

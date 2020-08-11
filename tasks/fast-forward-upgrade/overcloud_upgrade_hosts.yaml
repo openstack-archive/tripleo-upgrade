@@ -10,13 +10,13 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
-- name: launch workload
+- name: run the pre upgrade script for the host {{ host }}
+  when: compute_present|bool
   shell: |
     set -o pipefail
-    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
-  args:
-    chdir: "{{ working_dir }}"
-  when: workload_launch|bool
+    bash {{working_dir}}/{{ host }}_upgrade_pre.sh 2>&1 {{ timestamper_cmd }} > \
+        {{ working_dir }}/{{ host }}_upgrade_pre.log
+  tags: ffu_overcloud_system_upgrade
 
 - name: run the RHEL upgrade steps for the host {{ host }}
   retries: 2
