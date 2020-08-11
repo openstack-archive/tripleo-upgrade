@@ -19,3 +19,5 @@
 
 - name: import tasks from l3_agent_connectivity_check_stop_script
   import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
+  vars:
+    current_stage_error: "{{ update_loss_threshold }}"
