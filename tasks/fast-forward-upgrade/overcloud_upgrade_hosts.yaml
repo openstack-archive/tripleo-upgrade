@@ -24,7 +24,7 @@
   until: overcloud_system_upgrade_res.rc == 0
   shell: |
     set -o pipefail
-    bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} > \
+    bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} >> \
         {{ working_dir }}/overcloud_system_upgrade_{{ host }}.log
   register: overcloud_system_upgrade_res
   ignore_errors: true
@@ -63,12 +63,12 @@
     pcs_host: "{{ upgrade_host | regex_replace(',$', '') }}"
 
 - name: run overcloud major upgrade for the host {{ pcs_host if pcs_present else host }}
-  retries: 3
+  retries: 2
   delay: 1
   until: overcloud_upgrade_res.rc == 0
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} > \
+    bash {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} >> \
         {{ working_dir }}/overcloud_upgrade_run_{{ pcs_host if pcs_present else host }}.log
   register: overcloud_upgrade_res
   ignore_errors: true
