@@ -93,6 +93,14 @@
       tags: ffu_upgrade_playbook
       become: true
 
+    - name: launch workload
+      shell: |
+        set -o pipefail
+        bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+      args:
+        chdir: "{{ working_dir }}"
+      when: workload_launch|bool
+
     - name: start L3 verification scripts
       include_tasks: "{{ item }}"
       args:
