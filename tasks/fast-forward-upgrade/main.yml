@@ -254,8 +254,8 @@
       args:
         apply:
           tags:
-            - controller_post_upgrade
-      tags: controller_post_upgrade
+            - ffu_overcloud_post
+      tags: ffu_overcloud_post
       when: controller_upgrade_post|bool
 
     - name: run post upgrade nova actions
