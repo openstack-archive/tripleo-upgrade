@@ -159,28 +159,40 @@
         - '../common/l3_agent_failover_check_post_script.yml'
       tags: ffu_overcloud_prepare
 
-    - name: start L3 connectivity script
-      import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
-      tags: ffu_overcloud_run
+    #    This l3 check code is for now commented out for two reasons:
+    #    1) There is separate ping test in overcloud upgrade run which
+    #       will be running at the same time, but the cleanup script runs
+    #       kill -s INT $(pidof ping) which will kill them both and than
+    #       we will fail on the final cleanup.
+    #    2) The workload creation and cleanup scripts work in simillar
+    #       way. The workload cleanup does not check which workload we
+    #       are cleaning specifically but it just removes first one on
+    #       the list which in our case will be the host we are pinging
+    #       here.
+    #    - name: start L3 verification scripts
+    #      include_tasks: "{{ item }}"
+    #      args:
+    #        apply:
+    #          tags: ffu_overcloud_run
+    #      loop:
+    #        - '../common/l3_agent_connectivity_check_start_script.yml'
+    #        - '../common/l3_agent_failover_check_pre_script.yml'
+    #      tags: ffu_overcloud_run
 
     ############## OS upgrade + Overcloud node upgrade run ##############
     - name: Start overcloud upgrade run for all roles.
       import_tasks: overcloud_upgrade_roles.yaml
       tags: ffu_overcloud_run
 
-    - name: stop L3 connectivity script
-      import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
-      tags: ffu_overcloud_run
-
-    # TODO(jfrancoa): We might need to do something like this to make the job quicker.
-    # we can either upgrade all overcloud nodes at one or per role/node
-    # - name: upgrade all overcloud nodes at once
-    #   include_tasks: overcloud_bulk.yaml
-    #   args:
-    #     apply:
-    #       tags: ffu_overcloud_upgrade_bulk
-    #   tags: ffu_overcloud_upgrade_bulk
-    #   when: ffu_bulk|bool
+    #    - name: stop L3 verification scripts
+    #      include_tasks: "{{ item }}"
+    #      args:
+    #        apply:
+    #          tags: ffu_overcloud_run
+    #      loop:
+    #        - '../common/l3_agent_connectivity_check_stop_script.yml'
+    #        - '../common/l3_agent_failover_check_post_script.yml'
+    #      tags: ffu_overcloud_run
 
     ################ UPGRADE CONVERGE ###############
     - name: apply pre ffu overcloud converge workarounds
@@ -221,8 +233,14 @@
           include_tasks: ../upgrade/ceph_upgrade_run.yml
           tags: ffu_overcloud_ceph
 
-        - name: start L3 connectivity script
-          import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
+        - name: start L3 verification scripts
+          include_tasks: "{{ item }}"
+          args:
+            apply:
+              tags: ffu_overcloud_ceph
+          loop:
+            - '../common/l3_agent_connectivity_check_start_script.yml'
+            - '../common/l3_agent_failover_check_pre_script.yml'
           tags: ffu_overcloud_ceph
 
         - name: import ceph ugrade tasks
