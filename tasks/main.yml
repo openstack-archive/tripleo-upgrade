@@ -1,16 +1,17 @@
 ---
 # tasks file for tripleo-upgrade
 
-- block:
-    - name: prepare workload scripts
-      include_tasks: common/create_workload.yml
+- name: prepare workload scripts
+  include_tasks: common/create_workload.yml
+  when: workload_launch|bool or launch_sanity_workload|bool
+  tags: always
 
-    - name: launch workload
-      shell: |
-        set -o pipefail
-        bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
-      args:
-        chdir: "{{ working_dir }}"
+- name: launch workload
+  shell: |
+    set -o pipefail
+    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+  args:
+    chdir: "{{ working_dir }}"
   when: workload_launch|bool
   tags: always
 

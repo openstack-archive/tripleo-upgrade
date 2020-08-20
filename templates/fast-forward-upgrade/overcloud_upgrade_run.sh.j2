@@ -98,6 +98,6 @@ source {{ overcloud_rc }}
 kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
 bash {{ working_dir }}/fip_http_check_stop.sh
 {% endif %}
-{% if launch_sanity_workload|bool and workload_launch|bool %}
+{% if launch_sanity_workload|bool %}
 bash {{ working_dir }}/workload_launch.sh 'sanity'
 {% endif %}
