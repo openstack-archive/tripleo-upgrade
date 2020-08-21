@@ -233,15 +233,26 @@
           include_tasks: ../upgrade/ceph_upgrade_run.yml
           tags: ffu_overcloud_ceph
 
-        - name: start L3 verification scripts
-          include_tasks: "{{ item }}"
-          args:
-            apply:
-              tags: ffu_overcloud_ceph
-          loop:
-            - '../common/l3_agent_connectivity_check_start_script.yml'
-            - '../common/l3_agent_failover_check_pre_script.yml'
-          tags: ffu_overcloud_ceph
+        # This l3 check code is for now commented out for two reasons:
+        # 1) There is separate ping test in overcloud upgrade run which
+        #    will be running at the same time, but the cleanup script runs
+        #    kill -s INT $(pidof ping) which will kill them both and than
+        #    we will fail on the final cleanup.
+        # 2) The workload creation and cleanup scripts work in simillar
+        #    way. The workload cleanup does not check which workload we
+        #    are cleaning specifically but it just removes first one on
+        #    the list which in our case will be the host we are pinging
+        #    here.
+        #
+        # - name: start L3 verification scripts
+        #   include_tasks: "{{ item }}"
+        #   args:
+        #     apply:
+        #       tags: ffu_overcloud_ceph
+        #   loop:
+        #     - '../common/l3_agent_connectivity_check_start_script.yml'
+        #     - '../common/l3_agent_failover_check_pre_script.yml'
+        #   tags: ffu_overcloud_ceph
 
         - name: import ceph ugrade tasks
           import_tasks: ../upgrade/ceph_upgrade_run.yml
@@ -256,15 +267,15 @@
           when: ffu_upgrade_workarounds|bool
           tags: ffu_overcloud_ceph
 
-        - name: stop L3 verification scripts
-          include_tasks: "{{ item }}"
-          args:
-            apply:
-              tags: ffu_overcloud_ceph
-          loop:
-            - '../common/l3_agent_connectivity_check_stop_script.yml'
-            - '../common/l3_agent_failover_check_post_script.yml'
-          tags: ffu_overcloud_ceph
+    #   - name: stop L3 verification scripts
+    #     include_tasks: "{{ item }}"
+    #     args:
+    #       apply:
+    #         tags: ffu_overcloud_ceph
+    #     loop:
+    #       - '../common/l3_agent_connectivity_check_stop_script.yml'
+    #       - '../common/l3_agent_failover_check_post_script.yml'
+    #    tags: ffu_overcloud_ceph
 
     ############## POST UPGRADE ##############
     - name: run controller post upgrade steps
