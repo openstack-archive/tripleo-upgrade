@@ -19,9 +19,6 @@
   tags: ffu_overcloud_system_upgrade
 
 - name: run the RHEL upgrade steps for the host {{ host }}
-  retries: 2
-  delay: 1
-  until: overcloud_system_upgrade_res.rc == 0
   shell: |
     set -o pipefail
     bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} >> \
@@ -63,9 +60,6 @@
     pcs_host: "{{ upgrade_host | regex_replace(',$', '') }}"
 
 - name: run overcloud major upgrade for the host {{ pcs_host if pcs_present else host }}
-  retries: 2
-  delay: 1
-  until: overcloud_upgrade_res.rc == 0
   shell: |
     set -o pipefail
     bash {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} >> \
