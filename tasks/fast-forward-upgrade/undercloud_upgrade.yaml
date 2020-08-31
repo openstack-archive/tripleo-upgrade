@@ -16,7 +16,6 @@
   import_tasks: ../common/undercloud_prerequisites.yaml
 
 - name: ffu undercloud upgrade
-  retries: 3
   shell: |
     set -o pipefail
     bash {{ working_dir }}/ffu_undercloud_upgrade.sh 2>&1 {{ timestamper_cmd }} > ffu_undercloud_upgrade.log
