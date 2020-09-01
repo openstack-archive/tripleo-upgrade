@@ -39,6 +39,7 @@
      -python-passlib
      -python2-netaddr
      -ceph-ansible
+     -python2-chardet
 
 
 - name: Install leapp
