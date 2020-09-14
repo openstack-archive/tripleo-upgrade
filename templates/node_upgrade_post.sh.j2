@@ -68,26 +68,15 @@ fi
 {% if compute_evacuate %}
 {% if 'compute' in node_name %}
 source {{ overcloud_rc }}
-## Detect if ceph shared storage was used
-STORAGE_BACKEND=$(openstack volume service list -f json | jq -r -c '.[] | select(.Binary | contains("cinder-volume")) | .Host' | sed s/hostgroup@tripleo_//)
 {% for instance in node_instances.stdout_lines %}
-if [ $STORAGE_BACKEND == 'ceph' ]; then
-    nova live-migration {{ instance }} {{ node_name }}
-else
-    nova live-migration --block-migrate {{ instance }} {{ node_name }}
-fi
+nova live-migration {{ instance }} {{ node_name }}
 timeout_seconds=120
 elapsed_seconds=0
 while true; do
-    if [ $STORAGE_BACKEND == 'ceph' ]; then
-        echo "Shared storage live migrating {{ instance }} back to {{ node_name }} ..."
-        ## Live migration might not complete on the first run so we run it multiple times
-        ## until the instance ends back on the originating host
-        nova live-migration {{ instance }} {{ node_name }}
-    else
-        echo "Block migrating {{ instance }} back to {{ node_name }} ..."
-        nova live-migration --block-migrate {{ instance }} {{ node_name }}
-    fi
+    echo "Live migrating {{ instance }} back to {{ node_name }} ..."
+    ## Live migration might not complete on the first run so we run it multiple times
+    ## until the instance ends back on the originating host
+    nova live-migration {{ instance }} {{ node_name }}
     INSTANCE_HOST=$(openstack server show {{ instance }} -f value -c OS-EXT-SRV-ATTR:host)
     if [ $INSTANCE_HOST == '{{ node_name }}' ]; then
         break
