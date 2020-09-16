@@ -13,4 +13,16 @@ else
     {% endif %}
     source {{ working_dir }}/vm_ip.sh
 fi
+
+# Block 1 minute for the fip to be ready.
+cpt=1
+while ! ping -c 1 -w 1 "${VM_IP}"; do
+    echo "Waiting for fip to be ready ... for $cpt seconds"
+    if [ $cpt -gt 60 ]; then
+        echo "The fip ${VM_IP} took more than 1 minute to be available, aborting"
+        exit 1
+    fi
+    cpt=$((cpt+1))
+done
+
 ping -D ${VM_IP} >> ~/ping_results_$(date +%Y%m%d%H%M).log &
