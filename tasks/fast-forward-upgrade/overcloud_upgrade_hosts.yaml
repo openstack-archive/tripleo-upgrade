@@ -3,10 +3,11 @@
 - name: apply pre ffu overcloud system upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
-    bash {{ working_dir }}/pre_ffu_overcloud_os_upgrade_workarounds.sh \
-      --limit {{ host}} 2>&1 {{ timestamper_cmd }} > pre_ffu_overcloud_os_upgrade_workarounds_{{ host }}.log
+    ./pre_ffu_overcloud_os_upgrade_workarounds.sh \
+      --limit {{ host }} 2>&1 {{ timestamper_cmd }} >> pre_ffu_overcloud_os_upgrade_workarounds_{{ host }}.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
@@ -14,15 +15,20 @@
   when: compute_present|bool
   shell: |
     set -o pipefail
-    bash {{working_dir}}/{{ host }}_upgrade_pre.sh 2>&1 {{ timestamper_cmd }} > \
-        {{ working_dir }}/{{ host }}_upgrade_pre.log
+    ./{{ host }}_upgrade_pre.sh 2>&1 {{ timestamper_cmd }} >> {{ host }}_upgrade_pre.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   tags: ffu_overcloud_system_upgrade
 
 - name: run the RHEL upgrade steps for the host {{ host }}
   shell: |
     set -o pipefail
-    bash {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} >> \
-        {{ working_dir }}/overcloud_system_upgrade_{{ host }}.log
+    {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} >> \
+        {{ overcloud_system_upgrade_script_base }}-{{ host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_system_upgrade_res
   ignore_errors: true
   tags: ffu_overcloud_system_upgrade
@@ -35,10 +41,11 @@
 - name: apply post ffu overcloud system upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
-    bash {{ working_dir }}/post_ffu_overcloud_os_upgrade_workarounds.sh \
-      --limit {{ host}} 2>&1 {{ timestamper_cmd }} > post_ffu_overcloud_os_upgrade_workarounds_{{ host }}.log
+    ./post_ffu_overcloud_os_upgrade_workarounds.sh --limit {{ host }} 2>&1 {{ timestamper_cmd }} >> \
+        post_ffu_overcloud_os_upgrade_workarounds_{{ host }}.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
@@ -46,10 +53,11 @@
 - name: apply pre ffu overcloud upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
-    bash {{ working_dir }}/pre_ffu_overcloud_upgrade_workarounds.sh \
-      --limit {{ host}} 2>&1 {{ timestamper_cmd }} > pre_ffu_overcloud_upgrade_workarounds_{{ host }}.log
+    ./pre_ffu_overcloud_upgrade_workarounds.sh --limit {{ host }} 2>&1 {{ timestamper_cmd }} >> \
+        pre_ffu_overcloud_upgrade_workarounds_{{ host }}.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_upgrade_run
 
@@ -62,8 +70,11 @@
 - name: run overcloud major upgrade for the host {{ pcs_host if pcs_present else host }}
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} >> \
-        {{ working_dir }}/overcloud_upgrade_run_{{ pcs_host if pcs_present else host }}.log
+    {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.sh 2>&1 {{ timestamper_cmd }} >> \
+        {{ overcloud_upgrade_run_script_base }}-{{ pcs_host if pcs_present else host }}.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_upgrade_res
   ignore_errors: true
   tags: ffu_overcloud_upgrade_run
@@ -76,9 +87,10 @@
 - name: apply post ffu overcloud upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
-    bash {{ working_dir }}/post_ffu_overcloud_upgrade_workarounds.sh \
-      --limit {{ host}} 2>&1 {{ timestamper_cmd }} > post_ffu_overcloud_upgrade_workarounds_{{ host }}.log
+    ./post_ffu_overcloud_upgrade_workarounds.sh --limit {{ host }} 2>&1 {{ timestamper_cmd }} >> \
+        post_ffu_overcloud_upgrade_workarounds_{{ host }}.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_upgrade_run
