@@ -2,6 +2,9 @@
 - name: "run overcloud major upgrade for the role {{ item }}"
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} > \
-        {{ working_dir }}/overcloud_upgrade_run_{{ item }}.log
+    {{ overcloud_upgrade_run_script_base }}-{{ item }}.sh 2>&1 {{ timestamper_cmd }} >> \
+        {{ overcloud_upgrade_run_script_base }}-{{ item }}.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_upgrade_nodes

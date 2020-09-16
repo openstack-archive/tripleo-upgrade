@@ -9,9 +9,10 @@
 - name: launch workload
   shell: |
     set -o pipefail
-    bash {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} > workload_launch.log
+    {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} >> workload_launch.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: workload_launch|bool
   tags: always
 
@@ -41,7 +42,8 @@
 - name: workload cleanup
   shell: |
     set -o pipefail
-    bash {{ workload_launch_script }} cleanup 2>&1 {{ timestamper_cmd }} > workload_cleanup.log
+    {{ workload_launch_script }} cleanup 2>&1 {{ timestamper_cmd }} >> workload_cleanup.log
   args:
     chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   when: workload_cleanup|bool

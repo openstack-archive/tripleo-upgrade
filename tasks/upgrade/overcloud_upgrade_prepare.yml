@@ -37,8 +37,11 @@
 - name: setup HEAT outputs via upgrade prepare
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
-        {{ working_dir }}/overcloud_upgrade_prepare.log
+    {{ overcloud_upgrade_prepare_script }} 2>&1 {{ timestamper_cmd }} >> \
+        overcloud_upgrade_prepare.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_upgrade_prepare
   ignore_errors: true
 
@@ -48,14 +51,20 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
-        tee {{ working_dir }}/overcloud_failed_upgrade_prepare.log
+        tee -a overcloud_failed_upgrade_prepare.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
 
     - name: print resource list
       shell: |
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} \
-        2>&1 {{ timestamper_cmd }} | tee {{ working_dir }}/overcloud_failed_prepare_resources.log
+        2>&1 {{ timestamper_cmd }} | tee -a overcloud_failed_prepare_resources.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
 
     - name: was the overcloud upgrade preparation successful.
       fail: msg="Overcloud upgrade preparation step failed... :("
