@@ -31,7 +31,7 @@
 
     - name: assert UC services started
       shell: |
-        source {{ undercloud_rc }} ;
+        source {{ undercloud_rc }}
         timeout 10 openstack stack list -f value -c "Stack Name"
       ignore_errors: true
       register: oc_name
