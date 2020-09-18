@@ -1,14 +1,8 @@
 {% if compute_evacuate %}
 source {{ overcloud_rc }}
-## Detect if ceph shared storage was used
-STORAGE_BACKEND=$(openstack volume service list -f json | jq -r -c '.[] | select(.Binary | contains("cinder-volume")) | .Host' | sed s/hostgroup@tripleo_//)
 ## Get exact hostname
 HOST=$(openstack compute service list -f value -c Host | grep {{ node_name }} )
-if [ $STORAGE_BACKEND == 'ceph' ]; then
-    nova host-evacuate-live ${HOST}
-else
-    nova host-evacuate-live --block-migrate ${HOST}
-fi
+nova host-evacuate-live ${HOST}
 
 timeout_seconds=120
 elapsed_seconds=0
