@@ -25,4 +25,16 @@ while ! ping -c 1 -w 1 "${VM_IP}"; do
     cpt=$((cpt+1))
 done
 
-ping -D ${VM_IP} >> ~/ping_results_$(date +%Y%m%d%H%M).log &
+# NOTE: the &>> is necessary as if we don't redirect both
+# stdout and stderr we will make any script using this one to
+# hang until ping finishes. Meaning if some script crashes
+# and should fail in CI it will get stuck if we don't redirect
+# both outputs.
+# bash
+#    \ bash <script>
+#    \ &| awk blah
+# If script runs l3 start test and than runs something that fails
+# we will make the awk wait until this ping exits as it will hold
+# the output pipes. So again &>> instead of >> is necessary.
+
+ping -D ${VM_IP} &>> ~/ping_results_$(date +%Y%m%d%H%M).log &

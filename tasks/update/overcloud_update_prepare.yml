@@ -3,8 +3,11 @@
   shell: |
     set -o pipefail
     source {{ undercloud_rc }}
-    bash {{ overcloud_update_prepare_script }} 2>&1 {{ timestamper_cmd }} > \
-      {{ working_dir }}/overcloud_update_prepare.log
+    {{ overcloud_update_prepare_script }} 2>&1 {{ timestamper_cmd }} >> \
+      overcloud_update_prepare.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_update_prepare
   ignore_errors: true
 
@@ -14,14 +17,20 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} {{ timestamper_cmd }} | \
-          tee {{ working_dir }}/overcloud_failed_update_prepare.log
+          tee -a overcloud_failed_update_prepare.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
 
     - name: print resource list
       shell: |
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack resource list --filter status=FAILED --nested-depth 5 {{ overcloud_stack_name }} {{ timestamper_cmd }} | \
-          tee {{ working_dir }}/overcloud_failed_prepare_resources.log
+          tee -a overcloud_failed_prepare_resources.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
 
     - name: was the overcloud update prepare successful.
       fail: msg="Overcloud minor update preparation step failed..."
