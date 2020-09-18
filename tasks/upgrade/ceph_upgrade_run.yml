@@ -2,8 +2,11 @@
 - name: run Ceph upgrade
   shell: |
     set -o pipefail
-    bash {{ working_dir }}/ceph-upgrade-run.sh 2>&1 {{ timestamper_cmd }} > \
-      {{ working_dir }}/ceph-upgrade-run.log
+    ./ceph-upgrade-run.sh 2>&1 {{ timestamper_cmd }} >> \
+      ceph-upgrade-run.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   ignore_errors: true
   register: ceph_upg_status
 
