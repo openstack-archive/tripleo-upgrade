@@ -2,8 +2,11 @@
 - name: run major upgrade converge step
   shell: |
     set -o pipefail
-    bash {{ overcloud_upgrade_converge_script }} 2>&1 {{ timestamper_cmd }} > \
-        {{ working_dir }}/overcloud_upgrade_converge.log
+    {{ overcloud_upgrade_converge_script }} 2>&1 {{ timestamper_cmd }} >> \
+        overcloud_upgrade_converge.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   register: overcloud_converge_upgrade
   ignore_errors: true
 
@@ -13,7 +16,10 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack stack failures list --long {{ overcloud_stack_name }} 2>&1 {{ timestamper_cmd }} | \
-          tee {{ working_dir }}/overcloud_composable_failed_upgrade_converge.log
+          tee -a overcloud_composable_failed_upgrade_converge.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
 
     - name: was the overcloud upgrade converge successful.
       fail: msg="Overcloud upgrade converge step failed... :("

@@ -12,11 +12,11 @@
     - name: apply pre undercloud update workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash pre_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./pre_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             pre_undercloud_update_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - undercloud_update
@@ -29,18 +29,21 @@
     - name: update undercloud
       shell: |
           set -o pipefail
-          bash {{ undercloud_update_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/undercloud_update.log
+          {{ undercloud_update_script }} 2>&1 {{ timestamper_cmd }} >> \
+            undercloud_update.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       tags: undercloud_update
 
     - name: apply post undercloud update workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash post_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./post_undercloud_update_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             post_undercloud_update_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - undercloud_update
@@ -64,11 +67,11 @@
     - name: apply pre overcloud update prepare workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash pre_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./pre_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             pre_overcloud_update_prepare_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - overcloud_update_prepare
@@ -81,11 +84,11 @@
     - name: apply post overcloud update prepare workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash post_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./post_overcloud_update_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             post_overcloud_update_prepare_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - overcloud_update_prepare
@@ -93,9 +96,11 @@
     - name: prepare containers for overcloud update
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       shell: |
         set -o pipefail
-        bash overcloud_prepare_containers.sh {{ timestamper_cmd }} > overcloud_update_prepare_containers.log
+        ./overcloud_prepare_containers.sh 2>&1 {{ timestamper_cmd }} >> \
+            overcloud_update_prepare_containers.log
       tags:
         - overcloud_update_prepare_containers
 
@@ -111,11 +116,11 @@
     - name: apply pre overcloud update run workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash pre_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./pre_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             pre_overcloud_update_run_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - overcloud_update_run
@@ -128,11 +133,11 @@
     - name: apply post overcloud update run workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash post_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./post_overcloud_update_run_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             post_overcloud_update_run_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags:
         - overcloud_update_run
@@ -144,18 +149,20 @@
     - name: run online data migration
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       shell: |
         set -o pipefail
-        bash {{ working_dir }}/overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} > overcloud_update_data_migration.log
+        ./overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} >> \
+            overcloud_update_data_migration.log
 
     - name: apply pre overcloud update converge workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash pre_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./pre_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             pre_overcloud_update_converge_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags: overcloud_update_converge
 
@@ -166,20 +173,22 @@
     - name: apply post overcloud update converge workarounds
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash post_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} > \
+          ./post_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
             post_overcloud_update_converge_workarounds.log
       args:
         chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags: overcloud_update_converge
 
     - name: validate overcloud docker images/containers
       shell: |
           set -o pipefail
-          source {{ undercloud_rc }}
-          bash {{ overcloud_validate_images_script }} 2>&1 {{ timestamper_cmd }} > \
-            {{ working_dir }}/validate_oc_images_containers.log
+          {{ overcloud_validate_images_script }} 2>&1 {{ timestamper_cmd }} >> \
+            validate_oc_images_containers.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
       when: overcloud_images_validate|bool
       tags:
         - overcloud_images_validate
