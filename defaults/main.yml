@@ -271,7 +271,7 @@ ceph3_registry_params:
 
 # stein registry parameters
 stein_registry_params:
-  namespace_stein: "{{ full_namespace }}"
+  namespace_stein: "{{ full_namespace | default('registry.access.redhat.com') }}"
   tag_stein: "20200115.1"
   name_prefix_stein: "rhosp15-openstack-"
 
