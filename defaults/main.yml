@@ -171,6 +171,13 @@ ffu_undercloud_repo_args:
     ocata: "-b ocata current"
     pike: "-b pike current"
     queens: "-b queens current"
+  rhos_release:
+    "11":
+      build: "latest_cdn"
+    "12":
+      build: "latest_cdn"
+    "13":
+      build: "passed_phase2"
 
 # Tripleo OOOQ variables.
 composable_scenario: ""
