@@ -14,8 +14,6 @@
     rhos_release_rpm: "https://url.corp.redhat.com/rhos-release-latest-rpm"
     release: "{{ current_release }}"
     rr_buildmods: "pin"
-  become: true
-  become_user: root
   when: ffu_undercloud_repo_type == 'rhos-release'
 
 - name: Upgrade undercloud to {{ current_release }}
