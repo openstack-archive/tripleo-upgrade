@@ -8,9 +8,9 @@
     name: rhos-release
   vars:
     director_build: "{{ install.get('director', {}).build|default(omit) }}"
-    build: "{{ ffu_undercloud_repo_args['rhos_release'][current_release]['build'] }}"
+    build: "{{ ffu_undercloud_repo_args.get('rhos_release', {}).get(current_release, {}).get('build') | default(omit, true) }}"
     mirror: "{{ install.mirror | default(omit) }}"
-    rr_distro_version: "{{ install.osrelease|default(omit) }}"
+    rr_distro_version: "{{ ffu_undercloud_repo_args.get('rhos_release', {}).get(current_release, {}).get('rhel') | default(omit, true) }}"
     rhos_release_rpm: "https://url.corp.redhat.com/rhos-release-latest-rpm"
     release: "{{ current_release }}"
     rr_buildmods: "pin"
