@@ -4,8 +4,11 @@
   poll: 0
   shell: |
         set -o pipefail
-        bash {{ overcloud_update_run_script_base }}-{{ oc_running_role }}.sh 2>&1 {{ timestamper_cmd }} > \
-          {{ working_dir }}/overcloud_update_run_{{ oc_running_role }}.log
+        {{ overcloud_update_run_script_base }}-{{ oc_running_role }}.sh 2>&1 {{ timestamper_cmd }} >> \
+          {{ overcloud_update_run_script_base }}-{{ oc_running_role }}.log
+  args:
+    chdir: "{{ working_dir }}"
+    executable: /usr/bin/bash
   loop: "{{ oc_current_role }}"
   loop_control:
     loop_var: "oc_running_role"

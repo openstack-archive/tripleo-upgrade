@@ -17,7 +17,7 @@
         nic_path: "{{ (item[0] == '/')|ternary(item, relative_path) }}"
       shell: |
         set -o pipefail
-        NIC_ROLE_NAME=$( grep {{ item }} {{ nic_config_env }} | awk -F '::' '{ print $3 }' );
+        NIC_ROLE_NAME=$( grep {{ item }} {{ nic_config_env }} | awk -F '::' '{ print $3 }' )
         /usr/share/openstack-tripleo-heat-templates/tools/merge-new-params-nic-config-script.py \
             --tht-dir {{ tht_directory }} \
             --role-name $NIC_ROLE_NAME \

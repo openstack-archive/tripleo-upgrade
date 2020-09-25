@@ -61,7 +61,7 @@
 
 - name: check if bm nodes are present
   shell: |
-    source {{ undercloud_rc }} ;
+    source {{ undercloud_rc }}
     openstack baremetal node list -f value -c UUID
   when: not mock_environment|bool
   register: bm_node_present
