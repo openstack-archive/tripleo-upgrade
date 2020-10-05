@@ -64,9 +64,6 @@ openstack overcloud upgrade converge ${CONVERGE_ANSWER} \
     {% if cli_converted_options|default(false)|bool -%}
     -e {{working_dir}}/cli_opts_params.yaml \
     {% endif -%}
-    {% if ffu_overcloud_upgrade -%}
-    -e {{ working_dir }}/{{ container_registry_file }} \
-    {% endif -%}
     -e {{ working_dir }}/{{ uc_containers_prepare_file }} \
     {% if (not ffu_overcloud_upgrade or roles_data != default_roles_data) %}--roles-file {{ roles_data }}{% endif %} 2>&1
 
