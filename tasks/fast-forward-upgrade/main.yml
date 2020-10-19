@@ -156,7 +156,7 @@
       shell: |
         set -o pipefail
         ./overcloud_prepare_containers.sh {{ timestamper_cmd }} >> overcloud_upgrade_prepare_containers.log
-      tags: overcloud_upgrade_prepare_containers
+      tags: ffu_overcloud_prepare
 
     - name: stop L3 verification scripts
       include_tasks: "{{ item }}"
