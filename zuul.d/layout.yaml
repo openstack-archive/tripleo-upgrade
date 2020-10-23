@@ -16,9 +16,6 @@
             voting: false
             dependencies:
               - tripleo-upgrade-centos-8-molecule
-        - tripleo-ci-centos-7-standalone-upgrade:
-            dependencies:
-              - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
         - tripleo-upgrade-centos-8-molecule:
