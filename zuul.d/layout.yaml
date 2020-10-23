@@ -7,13 +7,11 @@
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades
         - tripleo-ci-centos-7-containerized-undercloud-upgrades
-        - tripleo-ci-centos-7-standalone-upgrade-stein
         - openstack-tox-linters
     gate:
       queue: tripleo
       jobs:
         - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates
-        - tripleo-ci-centos-7-standalone-upgrade-stein
         - openstack-tox-linters
     post:
       jobs:
