@@ -12,9 +12,7 @@
   tags: ffu_overcloud_system_upgrade
 
 - name: run the pre upgrade script for the host {{ host }}
-  when:
-    - compute_present|bool
-    - workload_launch|bool
+  when: (compute_present | bool) or (workload_launch | bool)
   shell: |
     set -o pipefail
     ./{{ host }}_upgrade_pre.sh 2>&1 {{ timestamper_cmd }} >> {{ host }}_upgrade_pre.log
