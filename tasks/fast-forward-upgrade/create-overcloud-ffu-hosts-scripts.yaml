@@ -4,9 +4,7 @@
   when: pcs_present
 
 - name: create compute pre upgrade script for {{ item }}
-  when:
-    - compute_present|bool
-    - workload_launch|bool
+  when: (compute_present | bool) or (workload_launch | bool)
   vars:
     node_name: "{{ item | reject('none') | join(',') }}"
   template:

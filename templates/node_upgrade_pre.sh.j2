@@ -2,13 +2,19 @@
 source {{ overcloud_rc }}
 ## Get exact hostname
 HOST=$(openstack compute service list -f value -c Host | grep {{ node_name }} )
-nova host-evacuate-live ${HOST}
+INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE"))] | length')
+
+if [ $INSTANCE_COUNT != 0 ]; then
+   nova host-evacuate-live ${HOST}
+else
+   echo "No vms in active state on ${HOST}"
+fi
 
 timeout_seconds=120
 elapsed_seconds=0
-while true; do
+while [ $INSTANCE_COUNT != 0 ]; do
     echo "Waiting for ${HOST} to get quiesced ..."
-    INSTANCE_COUNT=$(openstack server list --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+    INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
     if [ $INSTANCE_COUNT == 0 ]; then
         break
     fi
