@@ -22,7 +22,7 @@ function get_cut_time()
 kill -s INT $(/usr/sbin/pidof ping)
 
 # print the ping results
-PING_RESULT_LOG=$(find "${BASE_DIR}" -iname 'ping_results*' | sort | tail -1)
+PING_RESULT_LOG=$(find "${BASE_DIR}" -maxdepth 1 -iname 'ping_results*' | sort | tail -1)
 tail -2 $PING_RESULT_LOG
 
 # check results
