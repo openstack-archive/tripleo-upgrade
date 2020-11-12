@@ -1,4 +1,7 @@
 ---
+- name: import tasks from l3_agent_connectivity_check_start_script
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
+
 - name: run overcloud minor update in each of the roles/hostgroups
   async: 25200
   poll: 0
@@ -24,3 +27,8 @@
   register: async_poll_results
   until: async_poll_results.finished
   retries: 25200
+
+- name: import tasks from l3_agent_connectivity_check_stop_script
+  import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
+  vars:
+    current_stage_error: "{{ update_loss_threshold }}"

@@ -1,4 +1,10 @@
 ---
+- name: l3 agent connectivity wait until vm is ready
+  shell: |
+    source {{ overcloud_rc }}
+    {{ l3_agent_connectivity_check_wait_script }}
+  when: l3_agent_connectivity_check
+
 - name: start l3 agent connectivity check
   shell: |
     source {{ overcloud_rc }}
