@@ -52,6 +52,13 @@
         - updates_validations
         - pre_update_validations
 
+    - name: collect log before undercloud update
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_undercloud_update'
+      when:
+        - log_stages|bool
+
     - name: update undercloud
       shell: |
           set -o pipefail
@@ -154,6 +161,13 @@
       tags:
         - overcloud_update_prepare_containers
 
+    - name: collect log before OVN controller update
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_ovn_controller_update'
+      when:
+        - log_stages|bool
+
     - name: Update OVN controllers.
       shell: |
         set -o pipefail
@@ -214,6 +228,13 @@
       tags:
         - overcloud_update_run
 
+    - name: collect log before ceph update
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_ceph_update'
+      when:
+        - log_stages|bool
+
     - name: update Ceph
       include_tasks: ceph_update_run.yml
       when: ceph_osd_enabled|bool
@@ -232,6 +253,13 @@
       when:
         - controller_host is defined
         - disable_fencing|bool
+
+    - name: collect log after update, but before reboot.
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_converge'
+      when:
+        - log_stages|bool
 
     - name: apply pre overcloud update converge workarounds
       shell: |
@@ -268,6 +296,13 @@
         executable: /usr/bin/bash
       when: updates_workarounds|bool
       tags: overcloud_update_converge
+
+    - name: collect log after update, but before reboot.
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_reboot'
+      when:
+        - log_stages|bool
 
     - name: run post-update validation
       import_tasks: ../common/validation_group_run.yaml
