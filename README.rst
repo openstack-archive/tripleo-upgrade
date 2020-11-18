@@ -157,6 +157,9 @@ Set to true to enable validations::
 
     updates_validations: true
 
+Enable extra logs during update. Default to true. It collects in /var/log/extras/ the output of the commands from collect_logs.yaml for every stages of the update run::
+
+    log_stages: true
 
 Dependencies
 ------------

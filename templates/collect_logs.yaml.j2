@@ -1,0 +1,96 @@
+---
+- hosts: allovercloud,Undercloud
+  gather_facts: false
+  become: true
+  tasks:
+    - name: ensure extra directory is present
+      file:
+        name: /var/log/extra
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - name: capture date at this stage
+      shell: |
+        date '+%Y-%m-%d %H:%M:%S%z'  &>> /var/log/extra/date-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: save packages list at this stage
+      shell: |
+        dnf list installed &>> /var/log/extra/packages-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get podman container state at this stage
+      shell: |
+        podman ps --all &>> /var/log/extra/container-ps-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get podman images state at this stage
+      shell: |
+        podman images &>> /var/log/extra/container-images-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get process list at this stage
+      shell: |
+        ps fauxwww &>> /var/log/extra/ps-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get systemd information at this stage
+      shell: |
+        systemctl &>> /var/log/extra/systemctl-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get tripleo services information at this stage
+      shell: |
+        systemctl status 'tripleo*' &>> /var/log/extra/systemctl-tripleo-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get cgroup information at this stage
+      shell: |
+        systemd-cgls &>> /var/log/extra/cgroups-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get release state at this stage
+      shell: |
+        for i in rhosp redhat; do
+          if [ ! -e /etc/${i}-release ]; then
+            cat /etc/${i}-release &>> /var/log/extra/release-{% raw %}{{ current_stage }}{% endraw %}.txt
+          fi
+        done
+
+- hosts: ovn_controller
+  gather_facts: false
+  become: true
+  tasks:
+    - name: get OVN external id parameter at this stage
+      shell: |
+        ovs-vsctl get open . external_ids &>> /var/log/extra/ovn_external_id-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+    - name: get OVN flows at this stage
+      shell: |
+        ovs-ofctl dump-flows br-int  &>> /var/log/extra/ovn_flows_id-{% raw %}{{ current_stage }}{% endraw %}.txt
+
+- hosts: pacemaker
+  gather_facts: false
+  become: true
+  tasks:
+    - name: ensure extra directory is present
+      file:
+        name: /var/log/extra
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - name: get cluster state at this stage
+      shell: |
+        pcs status &>> /var/log/extra/pcslog-{% raw %}{{ current_stage }}{% endraw %}.txt || true
+        pcs constraint &>> /var/log/extra/pcslog-{% raw %}{{ current_stage }}{% endraw %}.txt || true
+
+- hosts: undercloud
+  gather_facts: false
+  become: false
+  tasks:
+    - name: ensure extra directory is present
+      file:
+        name: /var/log/extra
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - name: Information about running vm.
+      shell: |
+        for i in $(openstack --os-cloud {{ overcloud_stack_name }} server list -f value -c Name); do
+           openstack --os-cloud {{ overcloud_stack_name }} server show $i > /var/log/extra/oc-server-$i-{% raw %}{{ current_stage }}{% endraw %}.txt;
+        done
