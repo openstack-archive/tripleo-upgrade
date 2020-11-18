@@ -71,6 +71,34 @@
     mode: 0755
     force: true
 
+- name: Create update log collection scripts
+  include_tasks: ../common/create_log_collection_scripts.yml
+  vars:
+    log_current_stage: '{{ item }}'
+  when:
+    - log_stages|bool
+  loop:
+    - before_ovn_controller_update
+    - before_ceph_update
+    - before_reboot
+
+- name: Create update run log collection for oc update run - batch
+  include_tasks: ../common/create_log_collection_scripts.yml
+  vars:
+    log_current_stage: 'before_oc_update_run'
+  when:
+    - overcloud_batch_update|bool
+    - log_stages|bool
+
+- name: Create update run log collection for oc update run - serial
+  include_tasks: ../common/create_log_collection_scripts.yml
+  vars:
+    log_current_stage: "before_oc_update_run_{{ item }}"
+  when:
+    - not overcloud_batch_update|bool
+    - log_stages|bool
+  loop: "{{ oc_roles|default(['all']) }}"
+
 - name: create overcloud update script
   template:
     src: "overcloud_update_run.sh.j2"

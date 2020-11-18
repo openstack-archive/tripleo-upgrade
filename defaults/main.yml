@@ -176,6 +176,11 @@ l3_agent_connectivity_check_wait_script: "{{ working_dir }}/l3_agent_wait_ping.s
 l3_agent_connectivity_check_stop_script: "{{ working_dir }}/l3_agent_stop_ping.sh"
 l3_agent_failover_check: false
 
+# logs
+log_playbook: "{{ working_dir }}/collect_log.yaml"
+log_playbook_script: "{{ working_dir }}/collect_log"
+log_stages: true
+
 # enable web load test
 fip_http_check: false
 
