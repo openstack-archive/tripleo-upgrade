@@ -112,6 +112,9 @@ tht_directory: "/usr/share/openstack-tripleo-heat-templates"
 # default roles_data.yaml
 default_roles_data: "{{ tht_directory }}/roles_data.yaml"
 
+# default network_data.yaml
+default_network_data: "{{ tht_directory }}/network_data.yaml"
+
 # local registry environment file location
 containers_default_parameters: "{{ working_dir }}/docker-osp12.yaml"
 
