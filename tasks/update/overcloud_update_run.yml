@@ -1,7 +1,4 @@
 ---
-- name: import tasks from l3_agent_connectivity_check_start_script
-  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
-
 - name: Are we running in parallel or serially ?
   debug:
     msg: "{{ (overcloud_batch_update|bool) | ternary('Running in parallel', 'Running serially') }}"
@@ -15,9 +12,3 @@
     oc_current_role: "{{ item }}"
   include_tasks: overcloud_update_run_role.yml
   loop: "{{ oc_roles|default(['all'])|batch((overcloud_batch_update|bool) | ternary(100, 1))|list }}"
-
-
-- name: import tasks from l3_agent_connectivity_check_stop_script
-  import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
-  vars:
-    current_stage_error: "{{ update_loss_threshold }}"
