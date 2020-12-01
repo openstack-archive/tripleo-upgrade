@@ -14,17 +14,6 @@ else
     source {{ working_dir }}/vm_ip.sh
 fi
 
-# Block 1 minute for the fip to be ready.
-cpt=1
-while ! ping -c 1 -w 1 "${VM_IP}"; do
-    echo "Waiting for fip to be ready ... for $cpt seconds"
-    if [ $cpt -gt 60 ]; then
-        echo "The fip ${VM_IP} took more than 1 minute to be available, aborting"
-        exit 1
-    fi
-    cpt=$((cpt+1))
-done
-
 # NOTE: the &>> is necessary as if we don't redirect both
 # stdout and stderr we will make any script using this one to
 # hang until ping finishes. Meaning if some script crashes
