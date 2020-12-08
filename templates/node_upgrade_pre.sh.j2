@@ -4,7 +4,8 @@ source {{ overcloud_rc }}
 HOST=$(openstack compute service list -f value -c Host | grep {{ node_name }} )
 nova host-evacuate-live ${HOST}
 
-timeout_seconds=120
+INSTANCE_COUNT=$(openstack server list --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+timeout_seconds=$(( 60 * ( $INSTANCE_COUNT + 1 ) ))
 elapsed_seconds=0
 while true; do
     echo "Waiting for ${HOST} to get quiesced ..."
