@@ -8,14 +8,6 @@
         - tripleo-ci-centos-8-content-provider-train:
             dependencies:
               - tripleo-upgrade-centos-8-molecule
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
-            voting: true
-            dependencies:
-              - tripleo-upgrade-centos-8-molecule
-        - tripleo-ci-centos-7-containerized-undercloud-upgrades:
-            voting: false
-            dependencies:
-              - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
         - tripleo-upgrade-centos-8-molecule:
@@ -63,13 +55,6 @@
             dependencies:
               - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-updates:
-            dependencies:
-              - tripleo-upgrade-centos-8-molecule
-        - tripleo-ci-centos-7-scenario000-multinode-oooq-container-upgrades:
-            voting: true
-            dependencies:
-              - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
         - tripleo-upgrade-centos-8-molecule:
