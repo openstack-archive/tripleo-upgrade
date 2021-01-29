@@ -10,7 +10,7 @@ else
    echo "No vms in active state on ${HOST}"
 fi
 
-INSTANCE_COUNT=$(openstack server list --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
 timeout_seconds=$(( 60 * ( $INSTANCE_COUNT + 1 ) ))
 elapsed_seconds=0
 while [ $INSTANCE_COUNT != 0 ]; do
