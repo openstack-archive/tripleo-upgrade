@@ -51,7 +51,14 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
-  ######## overcloud upgrade run ########
+######## check overcloud is up up after system upgrade ########
+- name: check {{ host }} is up after boot
+  wait_for_connection:
+    delay: 30
+    sleep: 30
+    timeout: 600
+
+######## overcloud upgrade run ########
 - name: apply pre ffu overcloud upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
