@@ -153,6 +153,11 @@ Default time is second for ping loss.
 
 Failsafe percentage check for loss threashold in percentage
 
+Set to true to enable validations::
+
+    updates_validations: true
+
+
 Dependencies
 ------------
 

@@ -227,6 +227,11 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
+        - name: Eanble validations
+          set_fact:
+            updates_validations: true
+          when: install.updates.validations
+
       tags:
         - always
   roles:

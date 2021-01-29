@@ -46,6 +46,9 @@ upgrade_workarounds: false
 # enable update workarounds
 updates_workarounds: false
 
+# enable update validation
+updates_validations: false
+
 # enable ffu workarounds
 ffu_upgrade_workarounds: false
 
