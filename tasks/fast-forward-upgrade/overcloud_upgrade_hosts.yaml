@@ -11,6 +11,15 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
+- name: Disable scheduling on {{ host }}
+  when:
+    - compute_present|bool
+  shell: |
+    set -o pipefail
+    source {{ overcloud_rc }}
+    HOST="$(openstack compute service list -f value -c Host | grep {{ host }})"
+    openstack compute service set --disable --disable-reason FFWD "$HOST" nova-compute
+
 - name: run the pre upgrade script for the host {{ host }}
   when: (compute_present | bool) or (workload_launch | bool)
   shell: |
@@ -57,6 +66,15 @@
     timeout: 600
 
 ######## overcloud upgrade run ########
+- name: Enable scheduling on {{ host }}
+  when:
+    - compute_present|bool
+  shell: |
+    set -o pipefail
+    source {{ overcloud_rc }}
+    HOST="$(openstack compute service list -f value -c Host | grep {{ host }})"
+    openstack compute service set --enable "$HOST" nova-compute
+
 - name: apply pre ffu overcloud upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
