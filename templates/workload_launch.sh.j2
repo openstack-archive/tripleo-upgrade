@@ -120,7 +120,7 @@ function workload_launch {
 
     if [ $? -ne 0 ]; then
         echo "Downloading image ${IMAGE_URL}"
-        curl --silent --retry 3 -L -4 -o ${IMAGE_FILE} ${IMAGE_URL}
+        curl -4fsSL --retry 5 -o ${IMAGE_FILE} ${IMAGE_URL}
 
         if [ $? -ne 0 ]; then
             echo "Failed to download ${IMAGE_URL}"
