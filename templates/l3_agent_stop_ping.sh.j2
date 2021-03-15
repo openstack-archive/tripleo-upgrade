@@ -25,6 +25,14 @@ kill -s INT $(/usr/sbin/pidof ping)
 PING_RESULT_LOG=$(find "${BASE_DIR}" -maxdepth 1 -iname 'ping_results*' | sort | tail -1)
 tail -2 $PING_RESULT_LOG
 
+# if only one packet is lost, test succeeded
+TRANSMITTED=$(grep 'packet loss' $PING_RESULT_LOG | sed 's/^\([0-9]*\) packets transmitted,.*/\1/')
+RECEIVED=$(grep 'packet loss' $PING_RESULT_LOG | sed 's/.*packets transmitted, \([0-9]*\) received,.*/\1/')
+if [ $(( ${TRANSMITTED} - ${RECEIVED} )) -eq 1 ]; then
+    echo "Only one ping was not replied during the update/upgrade - test succeeded"
+    exit 0
+fi
+
 # check results
 PING_RESULT=$( grep 'packet loss' $PING_RESULT_LOG | sed 's/.*,\s\(.*\)%.*$/\1/' )
 CUT_TIME=$(get_cut_time)
