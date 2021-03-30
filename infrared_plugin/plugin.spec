@@ -184,6 +184,12 @@ subparsers:
                       help: |
                          Skip Rhel Enforcment, false by default, use only when registred.
                       default: false
+                  updates-validations:
+                      type: Bool
+                      help: |
+                         Turn validation execution on or off (default)
+                      default: false
+
             - title: TripleO Options
               options:
                   overcloud-stack:
@@ -239,12 +245,6 @@ subparsers:
                       type: Value
                       help: Rhsm environment location to be passed during upgrade/update prepare step ssh user name name
                       default: ''
-
-                  validations:
-                      type: Bool
-                      help: |
-                         Turn validation execution on or off (default)
-                      default: false
 
             - title: TripleO Fast Forward Upgrade
               options:

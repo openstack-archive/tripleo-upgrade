@@ -227,7 +227,7 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
-        - name: Eanble validations
+        - name: Enable validations
           set_fact:
             updates_validations: true
           when: install.updates.validations
