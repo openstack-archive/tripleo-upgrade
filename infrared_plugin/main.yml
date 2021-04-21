@@ -227,10 +227,10 @@
           set_fact:
             rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"
 
-        - name: Enable validations
+        - name: Enable the execution of  validations
           set_fact:
-            updates_validations: true
-          when: install.updates.validations
+            run_validations: true
+          when: install.run.validations
 
       tags:
         - always
