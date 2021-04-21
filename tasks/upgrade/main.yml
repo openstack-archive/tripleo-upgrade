@@ -20,6 +20,16 @@
         chdir: "{{ working_dir }}"
       when: upgrade_workarounds|bool
 
+    # At this stage we are running the source OSP version (OSP13), which does not
+    # support the new tripleo-validations framework.
+    - name: run pre-upgrade validation before upgrading RHEL
+      shell: |
+        set -o pipefail
+        {{ working_dir }}/pre-upgrade-validation.sh 2>&1 {{ timestamper_cmd }} >> validation-pre-upgrade.log
+      when: run_validations|bool
+      tags:
+        - upgrades_validations
+
     - name: Upgrade operating system
       become: true
       become_user: root
@@ -98,6 +108,20 @@
         chdir: "{{ working_dir }}"
       when: upgrade_workarounds
       tags: overcloud_upgrade_prepare
+
+    # At this stage, the Undercloud is in targe version and the overcloud
+    # in source version. Therefore we can use the tripleo-validation new
+    # framework, but it is required to pass the python-interpreter
+    - name: run pre-upgrade validation for the overcloud nodes
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-upgrade"
+        validation_allowed_groups: "{{ upgrades_validations_groups }}"
+        validation_args: "--python-interpreter /usr/libexec/platform-python"
+      when: run_validations|bool
+      tags:
+        - overcloud_upgrade_prepare
+        - upgrades_validations
 
     - import_tasks: overcloud_upgrade_prepare.yml
       tags: overcloud_upgrade_prepare

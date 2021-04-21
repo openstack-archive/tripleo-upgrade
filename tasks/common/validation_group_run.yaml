@@ -1,0 +1,33 @@
+---
+# ARGS:
+# validation_group: validation group to execute (required)
+# validation_allowed_groups: list of allowed groups to run (required)
+# validation_args: string containing extra arguments for the validation command. (defaults to empty string)
+- block:
+    - name: "Run validation group {{ validation_group }}"
+      shell: |
+        set -o pipefail
+        source {{ undercloud_rc }}
+        openstack tripleo validator run --group {{ validation_group }} --stack {{ overcloud_stack_name }} \
+           {{ validation_args|default('') }} 2>&1 {{ timestamper_cmd }} >> validation-{{ validation_group }}.log
+      args:
+        executable: /usr/bin/bash
+    - name: Retrieve the validations results
+      command: openstack tripleo validator show history -f json -c UUID -c Status
+      register: validation_history
+    - name: Set fact validation_status with the validations results
+      set_fact:
+        validations_failed: "{{ validation_history.stdout|default('')|from_json|json_query(\"[?Status != 'PASSED'].UUID\") }}"
+      when: validation_history is defined
+    - name: Log all the validations failed
+      shell: |
+        openstack tripleo validator show run {{ item }} &>> validation-{{ validation_group }}-failed.log
+      loop: "{{ validations_failed }}"
+      when:
+        - "validations_failed|length > 0"
+    - name: Fail if some validation is not PASSED
+      fail:
+        msg: "Validation failed: check the log in validation-{{ validation_group }}-failed.log."
+      when:
+        - "validations_failed|length > 0"
+  when: "validation_group in validation_allowed_groups"
