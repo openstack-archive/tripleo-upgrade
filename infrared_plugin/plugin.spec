@@ -54,7 +54,7 @@ subparsers:
                       type: Value
                       help: |
                           Image URL to be used for spawning instance before upgrade.
-                      default: https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+                      default: https://download.cirros-cloud.net/0.5.2/cirros-0.5.2-x86_64-disk.img
                   upgrade-workloadmemory:
                       type: Value
                       help: |
