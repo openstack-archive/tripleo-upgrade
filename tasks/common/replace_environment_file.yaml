@@ -1,0 +1,19 @@
+---
+- name: determine the name of the replaced environment file
+  shell:
+    cat {{ overcloud_deploy_script }} | grep '-e .\+{{ item.key }} ' |  sed 's/.\+ \(.\+{{ item.key }}\) .*/\1/'
+  register: ffu_replaced_env_file
+
+- block:
+    - name: save a copy of the replaced environment configuration file
+      copy:
+        remote_src: true
+        src: "{{ ffu_replaced_env_file.stdout }}"
+        dest: "{{ ffu_replaced_env_file.stdout }}.orig.yaml"
+
+    - name: replace the environment configuration file with the new one
+      copy:
+        src: "{{ item.value }}"
+        dest: "{{ ffu_replaced_env_file.stdout }}"
+
+  when: ffu_replaced_env_file.stdout|length > 0
