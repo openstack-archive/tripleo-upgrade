@@ -1,0 +1,4 @@
+---
+- name: loop over the replacement environment configuration files
+  include_tasks: replace_environment_file.yaml
+  loop: "{{ install.overcloud.ffu.replace.env.files | default({}) | dict2items }}"
