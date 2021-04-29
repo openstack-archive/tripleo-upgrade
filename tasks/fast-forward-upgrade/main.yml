@@ -17,6 +17,28 @@
         executable: /usr/bin/bash
       when: ffu_upgrade_workarounds|bool
 
+    # At this stage we are running the source OSP version (OSP13), which does not
+    # support the new tripleo-validations framework.
+    - name: run pre-upgrade validation before upgrading RHEL
+      shell: |
+        set -o pipefail
+        {{ working_dir }}/pre-upgrade-validation.sh 2>&1 {{ timestamper_cmd }} >> validation-pre-upgrade.log
+      when: run_validations|bool
+      tags:
+        - upgrades_validations
+
+    - name: Check that all validations succeeded
+      lineinfile:
+        path: "{{ working_dir }}/validation-pre-upgrade.log"
+        regexp: "^.*Failure! The validation failed for all hosts:.*$"
+        state: absent
+      check_mode: true
+      register: validation_results
+      failed_when: validation_results is changed
+      tags:
+        - upgrades_validations
+      when: run_validations|bool
+
     - name: Clean up httpd folder
       become: true
       become_user: root
@@ -126,6 +148,20 @@
         executable: /usr/bin/bash
       when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
+
+    # At this stage, the Undercloud is in targe version and the overcloud
+    # in source version. Therefore we can use the tripleo-validation new
+    # framework, but it is required to pass the python-interpreter
+    - name: run pre-upgrade validation for the overcloud nodes
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-upgrade"
+        validation_allowed_groups: "{{ upgrades_validations_groups }}"
+        validation_args: "--python-interpreter /usr/libexec/platform-python"
+      when: run_validations|bool
+      tags:
+        - overcloud_upgrade_prepare
+        - upgrades_validations
 
     - name: convert nic templates
       import_tasks: ../common/convert_nic_templates.yaml

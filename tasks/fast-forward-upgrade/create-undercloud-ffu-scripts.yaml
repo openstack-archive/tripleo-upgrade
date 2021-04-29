@@ -3,6 +3,13 @@
   include_tasks: ../common/skip_rhel_enforcement.yaml
   when: not ( enforce_rhel|bool )
 
+- name: create pre-upgrade validation script for old version
+  template:
+    src: "pre-upgrade-osp13-validation.sh.j2"
+    dest: "{{ working_dir }}/pre-upgrade-validation.sh"
+    mode: 0775
+    force: true
+
 - name: create undercloud upgrade script
   template:
     src: "undercloud_upgrade.sh.j2"
