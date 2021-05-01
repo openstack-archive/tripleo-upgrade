@@ -300,6 +300,13 @@ subparsers:
                       help: |
                           Fast Forward Upgrade compute nodes one by one
                       default: false
+                  overcloud-ffu-replace-env-files:
+                      type: KeyValueList
+                      help: |
+                          A comma-separated list of key/values which describe the environment files
+                          whose content should be replaced during the upgrade phase.
+                          The value must be the path to the new file, while the key must match
+                          the file name to replaced as it shows inside the deploy script.
             - title: Set up FFU packages
               options:
                   mirror:
