@@ -12,6 +12,7 @@
            {{ validation_args|default('') }} 2>&1 {{ timestamper_cmd }} >> validation-{{ validation_group }}.log
       args:
         executable: /usr/bin/bash
+  rescue:
     - name: Retrieve the validations results
       command: openstack tripleo validator show history -f json -c UUID -c Status
       register: validation_history
