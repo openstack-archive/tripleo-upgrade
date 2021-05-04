@@ -10,6 +10,11 @@
     mode: 0775
     force: true
 
+- name: copy rename-nics.yaml script to undercloud
+  copy:
+    src: rename-nics.yaml
+    dest: "{{ working_dir }}/rename-nics.yaml"
+
 - name: create undercloud upgrade script
   template:
     src: "undercloud_upgrade.sh.j2"

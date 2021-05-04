@@ -304,3 +304,7 @@ stein_registry_params:
 
 # rhsm overcloud environment location with subscription details
 rhsm_overcloud_env: ''
+
+# nic prefix used when renaming network interfaces
+# if the environment uses unpredictable interfaces  name.
+nic_prefix: "em"
