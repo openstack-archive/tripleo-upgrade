@@ -46,8 +46,28 @@ upgrade_workarounds: false
 # enable update workarounds
 updates_workarounds: false
 
-# enable update validation
-updates_validations: false
+# enable group validations execution
+run_validations: false
+
+# validations groups for updates to be
+# executed if updates_validations is true.
+updates_validations_groups:
+  - pre-update
+  - pre-update-prepare
+  - pre-update-run
+  - pre-update-converge
+  - post-update
+
+# validations groups for updates to be
+# executed if updates_validations is true.
+upgrades_validations_groups:
+  - pre-upgrade
+  - pre-system-upgrade
+  - pre-undercloud-upgrade
+  - pre-overcloud-prepare
+  - pre-overcloud-upgrade
+  - pre-overcloud-converge
+  - post-upgrade
 
 # enable ffu workarounds
 ffu_upgrade_workarounds: false

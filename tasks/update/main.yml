@@ -27,16 +27,14 @@
       import_tasks: ../common/undercloud_prerequisites.yaml
 
     - name: run pre-update validation
-      shell: |
-          set -o pipefail
-          source {{ undercloud_rc }}
-          openstack tripleo validator run --group pre-update 2>&1 {{ timestamper_cmd }} >> \
-            validation-pre-update.log
-      when: updates_validations|bool
-      args:
-        executable: /usr/bin/bash
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-update"
+        validation_allowed_groups: "{{ updates_validations_groups }}"
+      when: run_validations|bool
       tags:
         - undercloud_update
+        - updates_validations
 
     - name: update undercloud
       shell: |
@@ -89,16 +87,14 @@
         - overcloud_update_prepare
 
     - name: run pre-update-prepare validation
-      shell: |
-          set -o pipefail
-          source {{ undercloud_rc }}
-          openstack tripleo validator run --group pre-update-prepare 2>&1 {{ timestamper_cmd }} >> \
-            validation-pre-update-prepare.log
-      when: updates_validations|bool
-      args:
-        executable: /usr/bin/bash
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-update-prepare"
+        validation_allowed_groups: "{{ updates_validations_groups }}"
+      when: run_validations|bool
       tags:
         - overcloud_update_prepare
+        - updates_validations
 
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
@@ -150,16 +146,14 @@
         - overcloud_update_run
 
     - name: run pre-update-run validation
-      shell: |
-          set -o pipefail
-          source {{ undercloud_rc }}
-          openstack tripleo validator run --group pre-update-run 2>&1 {{ timestamper_cmd }} >> \
-            validation-pre-update-run.log
-      when: updates_validations|bool
-      args:
-        executable: /usr/bin/bash
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-update-run"
+        validation_allowed_groups: "{{ updates_validations_groups }}"
+      when: run_validations|bool
       tags:
         - overcloud_update_run
+        - updates_validations
 
     - name: import overcloud update run tasks
       import_tasks: overcloud_update_run.yml
@@ -203,16 +197,14 @@
       tags: overcloud_update_converge
 
     - name: run pre-update-converge validation
-      shell: |
-          set -o pipefail
-          source {{ undercloud_rc }}
-          openstack tripleo validator run --group pre-update-converge 2>&1 {{ timestamper_cmd }} >> \
-            validation-pre-update-converge.log
-      when: updates_validations|bool
-      args:
-        executable: /usr/bin/bash
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-update-converge"
+        validation_allowed_groups: "{{ updates_validations_groups }}"
+      when: run_validations|bool
       tags:
         - overcloud_update_converge
+        - updates_validations
 
     - name: import overcloud update converge tasks
       import_tasks: overcloud_update_converge.yml
@@ -230,15 +222,14 @@
       tags: overcloud_update_converge
 
     - name: run post-update validation
-      shell: |
-          set -o pipefail
-          source {{ undercloud_rc }}
-          openstack tripleo validator run --group post-update 2>&1 {{ timestamper_cmd }} >> \
-            validation-post-update.log
-      when: updates_validations|bool
-      args:
-        executable: /usr/bin/bash
-      tags: overcloud_update_converge
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "post-update"
+        validation_allowed_groups: "{{ updates_validations_groups }}"
+      when: run_validations|bool
+      tags:
+        - overcloud_update_converge
+        - updates_validations
 
     - name: validate overcloud docker images/containers
       shell: |

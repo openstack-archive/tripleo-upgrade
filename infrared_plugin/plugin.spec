@@ -184,7 +184,7 @@ subparsers:
                       help: |
                          Skip Rhel Enforcment, false by default, use only when registred.
                       default: false
-                  updates-validations:
+                  run-validations:
                       type: Bool
                       help: |
                          Turn validation execution on or off (default)
