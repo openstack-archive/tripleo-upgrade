@@ -49,6 +49,9 @@ updates_workarounds: false
 # enable group validations execution
 run_validations: false
 
+# comma separated list of skipped validations
+skiplist_validations: ''
+
 # validations groups for updates to be
 # executed if updates_validations is true.
 updates_validations_groups:

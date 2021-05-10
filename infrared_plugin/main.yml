@@ -232,6 +232,10 @@
             run_validations: true
           when: install.run.validations
 
+        - name: Set the validations to be skipped
+          set_fact:
+            skiplist_validations: "{{ install.skiplist.validations }}"
+
       tags:
         - always
   roles:
