@@ -189,6 +189,11 @@ subparsers:
                       help: |
                          Turn validation execution on or off (default)
                       default: false
+                  skiplist-validations:
+                      type: Value
+                      help: |
+                          Comma separated string of validations names to be skipped.
+                      default: ''
 
             - title: TripleO Options
               options:
