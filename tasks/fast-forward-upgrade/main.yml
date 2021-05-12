@@ -157,7 +157,6 @@
       vars:
         validation_group: "pre-upgrade"
         validation_allowed_groups: "{{ upgrades_validations_groups }}"
-        validation_args: "--python-interpreter /usr/libexec/platform-python"
       when: run_validations|bool
       tags:
         - overcloud_upgrade_prepare
