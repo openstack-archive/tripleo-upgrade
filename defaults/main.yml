@@ -52,6 +52,11 @@ run_validations: false
 # comma separated list of skipped validations
 skiplist_validations: ''
 
+# extra arguments to pass in the validations group
+# execution.
+# Example: validations_extra_args: "--extra-vars min_undercloud_ram_gb=5"
+validations_extra_args: ''
+
 # validations groups for updates to be
 # executed if updates_validations is true.
 updates_validations_groups:

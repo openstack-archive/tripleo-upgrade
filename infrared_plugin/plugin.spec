@@ -194,6 +194,13 @@ subparsers:
                       help: |
                           Comma separated string of validations names to be skipped.
                       default: ''
+                  validations-extra-args:
+                      type: Value
+                      help: |
+                          String containing some extra arguments to be passed in
+                          the validations group execution.
+                          Example: validations-extra-args: "--extra-vars min_undercloud_ram_gb=5"
+                      default: ''
 
             - title: TripleO Options
               options:

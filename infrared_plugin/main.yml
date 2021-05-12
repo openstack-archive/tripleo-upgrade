@@ -236,6 +236,10 @@
           set_fact:
             skiplist_validations: "{{ install.skiplist.validations }}"
 
+        - name: Extra arguments to be passed in the validations run
+          set_fact:
+            validations_extra_args: "{{ install.validations.extra.args }}"
+
       tags:
         - always
   roles:
