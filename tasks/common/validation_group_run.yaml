@@ -15,7 +15,7 @@
         set -o pipefail
         source {{ undercloud_rc }}
         openstack tripleo validator run --validation {{ validations_filtered | join(',') }} --stack {{ overcloud_stack_name }} \
-           {{ validation_args|default('') }} 2>&1 {{ timestamper_cmd }} >> validation-{{ validation_group }}.log
+           {{ validations_extra_args }} 2>&1 {{ timestamper_cmd }} >> validation-{{ validation_group }}.log
       args:
         executable: /usr/bin/bash
   rescue:
