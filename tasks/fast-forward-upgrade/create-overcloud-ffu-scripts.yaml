@@ -13,6 +13,11 @@
     src: "{{ overcloud_deploy_script }}"
     dest: "{{ overcloud_deploy_script }}.orig.sh"
 
+- name: copy rename-nics.yaml script to undercloud
+  copy:
+    src: rename-nics.yaml
+    dest: "{{ working_dir }}/rename-nics.yaml"
+
 - name: Convert CLI options to parameters
   import_tasks: ../common/convert_cli_opts_params.yaml
 

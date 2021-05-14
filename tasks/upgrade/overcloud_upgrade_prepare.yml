@@ -1,4 +1,10 @@
 ---
+- name: run playbook from Undercloud to rename OC ethX interfaces
+  shell: |
+    set -o pipefail
+    ansible-playbook -v -i {{ working_dir }}/tripleo-ansible-inventory.yaml -e prefix={{ nic_prefix }} \
+      {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/overcloud-rename-nics.log
+
 - name: adjust role-data for upgrade
   include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
