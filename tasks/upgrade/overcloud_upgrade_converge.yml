@@ -36,7 +36,11 @@
       args:
         chdir: "{{ working_dir }}"
         executable: /usr/bin/bash
+  when:
+    - overcloud_converge_upgrade.rc != 0
+    - not ephemeral_heat|bool
 
-    - name: was the overcloud upgrade converge successful.
-      fail: msg="Overcloud upgrade converge step failed... :("
-  when: overcloud_converge_upgrade.rc != 0
+- name: was the overcloud upgrade converge successful.
+  fail: msg="Overcloud upgrade converge step failed... :("
+  when:
+    - overcloud_converge_upgrade.rc != 0

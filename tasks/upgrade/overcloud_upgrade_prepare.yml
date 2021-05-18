@@ -65,7 +65,11 @@
       args:
         chdir: "{{ working_dir }}"
         executable: /usr/bin/bash
+  when:
+    - overcloud_upgrade_prepare.rc != 0
+    - not ephemeral_heat|bool
 
-    - name: was the overcloud upgrade preparation successful.
-      fail: msg="Overcloud upgrade preparation step failed... :("
-  when: overcloud_upgrade_prepare.rc != 0
+- name: was the overcloud upgrade preparation successful.
+  fail: msg="Overcloud upgrade preparation step failed... :("
+  when:
+    - overcloud_upgrade_prepare.rc != 0

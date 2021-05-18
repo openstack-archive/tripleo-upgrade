@@ -23,10 +23,14 @@
       args:
         chdir: "{{ working_dir }}"
         executable: /usr/bin/bash
+  when:
+    - overcloud_converge_update.rc != 0
+    - not ephemeral_heat|bool
 
-    - name: was the overcloud update converge successful.
-      fail: msg="Overcloud update converge step failed... :("
-  when: overcloud_converge_update.rc != 0
+- name: was the overcloud update converge successful.
+  fail: msg="Overcloud update converge step failed... :("
+  when:
+    - overcloud_converge_update.rc != 0
 
 - name: import tasks from l3_agent_connectivity_check_stop_script
   import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml

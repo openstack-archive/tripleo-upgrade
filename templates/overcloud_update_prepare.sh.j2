@@ -29,6 +29,9 @@ openstack overcloud update prepare ${PREPARE_ANSWER} \
     {% if tripleo_upgrade_validations_non_fatal|bool -%}
     --validation-errors-nonfatal \
     {% endif -%}
+    {% if ephemeral_heat|default(false)|bool -%}
+    --heat-type pod \
+    {% endif -%}
     {% if network_data_file|length >0 -%}
     -n {{ network_data_file }} \
     {% endif -%}

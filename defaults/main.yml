@@ -304,3 +304,6 @@ stein_registry_params:
 
 # rhsm overcloud environment location with subscription details
 rhsm_overcloud_env: ''
+
+# ephemeral heat enabled
+ephemeral_heat: false

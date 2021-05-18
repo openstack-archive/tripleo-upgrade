@@ -5,12 +5,27 @@
   failed_when: false
   register: is_upstream
 
-- name: get enabled services for each role
+- name: get enabled services for each role from stack output
   shell: |
     source {{ undercloud_rc }}
     openstack stack output show -f yaml {{ overcloud_stack_name }} EnabledServices -c output_value
   register: enabled_services_out
-  when: not mock_environment|bool
+  when:
+    - not mock_environment|bool
+    - not ephemeral_heat|bool
+
+- name: get enabled services for each role from stack export
+  shell: |
+    import yaml
+
+    e = yaml.safe_load(open("{{ working_dir }}/overcloud-deploy/overcloud/overcloud-export.yaml"))
+    print(yaml.dump(dict(output_value=dict(all=e['parameter_defaults']['AllNodesExtraMapData']['enabled_services']))))
+  args:
+    executable: /usr/bin/python3
+  register: enabled_services_out
+  when:
+    - not mock_environment|bool
+    - ephemeral_heat|bool
 
 - name: set enabled_services fact
   vars:
