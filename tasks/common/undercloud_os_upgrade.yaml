@@ -81,16 +81,6 @@
     - file: 'to_keep'
       package: 'ceph-ansible'
 
-- name: Download required leapp files
-  get_url:
-    url: "https://gitlab.cee.redhat.com/leapp/oamg-rhel7-vagrant/raw/master/roles/init/files/leapp-data/{{ item }}"
-    dest: "/etc/leapp/files/{{ item }}"
-    validate_certs: false
-    mode: '0700'
-  loop:
-    - 'pes-events.json'
-    - 'repomap.csv'
-
 - name: Check if rhos-release is installed
   package:
     name: rhos-release
