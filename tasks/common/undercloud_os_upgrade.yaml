@@ -122,10 +122,19 @@
 - name: Run leapp upgrade (download packages)
   shell: |
     set -o pipefail
-    {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds|bool) %} LEAPP_UNSUPPORTED=1 LEAPP_DEVEL_SKIP_RHSM=1 {% endif %}\
-    {% if leapp_skip_release_check|bool %} LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1  {% endif %} sudo -E leapp upgrade \
-    {% if leapp_unsubscribed|bool %} {{ leapp_unsubscribed_options.stdout }} {% endif %} --debug 2>&1 | \
-        tee {{ working_dir }}/undercloud_leapp_upgrade.log
+    {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds|bool) %}
+    export LEAPP_UNSUPPORTED=1
+    export LEAPP_DEVEL_SKIP_RHSM=1
+    {% endif %}
+    {% if leapp_skip_release_check|bool %}
+    export LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1
+    {% endif %}
+    {% if lookup('env', 'UPGRADE_RHEL_VERSION') != '' %}
+    export LEAPP_DEVEL_TARGET_RELEASE={{ lookup('env', 'UPGRADE_RHEL_VERSION') }}
+    {% endif %}
+    sudo -E leapp upgrade \
+    {% if leapp_unsubscribed|bool %} {{ leapp_unsubscribed_options.stdout }} {% endif %} \
+    --debug 2>&1 | tee {{ working_dir }}/undercloud_leapp_upgrade.log
 
 - name: Relabel SELinux for filesystem after reboot.
   file:
