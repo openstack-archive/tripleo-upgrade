@@ -81,6 +81,13 @@
     - file: 'to_keep'
       package: 'ceph-ansible'
 
+- name: Set required leapp answers
+  shell: |
+    # PAM module pam_pkcs11 is no longer available in RHEL-8 since it was replaced by SSSD
+    leapp answer --section remove_pam_pkcs11_module_check.confirm=True --add
+    # Required for TLS-Everywhere, switch from authconfig to authselect
+    leapp answer --section authselect_check.confirm=True --add
+
 - name: Check if rhos-release is installed
   package:
     name: rhos-release
