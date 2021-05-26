@@ -118,7 +118,9 @@
         - name: Set upgrade compute host evacuate
           set_fact:
             compute_evacuate: true
-          when: install.upgrade.compute.evacuate
+          when:
+            - install.upgrade.compute.evacuate
+            - groups['compute'] | length > 1
 
         - name: Set deployment-files base
           set_fact:
