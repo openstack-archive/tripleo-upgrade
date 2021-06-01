@@ -5,6 +5,7 @@
 # validation_args: string containing extra arguments for the validation command. (defaults to empty string)
 - block:
     - name: "Run validation group {{ validation_group }}"
+      register: validations_result
       shell: |
         set -o pipefail
         source {{ undercloud_rc }}
@@ -31,4 +32,9 @@
         msg: "Validation failed: check the log in validation-{{ validation_group }}-failed.log."
       when:
         - "validations_failed|length > 0"
+    - name: Fail if the validations command didn't succeed
+      fail:
+        msg: "Validations failed: check the log in validation-{{ validation_group }}.log."
+      when:
+        - validations_result is not succeeded
   when: "validation_group in validation_allowed_groups"
