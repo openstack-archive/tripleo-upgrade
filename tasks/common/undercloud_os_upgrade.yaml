@@ -102,6 +102,12 @@
     - rhos_release_installed.rc == 0
     - not rhos_release_installed.changed
 
+- name: "Unload the kernel modules that are no longer supported in RHEL 8 (rhbz#1962365)"
+  shell: |
+    set -o pipefail
+    module=floppy; sudo lsmod | grep -q $module && { sudo rmmod $module; echo "$module unloaded"; } || echo "$module was not loaded"
+    module=pata_acpi; sudo lsmod | grep -q $module && { sudo rmmod $module; echo "$module unloaded"; } || echo "$module was not loaded"
+
 - name: Get enablerepo line for leapp
   shell: |
       yum repolist -q 2> /dev/null | grep -e rhos-16 -e 'rhel-8.*baseos'  -e 'rhel-8.*appstream' -e 'rhel-8.*fdp' -e 'rhel-8.*av' -e 'ansible' | cut -d '/' -f1 | \
