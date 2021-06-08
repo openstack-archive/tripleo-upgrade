@@ -77,7 +77,7 @@
     - file: 'to_remove'
       package: 'openvswitch2.11'
     - file: 'to_install'
-      package: 'openvswitch2.13'
+      package: 'openvswitch{{ leapp_ovs_version }}'
     - file: 'to_keep'
       package: 'ceph-ansible'
 

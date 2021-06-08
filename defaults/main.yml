@@ -291,6 +291,9 @@ leapp_unregister: true
 
 leapp_skip_release_check: false
 
+# OpenvSwitch version to install during leapp
+leapp_ovs_version: '2.13'
+
 # Avoid Rhel Enforcement policies.
 enforce_rhel: false
 
