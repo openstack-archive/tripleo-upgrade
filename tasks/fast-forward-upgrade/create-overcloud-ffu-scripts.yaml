@@ -142,3 +142,8 @@
 
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
+
+# TODO: Not comptatible with oooq
+- name: build extra templates based on new options.
+  import_tasks: ../common/build_extra_template.yaml
+  when: not use_oooq|bool
