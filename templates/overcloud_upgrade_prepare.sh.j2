@@ -53,6 +53,9 @@ openstack overcloud upgrade prepare ${PREPARE_ANSWER} \
     {% if upgrade_remove_rpm|default(false)|bool -%}
     -e {{ working_dir }}/remove-packages.yaml \
     {% endif -%}
+    {% if config_heat_extra_yaml is defined -%}
+    -e {{ working_dir }}/{{ install.deployment.files | basename }}/config_heat_extra.yaml \
+    {% endif -%}
     {% if upgrade_prepare_extra_params and upgrade_prepare_extra_params|string -%}
     {% if ',' in upgrade_prepare_extra_params -%}
     -e {{ upgrade_prepare_extra_params.split(',') | join(' -e ') }} \
