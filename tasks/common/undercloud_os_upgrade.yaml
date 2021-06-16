@@ -88,6 +88,12 @@
     # Required for TLS-Everywhere, switch from authconfig to authselect
     leapp answer --section authselect_check.confirm=True --add
 
+- name: Remove leapp actors
+  file:
+    path: /usr/share/leapp-repository/repositories/system_upgrade/el7toel8/actors/{{ item }}/actor.py
+    state: absent
+  loop: "{{ leapp_actors_to_remove }}"
+
 - name: Check if rhos-release is installed
   package:
     name: rhos-release

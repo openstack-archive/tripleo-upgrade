@@ -294,6 +294,9 @@ leapp_skip_release_check: false
 # OpenvSwitch version to install during leapp
 leapp_ovs_version: '2.13'
 
+# Leapp actors to remove
+leapp_actors_to_remove: ['persistentnetnamesdisable']
+
 # Avoid Rhel Enforcement policies.
 enforce_rhel: false
 
