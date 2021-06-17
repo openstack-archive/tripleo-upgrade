@@ -10,6 +10,7 @@
      httpd
      mysql*
      pacemaker*
+     xinetd
      python-jsonpointer
      qemu-kvm-common-rhev
      qemu-img-rhev
