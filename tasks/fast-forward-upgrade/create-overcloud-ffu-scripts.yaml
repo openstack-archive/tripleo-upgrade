@@ -110,6 +110,11 @@
   include_tasks: create-overcloud-ffu-hosts-scripts.yaml
   with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"
 
+# TODO: Not comptatible with oooq
+- name: build extra templates based on new options.
+  import_tasks: ../common/build_extra_template.yaml
+  when: not use_oooq|bool
+
 - name: create overcloud converge script
   vars:
     old_img: "{{ working_dir }}/{{ container_registry_file }}"
@@ -142,8 +147,3 @@
 
 - name: import create HTTP test scripts
   import_tasks: ../common/create_http_test_scripts.yml
-
-# TODO: Not comptatible with oooq
-- name: build extra templates based on new options.
-  import_tasks: ../common/build_extra_template.yaml
-  when: not use_oooq|bool
