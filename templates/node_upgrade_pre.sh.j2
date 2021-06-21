@@ -1,7 +1,13 @@
 {% if compute_evacuate %}
 source {{ overcloud_rc }}
 ## Get exact hostname
-HOST=$(openstack compute service list -f value -c Host | grep {{ node_name }} )
+HOST=$(openstack compute service list -f value -c Host | grep {{ node_name | regex_replace(',', '\\|') }})
+
+if [ "$HOST" = "" ]; then
+    echo "No compute hosts are in: {{ node_name }}"
+    exit 1
+fi
+
 INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE"))] | length')
 
 if [ $INSTANCE_COUNT != 0 ]; then
