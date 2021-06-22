@@ -116,11 +116,14 @@
     - rhos_release_installed.rc == 0
     - not rhos_release_installed.changed
 
-- name: "Unload the kernel modules that are no longer supported in RHEL 8 (rhbz#1962365)"
-  shell: |
-    set -o pipefail
-    module=floppy; sudo lsmod | grep -q $module && { sudo rmmod $module; echo "$module unloaded"; } || echo "$module was not loaded"
-    module=pata_acpi; sudo lsmod | grep -q $module && { sudo rmmod $module; echo "$module unloaded"; } || echo "$module was not loaded"
+- name: "Disable the kernel modules in Leapp database (removed_drivers.txt) that are no longer supported in RHEL 8 (rhbz#1962365)"
+  vars:
+    modules_to_unload: ['pata_acpi', 'floppy']
+  lineinfile:
+    path: "/usr/share/leapp-repository/repositories/system_upgrade/el7toel8/actors/kernel/checkkerneldrivers/files/removed_drivers.txt"
+    regexp: "{{ item }}"
+    state: absent
+  loop: "{{ modules_to_unload }}"
 
 - name: Get enablerepo line for leapp
   shell: |
