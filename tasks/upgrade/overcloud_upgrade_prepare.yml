@@ -1,10 +1,4 @@
 ---
-- name: run playbook from Undercloud to rename OC ethX interfaces
-  shell: |
-    set -o pipefail
-    ansible-playbook -v -i {{ working_dir }}/tripleo-ansible-inventory.yaml -e prefix={{ nic_prefix }} \
-      {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/overcloud-rename-nics.log
-
 - name: adjust role-data for upgrade
   include_tasks: ../common/adjust-roles-data.yaml
   when: custom_roles_used|bool
@@ -75,3 +69,17 @@
     - name: was the overcloud upgrade preparation successful.
       fail: msg="Overcloud upgrade preparation step failed... :("
   when: overcloud_upgrade_prepare.rc != 0
+
+- name: regenerate inventory file after stack update
+  shell: |
+    source {{ undercloud_rc }}
+    /usr/bin/tripleo-ansible-inventory --plan {{ overcloud_stack_name }} \
+        {% if overcloud_ssh_user %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
+        --static-yaml-inventory {{ working_dir }}/tripleo-ansible-inventory.yaml
+  when: not mock_environment|bool
+
+- name: run playbook from Undercloud to rename OC ethX interfaces
+  shell: |
+    set -o pipefail
+    ansible-playbook -v -i {{ working_dir }}/tripleo-ansible-inventory.yaml -e prefix={{ nic_prefix }} \
+      {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/overcloud-rename-nics.log
