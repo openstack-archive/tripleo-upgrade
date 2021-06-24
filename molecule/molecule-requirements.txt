@@ -2,8 +2,7 @@
 ansible
 ansi2html
 docker
-# https://github.com/sqlalchemy/dogpile.cache/issues/178 (openstacksdk)
-dogpile.cache>=0.6.5,<0.9.1  # MIT
+dogpile.cache>=>0.9.2  # MIT
 pytest
 pytest-cov
 pytest-html
