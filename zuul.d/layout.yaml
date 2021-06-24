@@ -20,12 +20,14 @@
             irrelevant-files: &multinode_ignored
               - ^.*\.md$
               - ^.*\.rst$
+              - ^.pre-commit-config.yaml$
               - ^doc/.*$
               - ^docs/.*$
               - ^etc/.*$
               - ^metadata.json$
               - ^releasenotes/.*$
               - ^test-requirements.txt$
+              - ^setup.*$
               - ^spec/.*$
               - ^Puppetfile.*$
               - tox.ini
