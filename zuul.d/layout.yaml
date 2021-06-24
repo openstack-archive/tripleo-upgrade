@@ -17,6 +17,7 @@
             irrelevant-files: &multinode_ignored
               - ^.*\.md$
               - ^.*\.rst$
+              - ^.pre-commit-config.yaml$
               - ^doc/.*$
               - ^docs/.*$
               - ^etc/.*$
