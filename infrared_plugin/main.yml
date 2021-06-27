@@ -115,19 +115,25 @@
             l3_agent_connectivity_check: true
           when: install.upgrade.floatingip.check
 
+        - name: Search for compute group
+          set_fact:
+            compute_group: "{{item.key}}"
+          loop: "{{ groups|dict2items}}"
+          when: '"compute" in item.key'
+
         - name: Set upgrade compute host evacuate
           set_fact:
             compute_evacuate: true
           when:
             - install.upgrade.compute.evacuate
-            - groups['compute'] | length > 1
+            - groups[compute_group] | length > 1
 
         - name: Set upgrade compute host cold evacuate
           set_fact:
             compute_cold_evacuate: true
           when:
             - install.upgrade.compute.cold.evacuate
-            - groups['compute'] | length > 1
+            - groups[compute_group] | length > 1
 
         - name: Set deployment-files base
           set_fact:
