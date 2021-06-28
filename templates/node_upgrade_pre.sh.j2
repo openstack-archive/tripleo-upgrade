@@ -1,4 +1,28 @@
 {% if compute_evacuate|bool or compute_cold_evacuate|bool %}
+host_quiesced() {
+    INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+    if [ $INSTANCE_COUNT != 0 ]; then
+{% raw %}
+        if (( ${#DO_NO_MIGRATE_IDs[@]} )); then
+{% endraw %}
+            echo 'There are VMs that do not need to be migrated'
+            CURRENT_VM_IDs=($(openstack server list --all --host ${HOST} -f json | jq -r -c '.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING")) | .ID '))
+            # Determine if there are any VM IDs that are not part of the 'Do Not Migrate' list of VM IDs
+            diff=$(echo ${DO_NO_MIGRATE_IDs[@]} ${CURRENT_VM_IDs[@]} | sed 's/ /\n/g' | sort | uniq -u | wc -l)
+            if [ $diff -eq 0 ]; then
+                echo "All migratable guests are off the host"
+                return 0
+            else
+                echo "Guests still pending migration"
+                return 1
+            fi
+        fi
+    else
+        echo "All ACTIVE guests are off the host"
+        return 0
+    fi
+}
+
 source {{ overcloud_rc }}
 ## Get exact hostname
 HOST=$(openstack compute service list -f value -c Host | grep {{ node_name | regex_replace(',', '\\|') }})
@@ -10,29 +34,55 @@ fi
 
 echo "Instances to migrate"
 openstack server list --all --host ${HOST}
-INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE")) ] | length')
 
-{% if compute_cold_evacuate|bool and not compute_evacuate|bool %}
-## compute service disable for cold evacuate
-openstack compute service set ${HOST} nova-compute --disable --down
-{% endif %}
-
-if [ $INSTANCE_COUNT != 0 ]; then
-{% if compute_evacuate|bool  %}
-   nova host-evacuate-live ${HOST}
-{% elif compute_cold_evacuate|bool %}
-   nova host-evacuate ${HOST}
-{% endif %}
+declare -a DO_NO_MIGRATE_IDs
+declare -a COLD_MIGRATE_IDs
+MIGRATION_TIMEOUT={{ compute_migration_timeout }}
+VM_IDs=($(openstack server list --all --host ${HOST} -f json | jq -r -c '.[] | select(.Status | contains("ACTIVE")) | .ID '))
+{% raw %}
+if ((${#VM_IDs[@]})); then
+    for vm_id in "${VM_IDs[@]}"; do
+{% endraw %}
+        echo $vm_id
+        migrate_action=$(openstack server show $vm_id -f value -c properties)
+        case $migrate_action in
+            *cold-migrate*)
+                echo "Will cold-migrate instance ${vm_id} off ${HOST}"
+                COLD_MIGRATE_IDs+=($vm_id)
+                nova migrate $vm_id
+                ;;
+            *do-not-migrate*)
+                echo "Instance ${vm_id} will not be migrated off ${HOST}"
+                DO_NO_MIGRATE_IDs+=($vm_id)
+                ;;
+            *live-migrate*)
+                echo "Instance ${vm_id} will be live migrated migrated off ${HOST}"
+                nova live-migration $vm_id
+                ;;
+            *)
+            {% if compute_evacuate|bool  %}
+               nova live-migration $vm_id
+               echo "Default action will be to live-migrate instance ${vm_id} off ${HOST}"
+            {% elif compute_cold_evacuate|bool %}
+               nova migrate $vm_id
+               COLD_MIGRATE_IDs+=($vm_id)
+               echo "Default action Will be cold-migrate instance ${vm_id} off ${HOST}"
+            {% endif %}
+                ;;
+        esac
+    done
 else
    echo "No vms in active state on ${HOST}"
+   exit 0
 fi
 
-timeout_seconds=$(( 120 * ( $INSTANCE_COUNT + 1 ) ))
+{% raw %}
+timeout_seconds=$(( $MIGRATION_TIMEOUT * ( ${#VM_IDs[@]} + 1 ) ))
+{% endraw %}
 elapsed_seconds=0
-while [ $INSTANCE_COUNT != 0 ]; do
+while ! host_quiesced; do
     echo "Waiting for ${HOST} to get quiesced ..."
-    INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING")) ] | length')
-    if [ $INSTANCE_COUNT == 0 ]; then
+    if host_quiesced; then
         break
     fi
     sleep 3
@@ -44,4 +94,26 @@ while [ $INSTANCE_COUNT != 0 ]; do
         exit 1
     fi
 done
+
+# If any guest's were cold migrated, confirm the resize
+{% raw %}
+if (( ${#COLD_MIGRATE_IDs[@]} )); then
+    echo "Begin confirm resize process of cold migrated VMs"
+    cold_migration_timeout=$(( $MIGRATION_TIMEOUT * ( ${#COLD_MIGRATE_IDs[@]} + 1 ) ))
+{% endraw %}
+    for vm_id in "${COLD_MIGRATE_IDs[@]}"; do
+        elapsed_seconds=0
+        VM_STATUS=$(openstack server show $vm_id -c status -f value)
+        while [[ "$VM_STATUS" != "VERIFY_RESIZE" ]]; do
+            VM_STATUS=$(openstack server show $vm_id -c status -f value)
+            sleep 3
+            (( elapsed_seconds += 3 ))
+            if [ $elapsed_seconds -ge $cold_migration_timeout ]; then
+                echo "FAILURE: ${vm_id} could not reach VERIFY_RESIZE status, instead it is still in status: ${VM_STATUS}"
+                exit 1
+            fi
+        done
+        nova resize-confirm $vm_id
+    done
+fi
 {% endif %}
