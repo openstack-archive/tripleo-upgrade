@@ -1,20 +1,9 @@
 ---
-- block:
-    - name: run playbook from Undercloud to rename ethX interfaces
-      shell: |
-        set -o pipefail
-        ansible-playbook -v -c local -i localhost, -e prefix={{ nic_prefix }} \
-          {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/undercloud-rename-nics.log
-
-    - name: Replace interface name in undercloud.conf and /etc/os-net-config/config.json
-      replace:
-        path: "{{ item }}"
-        regexp: 'eth'
-        replace: "{{ nic_prefix }}"
-      loop:
-        - "{{ undercloud_conf }}"
-        - "/etc/os-net-config/config.json"
-
+- name: run playbook from Undercloud to rename ethX interfaces
+  shell: |
+    set -o pipefail
+    ansible-playbook -v -c local -i localhost, -e prefix={{ nic_prefix }} -e undercloud_conf={{ undercloud_conf }} \
+      {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/undercloud-rename-nics.log
   when: "ansible_interfaces | select('match', '^eth[0-9]+') | list | length > 1"
 
 - name: Remove old RHEL7 packages
