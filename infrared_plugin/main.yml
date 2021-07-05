@@ -122,6 +122,13 @@
             - install.upgrade.compute.evacuate
             - groups['compute'] | length > 1
 
+        - name: Set upgrade compute host cold evacuate
+          set_fact:
+            compute_cold_evacuate: true
+          when:
+            - install.upgrade.compute.cold.evacuate
+            - groups['compute'] | length > 1
+
         - name: Set deployment-files base
           set_fact:
             container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"

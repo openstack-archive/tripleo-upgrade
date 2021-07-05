@@ -1,4 +1,4 @@
-{% if compute_evacuate %}
+{% if compute_evacuate|bool or compute_cold_evacuate|bool %}
 source {{ overcloud_rc }}
 ## Get exact hostname
 HOST=$(openstack compute service list -f value -c Host | grep {{ node_name | regex_replace(',', '\\|') }})
@@ -8,20 +8,28 @@ if [ "$HOST" = "" ]; then
     exit 1
 fi
 
-INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE"))] | length')
+INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE")) ] | length')
+
+{% if compute_cold_evacuate|bool and not compute_evacuate|bool %}
+## compute service disable for cold evacuate
+openstack compute service set ${HOST} nova-compute --disable --down
+{% endif %}
 
 if [ $INSTANCE_COUNT != 0 ]; then
+{% if compute_evacuate|bool  %}
    nova host-evacuate-live ${HOST}
+{% elif compute_cold_evacuate|bool %}
+   nova host-evacuate ${HOST}
+{% endif %}
 else
    echo "No vms in active state on ${HOST}"
 fi
 
-INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
 timeout_seconds=$(( 60 * ( $INSTANCE_COUNT + 1 ) ))
 elapsed_seconds=0
 while [ $INSTANCE_COUNT != 0 ]; do
     echo "Waiting for ${HOST} to get quiesced ..."
-    INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING"))] | length')
+    INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE") or contains("PAUSED") or contains("MIGRATING")) ] | length')
     if [ $INSTANCE_COUNT == 0 ]; then
         break
     fi
