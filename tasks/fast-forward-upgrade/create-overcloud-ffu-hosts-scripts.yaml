@@ -29,9 +29,9 @@
     hosts: "{{ pcs_upgrade_hosts | regex_replace(',$', '')
             if pcs_present else item | reject('none') | join(',') }}"
     transfer_data: >
-      {{ inventory_hostmap.mysql | intersect (item) | length > 0}}
+      {{ inventory_hostmap.mysql | intersect (item) | length > 0 }}
     stop_services: >
-      {{ inventory_hostmap.pacemaker | intersect (item) | length > 0}}
+      {{ inventory_hostmap.pacemaker | intersect (item) | length > 0 }}
   template:
     src: "fast-forward-upgrade/overcloud_upgrade_run.sh.j2"
     dest: "{{ overcloud_upgrade_run_script_base }}-{{ hosts }}.sh"

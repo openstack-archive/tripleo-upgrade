@@ -8,17 +8,17 @@
 - name: create pre upgrade script for {{ node_name }}
   template:
     src: node_upgrade_pre.sh.j2
-    dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_pre.sh"
+    dest: "{{ working_dir }}/{{ node_name | splitext | first | splitext | first }}_upgrade_pre.sh"
     mode: 0775
 
 - name: create script for upgrading {{ node_name }}
   template:
     src: node_upgrade.sh.j2
-    dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade.sh"
+    dest: "{{ working_dir }}/{{ node_name | splitext | first | splitext | first }}_upgrade.sh"
     mode: 0775
 
 - name: create post upgrade script for {{ node_name }}
   template:
     src: node_upgrade_post.sh.j2
-    dest: "{{working_dir}}/{{ node_name | splitext | first | splitext | first }}_upgrade_post.sh"
+    dest: "{{ working_dir }}/{{ node_name | splitext | first | splitext | first }}_upgrade_post.sh"
     mode: 0775
