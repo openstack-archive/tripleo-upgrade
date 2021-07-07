@@ -99,8 +99,13 @@ subparsers:
                   upgrade-compute-evacuate:
                       type: Bool
                       help: |
-                          Migrate instances between compute nodes during upgrade.
+                          Live migrate instances between compute nodes during upgrade.
                       default: true
+                  upgrade-compute-cold-evacuate:
+                      type: Bool
+                      help: |
+                          Cold migrate instances between compute nodes during upgrade.
+                      default: false
                   upgrade-controller-reboot:
                       type: Bool
                       help: |
