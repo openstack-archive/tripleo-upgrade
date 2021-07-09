@@ -86,7 +86,9 @@
       tags:
         - create_overcloud_upgrade_scripts
   tags: create_overcloud_upgrade_scripts
-  when: upgrade_noop|bool or overcloud_upgrade|bool
+  when: >
+    upgrade_noop|bool or
+    overcloud_upgrade|bool
 
 - block:
     - name: apply pre overcloud upgrade prepare workarounds

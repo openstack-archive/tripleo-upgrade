@@ -48,6 +48,15 @@
     mode: 0775
   when: upgrade_init_command is string
 
+- name: create overcloud upgrade prepare script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
+  template:
+    src: "overcloud_upgrade_prepare.sh.j2"
+    dest: "{{ overcloud_upgrade_prepare_script }}"
+    mode: 0775
+    force: true
+
 - name: create overcloud_prepare_containers.sh script
   template:
     src: overcloud_prepare_containers.sh.j2
