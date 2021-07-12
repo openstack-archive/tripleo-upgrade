@@ -81,5 +81,5 @@
 - name: run playbook from Undercloud to rename OC ethX interfaces
   shell: |
     set -o pipefail
-    ansible-playbook -v -i {{ working_dir }}/tripleo-ansible-inventory.yaml -e prefix={{ nic_prefix }} \
+    ansible-playbook -v -i {{ working_dir }}/tripleo-ansible-inventory.yaml -e prefix={{ nic_prefix }} -e undercloud_conf={{ undercloud_conf }} \
       {{ working_dir }}/rename-nics.yaml 2>&1 {{ timestamper_cmd }} >> {{ working_dir}}/overcloud-rename-nics.log
