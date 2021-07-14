@@ -126,7 +126,7 @@
     set -o pipefail
     {% if leapp_unsubscribed|bool and (upgrade_workarounds|bool or ffu_upgrade_workarounds|bool) %}
     export LEAPP_UNSUPPORTED=1
-    export LEAPP_DEVEL_SKIP_RHSM=1
+    export LEAPP_NO_RHSM=1
     {% endif %}
     {% if leapp_skip_release_check|bool %}
     export LEAPP_DEVEL_SKIP_CHECK_OS_RELEASE=1
