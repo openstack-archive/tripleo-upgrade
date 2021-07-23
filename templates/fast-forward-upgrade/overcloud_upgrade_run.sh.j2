@@ -46,14 +46,26 @@ openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --tags system_upgrade_transfer_data 2>&1 && touch .system_upgrade_transfer_data
 
-echo "[$(date)] Finished upgrade transfer data for {{ hosts }}"
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed upgrade transfer data for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished upgrade transfer data for {{ hosts }}"
+fi
+
 
 echo "[$(date)] Setting up hybrid state for computes"
 openstack overcloud upgrade run ${RUN_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --playbook upgrade_steps_playbook.yaml \
         --tags nova_hybrid_state --limit all 2>&1
-echo "[$(date)] Finished setting up hybrid state for computes"
+
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed setting up hybrid state for computes"
+    exit 1
+else
+    echo "[$(date)] Finished setting up hybrid state for computes"
+fi
 
 fi
 
@@ -65,7 +77,12 @@ openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --stack {{ overcloud_stack_name }} \
         --tags system_upgrade_stop_services 2>&1
 
-echo "[$(date)] Finished upgrade stop services for {{ hosts }}"
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed upgrade stop services for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished upgrade stop services for {{ hosts }}"
+fi
 {% endif -%}
 
 echo "[$(date)] Running major upgrade for {{ hosts }} hosts"
@@ -77,6 +94,12 @@ openstack overcloud upgrade run ${RUN_ANSWER} \
         {% endif -%}
         --limit {{ hosts }} --playbook all 2>&1
 
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed major upgrade for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished major upgrade for {{ hosts }} hosts"
+fi
 echo "[$(date)] Finished major upgrade for {{ hosts }} hosts"
 
 {% if l3_agent_connectivity_check|bool %}

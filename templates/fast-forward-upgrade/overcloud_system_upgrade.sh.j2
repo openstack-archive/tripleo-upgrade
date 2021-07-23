@@ -21,7 +21,13 @@ openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
         --tags ceph_systemd \
         -e ceph_ansible_limit={{ hosts }} 2>&1 && touch .ceph_ran_{{ hosts }}
 
-echo "[$(date)] Finished ceph systemd units migration run for {{ hosts }}"
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed ceph systemd units migration run for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished ceph systemd units migration run for {{ hosts }}"
+fi
+
 fi
 {% endif -%}
 
