@@ -176,6 +176,9 @@ fip_http_check: false
 # migrate instances between compute nodes during upgrade
 compute_evacuate: false
 compute_cold_evacuate: false
+compute_migration_timeout: 120
+# workload exist prior to upgrade
+workload_external: false
 
 # enable post upgrade checks
 controller_upgrade_post: false

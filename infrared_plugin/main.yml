@@ -135,6 +135,20 @@
             - install.upgrade.compute.cold.evacuate
             - groups[compute_group] | length > 1
 
+        - name: Set upgrade compute host migrate timeout
+          set_fact:
+            compute_migration_timeout: "{{ install.upgrade.compute.migration.timeout }}"
+          when:
+            - install.upgrade.compute.migration.timeout
+            - groups[compute_group] | length > 1
+
+        - name: Set workload already exist before upgrade
+          set_fact:
+            workload_external: true
+          when:
+            - install.upgrade.workloadexternal
+            - groups[compute_group] | length > 1
+
         - name: Set deployment-files base
           set_fact:
             container_registry_file: "{{ install.deployment.files | basename }}/docker-images.yaml"
