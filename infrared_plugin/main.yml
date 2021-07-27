@@ -135,6 +135,13 @@
             - install.upgrade.compute.cold.evacuate
             - groups[compute_group] | length > 1
 
+        - name: Set workload already exist before upgrade
+          set_fact:
+            workload_external: true
+          when:
+            - install.upgrade.workloadexternal
+            - groups[compute_group] | length > 1
+
         - name: Set upgrade compute host migrate timeout
           set_fact:
             compute_migration_timeout: "{{ install.upgrade.compute.migration.timeout }}"
