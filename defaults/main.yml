@@ -175,6 +175,8 @@ fip_http_check: false
 compute_evacuate: false
 compute_cold_evacuate: false
 compute_migration_timeout: 120
+# workload exist prior to upgrade
+workload_external: false
 
 # enable post upgrade checks
 controller_upgrade_post: false
