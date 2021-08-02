@@ -17,22 +17,6 @@
     - custom_uc_containers.stat.exists
     - deployment_with_ovn
 
-- name: add upgrade init script to upgrade prepare params
-  set_fact:
-    upgrade_prepare_extra_params: "{{ upgrade_prepare_extra_params + [upgrade_init_command_dest] }}"
-  when:
-    - upgrade_init_command is string
-    - not ffu_overcloud_upgrade|bool
-
-# Render it now so it takes all additions in upgrade_prepare_extra_params
-- name: create overcloud upgrade prepare script
-  vars:
-    old_img: "{{ working_dir }}/{{ container_registry_file }}"
-  template:
-    src: "overcloud_upgrade_prepare.sh.j2"
-    dest: "{{ overcloud_upgrade_prepare_script }}"
-    mode: 0775
-    force: true
 
 - name: setup HEAT outputs via upgrade prepare
   shell: |
