@@ -22,15 +22,16 @@ function apply_patch {
     local patch_id=$2
     local patch_revision=$3
     local patch_strip=$4
+    local gerrit_url=$5
     local temp_dir=''
 
     temp_dir=$( mktemp -d )
 
-    curl -4 --retry 5 https://review.opendev.org/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
+    curl -4 --retry 5 ${gerrit_url}/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
         base64 -d > ${temp_dir}/patch.txt
 
     if [[ ${?} -ne 0 ]] ; then
-        echo "Failed to download patch https://review.opendev.org/#/c/${patch_id}/"
+        echo "Failed to download patch ${gerrit_url}/${patch_id}"
         exit 1
     fi
 
@@ -119,7 +120,8 @@ echo {{ key }}
 {%             if value.patch -%}
 {%                 set _patch_revision = value.patch_revision | default('current', True) -%}
 {%                 set _patch_strip = value.patch_strip | default(1, True) -%}
-apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_revision }} {{ _patch_strip }}
+{%                 set _gerrit_url = value.gerrit_url | default('https://review.opendev.org', True) -%}
+apply_patch {{ value.basedir }} {{ value.id }} {{ _patch_revision }} {{ _patch_strip }} {{ _gerrit_url }}
 {%             elif value.ansible_hosts is defined and value.ansible_hosts != '' -%}
 
 [ -d $HOME/ansible_workarounds ] || mkdir $HOME/ansible_workarounds
