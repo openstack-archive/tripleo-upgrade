@@ -8,6 +8,8 @@ if [ "$HOST" = "" ]; then
     exit 1
 fi
 
+echo "Instances to migrate"
+openstack server list --all --host ${HOST}
 INSTANCE_COUNT=$(openstack server list --all --host ${HOST} -f json | jq -r -c '[.[] | select(.Status | contains("ACTIVE")) ] | length')
 
 {% if compute_cold_evacuate|bool and not compute_evacuate|bool %}
@@ -25,7 +27,7 @@ else
    echo "No vms in active state on ${HOST}"
 fi
 
-timeout_seconds=$(( 60 * ( $INSTANCE_COUNT + 1 ) ))
+timeout_seconds=$(( 120 * ( $INSTANCE_COUNT + 1 ) ))
 elapsed_seconds=0
 while [ $INSTANCE_COUNT != 0 ]; do
     echo "Waiting for ${HOST} to get quiesced ..."
@@ -37,7 +39,9 @@ while [ $INSTANCE_COUNT != 0 ]; do
     (( elapsed_seconds += 3 ))
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
         echo "FAILURE: Could not quiesce compute node ${HOST}"
-    exit 1
+        echo "Instances left"
+        openstack server list --all --host ${HOST}
+        exit 1
     fi
 done
 {% endif %}
