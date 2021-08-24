@@ -91,14 +91,25 @@
     overcloud_upgrade|bool
 
 - block:
-    - name: apply pre overcloud upgrade prepare workarounds
-      shell: |
-        set -o pipefail
-        ./pre_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} >> pre_overcloud_upgrade_prepare_workarounds.log
-      args:
-        executable: /usr/bin/bash
-        chdir: "{{ working_dir }}"
-      when: upgrade_workarounds
+    - name: adjust role-data for upgrade
+      include_tasks: ../common/adjust-roles-data.yaml
+      when: custom_roles_used|bool
+      tags: overcloud_upgrade_prepare
+
+    - name: check customized {{ uc_containers_prepare_file }} exists
+      stat:
+        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+      register: custom_uc_containers
+      tags: overcloud_upgrade_prepare
+
+    - name: Set the neutron_driver to ovn for the Overcloud upgrade if deployed with OVN
+      replace:
+        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+        regexp: '^(\s*neutron_driver\s*:)(.*)'
+        replace: '\1 ovn'
+      when:
+        - custom_uc_containers.stat.exists
+        - deployment_with_ovn
       tags: overcloud_upgrade_prepare
 
     - import_tasks: overcloud_upgrade_prepare.yml
