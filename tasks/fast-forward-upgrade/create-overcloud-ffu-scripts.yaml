@@ -53,15 +53,6 @@
     mode: 0775
   when: upgrade_init_command is string
 
-- name: create overcloud upgrade prepare script
-  vars:
-    old_img: "{{ working_dir }}/{{ container_registry_file }}"
-  template:
-    src: "overcloud_upgrade_prepare.sh.j2"
-    dest: "{{ overcloud_upgrade_prepare_script }}"
-    mode: 0775
-    force: true
-
 - name: create overcloud_prepare_containers.sh script
   template:
     src: overcloud_prepare_containers.sh.j2
@@ -123,6 +114,15 @@
 - name: build extra templates based on new options.
   import_tasks: ../common/build_extra_template.yaml
   when: not use_oooq|bool
+
+- name: create overcloud upgrade prepare script
+  vars:
+    old_img: "{{ working_dir }}/{{ container_registry_file }}"
+  template:
+    src: "overcloud_upgrade_prepare.sh.j2"
+    dest: "{{ overcloud_upgrade_prepare_script }}"
+    mode: 0775
+    force: true
 
 - name: create overcloud converge script
   vars:
