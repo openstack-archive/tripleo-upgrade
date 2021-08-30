@@ -185,40 +185,8 @@
         ./overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} >> \
             overcloud_update_data_migration.log
 
-    - name: apply pre overcloud update converge workarounds
-      shell: |
-          set -o pipefail
-          ./pre_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
-            pre_overcloud_update_converge_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-        executable: /usr/bin/bash
-      when: updates_workarounds|bool
-      tags: overcloud_update_converge
-
-    - name: run pre-update-converge validation
-      import_tasks: ../common/validation_group_run.yaml
-      vars:
-        validation_group: "pre-update-converge"
-        validation_allowed_groups: "{{ updates_validations_groups }}"
-      when: run_validations|bool
-      tags:
-        - overcloud_update_converge
-        - updates_validations
-
     - name: import overcloud update converge tasks
       import_tasks: overcloud_update_converge.yml
-      tags: overcloud_update_converge
-
-    - name: apply post overcloud update converge workarounds
-      shell: |
-          set -o pipefail
-          ./post_overcloud_update_converge_workarounds.sh 2>&1 {{ timestamper_cmd }} >> \
-            post_overcloud_update_converge_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-        executable: /usr/bin/bash
-      when: updates_workarounds|bool
       tags: overcloud_update_converge
 
     - name: run post-update validation
@@ -228,7 +196,6 @@
         validation_allowed_groups: "{{ updates_validations_groups }}"
       when: run_validations|bool
       tags:
-        - overcloud_update_converge
         - updates_validations
 
     - name: validate overcloud docker images/containers

@@ -5,27 +5,15 @@
 - name: run minor update converge step
   shell: |
         set -o pipefail
-        {{ overcloud_update_converge_script }} 2>&1 {{ timestamper_cmd }} >> \
-          overcloud_update_converge.log
+        openstack overcloud update converge -y 2>&1 {{ timestamper_cmd }} >> \
+        overcloud_update_converge.log
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
+  environment:
+    OS_CLOUD: undercloud
   register: overcloud_converge_update
   ignore_errors: true
-
-- block:
-    - name: print stack failures
-      shell: |
-        set -o pipefail
-        source {{ undercloud_rc }}
-        openstack stack failures list --long {{ overcloud_stack_name }} {{ timestamper_cmd }} | \
-          tee -a overcloud_composable_failed_update_converge.log
-      args:
-        chdir: "{{ working_dir }}"
-        executable: /usr/bin/bash
-  when:
-    - overcloud_converge_update.rc != 0
-    - not ephemeral_heat|bool
 
 - name: was the overcloud update converge successful.
   fail: msg="Overcloud update converge step failed... :("

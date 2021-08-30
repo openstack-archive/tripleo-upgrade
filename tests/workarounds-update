@@ -32,7 +32,7 @@ pre_overcloud_update_prepare_workarounds:
         patch: false
         containers: true
         environment: overcloud
-        deploy_scripts: overcloud_update_prepare.sh,overcloud_update_converge.sh
+        deploy_scripts: overcloud_update_prepare.sh
         preparation_commands: |
           echo "Updates overcloud containers command"
         containers_file_modifications:
@@ -55,11 +55,3 @@ pre_overcloud_update_run_workarounds:
         ansible_hosts: "overcloud"
         command: |
           cat /etc/redhat-release
-post_overcloud_update_converge_workarounds:
-    - rhbz13:
-        patch: false
-        basedir: ''
-        id: ''
-        ansible_hosts: "overcloud"
-        command: |
-          echo "Update finished, awesome!"

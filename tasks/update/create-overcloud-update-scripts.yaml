@@ -41,8 +41,6 @@
     - 'post_overcloud_update_prepare_workarounds'
     - 'pre_overcloud_update_run_workarounds'
     - 'post_overcloud_update_run_workarounds'
-    - 'pre_overcloud_update_converge_workarounds'
-    - 'post_overcloud_update_converge_workarounds'
   when: updates_workarounds|bool
 
 - name: include l3 agent tasks
@@ -80,15 +78,6 @@
     src: "overcloud_online_data_migration.sh.j2"
     dest: "{{ working_dir }}/overcloud_online_data_migration.sh"
     mode: 0755
-    force: true
-
-- name: create overcloud update converge script
-  vars:
-    old_img: "{{ working_dir }}/{{ container_registry_file }}"
-  template:
-    src: "overcloud_update_converge.sh.j2"
-    dest: "{{ overcloud_update_converge_script }}"
-    mode: 0775
     force: true
 
 - name: create docker container/images validate scripts
