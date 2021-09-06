@@ -139,16 +139,6 @@
         - '../common/l3_agent_failover_check_pre_script.yml'
       tags: ffu_overcloud_prepare
 
-    - name: apply pre ffu overcloud prepare workarounds
-      shell: |
-        set -o pipefail
-        ./pre_ffu_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} >> pre_ffu_overcloud_upgrade_prepare_workarounds.log
-      args:
-        chdir: "{{ working_dir }}"
-        executable: /usr/bin/bash
-      when: ffu_upgrade_workarounds|bool
-      tags: ffu_overcloud_prepare
-
     # At this stage, the Undercloud is in targe version and the overcloud
     # in source version. Therefore we can use the tripleo-validation new
     # framework, but it is required to pass the python-interpreter
@@ -172,6 +162,37 @@
 
     - name: replace environment files
       import_tasks: ../common/replace_environment_files.yaml
+      tags: ffu_overcloud_prepare
+
+    - name: adjust role-data for upgrade
+      include_tasks: ../common/adjust-roles-data.yaml
+      when: custom_roles_used|bool
+      tags: ffu_overcloud_prepare
+
+    - name: check customized {{ uc_containers_prepare_file }} exists
+      stat:
+        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+      register: custom_uc_containers
+      tags: ffu_overcloud_prepare
+
+    - name: Set the neutron_driver to ovn for the Overcloud upgrade if deployed with OVN
+      replace:
+        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+        regexp: '^(\s*neutron_driver\s*:)(.*)'
+        replace: '\1 ovn'
+      when:
+        - custom_uc_containers.stat.exists
+        - deployment_with_ovn
+      tags: ffu_overcloud_prepare
+
+    - name: apply pre ffu overcloud prepare workarounds
+      shell: |
+        set -o pipefail
+        ./pre_ffu_overcloud_upgrade_prepare_workarounds.sh 2>&1 {{ timestamper_cmd }} >> pre_ffu_overcloud_upgrade_prepare_workarounds.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
+      when: ffu_upgrade_workarounds|bool
       tags: ffu_overcloud_prepare
 
     - name: run overcloud upgrade prepare
