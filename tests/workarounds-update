@@ -1,17 +1,21 @@
 ---
 pre_undercloud_update_workarounds:
     - rhbz1:
-        patch: true
-        basedir: /usr/share/openstack-tripleo-heat-templates
-        id: 112345
-        command:
+        patch: false
+        containers: true
+        environment: undercloud
+        preparation_commands: |
+          echo "Updates undercloud containers command"
+        containers_file_modifications:
+          modify_role: tripleo-modify-image
+          includes:
+          - ironic-inspector
+          modify_append_tag: "-updated"
+          modify_vars:
+            tasks_from: yum_update.yml
+            compare_host_packages: true
+            yum_repos_dir_path: /etc/yum.repos.d
     - rhbz2:
-        patch: true
-        basedir: /usr/share/openstack-tripleo-heat-templates
-        patch_strip: 2
-        id: 212321
-        command:
-    - rhbz3:
         patch: false
         basedir: ''
         id: ''
@@ -23,8 +27,28 @@ post_undercloud_update_workarounds:
         id: ''
         command: |
           echo "This is a nice workaround"
-pre_overcloud_update_run_workarounds:
+pre_overcloud_update_prepare_workarounds:
     - rhbz11:
+        patch: false
+        containers: true
+        environment: overcloud
+        deploy_scripts: overcloud_update_prepare.sh,overcloud_update_converge.sh
+        preparation_commands: |
+          echo "Updates overcloud containers command"
+        containers_file_modifications:
+          modify_role: tripleo-modify-image
+          includes:
+          - rabbitmq
+          - haproxy
+          - maria
+          - redis
+          modify_append_tag: "-updated"
+          modify_vars:
+            tasks_from: yum_update.yml
+            compare_host_packages: true
+            yum_repos_dir_path: /etc/yum.repos.d
+pre_overcloud_update_run_workarounds:
+    - rhbz12:
         patch: false
         basedir: ''
         id: ''
@@ -32,7 +56,7 @@ pre_overcloud_update_run_workarounds:
         command: |
           cat /etc/redhat-release
 post_overcloud_update_converge_workarounds:
-    - rhbz12:
+    - rhbz13:
         patch: false
         basedir: ''
         id: ''
