@@ -316,3 +316,6 @@ rhsm_overcloud_env: ''
 
 # ephemeral heat enabled
 ephemeral_heat: false
+
+# extra args for update prepare and update converge
+extra_args: ''
