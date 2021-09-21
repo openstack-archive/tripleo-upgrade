@@ -63,7 +63,6 @@ updates_validations_groups:
   - pre-update
   - pre-update-prepare
   - pre-update-run
-  - pre-update-converge
   - post-update
 
 # validations groups for updates to be
