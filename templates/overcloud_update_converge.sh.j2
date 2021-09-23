@@ -54,4 +54,5 @@ openstack overcloud update converge ${CONVERGE_ANSWER} \
     {% if roles_data != default_roles_data -%}
     --roles-file {{ roles_data }} \
     {% endif -%}
+    {{ extra_args }} \
     2>&1
