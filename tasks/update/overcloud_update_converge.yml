@@ -5,7 +5,9 @@
 - name: run minor update converge step
   shell: |
         set -o pipefail
-        openstack overcloud update converge -y 2>&1 {{ timestamper_cmd }} >> \
+        openstack overcloud update converge \
+        --stack {{ overcloud_stack_name }} \
+        -y 2>&1 {{ timestamper_cmd }} >> \
         overcloud_update_converge.log
   args:
     chdir: "{{ working_dir }}"
