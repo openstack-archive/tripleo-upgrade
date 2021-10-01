@@ -309,7 +309,7 @@ system_upgrade_compact: true
 ceph3_registry_params:
   ceph3_namespace: "registry.access.redhat.com/rhceph"
   ceph3_image: "rhceph-3-rhel7"
-  ceph3_tag: "3-40"
+  ceph3_tag: "3-51"
 
 # stein registry parameters
 stein_registry_params:
