@@ -27,13 +27,8 @@ function apply_patch {
 
     temp_dir=$( mktemp -d )
 
-    curl -4 --retry 5 ${gerrit_url}/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
+    curl -4sSL --retry 10 ${gerrit_url}/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
         base64 -d > ${temp_dir}/patch.txt
-
-    if [[ ${?} -ne 0 ]] ; then
-        echo "Failed to download patch ${gerrit_url}/${patch_id}"
-        exit 1
-    fi
 
     if sudo patch --dry-run --force -d ${patch_dir} -p${patch_strip} < ${temp_dir}/patch.txt >/dev/null 2>&1
     then
