@@ -185,10 +185,6 @@
         ./overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} >> \
             overcloud_update_data_migration.log
 
-    - name: import overcloud update converge tasks
-      import_tasks: overcloud_update_converge.yml
-      tags: overcloud_update_converge
-
     - name: run post-update validation
       import_tasks: ../common/validation_group_run.yaml
       vars:
