@@ -9,7 +9,7 @@
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
-  tags: ffu_overcloud_system_upgrade
+  tags: ffu_overcloud_upgrade_run
 
 - name: Disable scheduling on {{ host }}
   when:
@@ -30,7 +30,7 @@
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
-  tags: ffu_overcloud_system_upgrade
+  tags: ffu_overcloud_upgrade_run
 
 - name: run the RHEL upgrade steps for the host {{ host }}
   shell: |
@@ -42,12 +42,12 @@
     executable: /usr/bin/bash
   register: overcloud_system_upgrade_res
   ignore_errors: true
-  tags: ffu_overcloud_system_upgrade
+  tags: ffu_overcloud_upgrade_run
 
 - name: was the RHEL upgrade step successful.
   fail: msg="Overcloud Operating System upgrade failed in {{ host }}."
   when: overcloud_system_upgrade_res.rc != 0
-  tags: ffu_overcloud_system_upgrade
+  tags: ffu_overcloud_upgrade_run
 
 - name: apply post ffu overcloud system upgrade workarounds in {{ host }}
   shell: |
@@ -58,7 +58,7 @@
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
   when: ffu_upgrade_workarounds
-  tags: ffu_overcloud_system_upgrade
+  tags: ffu_overcloud_upgrade_run
 
   ######## overcloud upgrade run ########
 - name: Enable scheduling on {{ host }}
