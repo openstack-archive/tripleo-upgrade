@@ -201,6 +201,11 @@
             ffu_overcloud_upgrade: true
           when: install.overcloud.ffu.upgrade
 
+        - name: Set overcloud Fast and Furious Upgrade
+          set_fact:
+            fast_and_furious: true
+          when: install.fast.and.furious
+
         - name: Set overcloud FFU upgrade releases
           set_fact:
             ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"
