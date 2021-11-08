@@ -25,6 +25,48 @@ echo "[$(date)] Finished ceph systemd units migration run for {{ hosts }}"
 fi
 {% endif -%}
 
+{% if fast_and_furious -%}
+if [ ! -f .system_upgrade_stop_services ]; then
+
+EXTERNAL_ANSWER=""
+if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+echo "[$(date)] Started system_upgrade_stop_services for {{ hosts }}"
+
+openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
+        --stack {{ overcloud_stack_name }} \
+        --tags system_upgrade_stop_services 2>&1 && touch .system_upgrade_stop_services
+
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed upgrade system_upgrade_stop_services for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished upgrade system_upgrade_stop_services for {{ hosts }}"
+fi
+
+fi
+
+RUN_ANSWER=""
+if openstack overcloud upgrade run --help | grep -qe "--yes"; then
+    RUN_ANSWER="--yes"
+fi
+
+echo "[$(date)] Started system upgrade step for {{ hosts }}"
+  openstack overcloud upgrade run ${RUN_ANSWER} \
+          --stack {{ overcloud_stack_name }} \
+          --tags system_upgrade \
+          --limit "{{ hosts }}" 2>&1 | tee -a "RHEL_upgrade_{{ hosts }}"
+
+if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed in system upgrade step for {{ hosts }}"
+    exit 1
+else
+    echo "[$(date)] Finished system upgrade step for {{ hosts }}"
+fi
+
+{% else -%}
+
 RUN_ANSWER=""
 if openstack overcloud upgrade run --help | grep -qe "--yes"; then
     RUN_ANSWER="--yes"
@@ -58,3 +100,4 @@ else
     echo "[$(date)] Failed in system upgrade step for {{ hosts }}"
     exit 1
 fi
+{% endif -%}

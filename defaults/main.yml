@@ -32,6 +32,11 @@ ffu_noop: false
 ffu_bulk: true
 ffu_computes_rolling: false
 
+# enable all at once FFWD upgrade.
+# This procedure will pause ceph and upgrade the whole overcloud
+# at once.
+fast_and_furious: false
+
 # enable cells update
 update_cell: false
 
