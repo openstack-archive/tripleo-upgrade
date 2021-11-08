@@ -250,8 +250,15 @@
 
     ############## OS upgrade + Overcloud node upgrade run ##############
     - name: Start overcloud upgrade run for all roles.
+      import_tasks: overcloud_upgrade_fast_and_furious.yaml
+      tags: ffu_overcloud_run
+      when: fast_and_furious|bool
+
+    ############## OS upgrade + Overcloud node upgrade run ##############
+    - name: Start overcloud upgrade run for all roles.
       import_tasks: overcloud_upgrade_roles.yaml
       tags: ffu_overcloud_run
+      when: not fast_and_furious|bool
 
     #    - name: stop L3 verification scripts
     #      include_tasks: "{{ item }}"

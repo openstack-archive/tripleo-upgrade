@@ -284,6 +284,12 @@ subparsers:
                           NOTE: Upgrade require overcloud deployment script to be available in home directory of undercloud
                           user at undercloud node
                       default: false
+                  fast-and-furious:
+                      type: Bool
+                      help: |
+                          Fast and Furious form of FFU Overcloud
+                          NOTE: Will cause workload outage
+                      default: false
                   undercloud-ffu-os-upgrade:
                       type: Bool
                       help: |
