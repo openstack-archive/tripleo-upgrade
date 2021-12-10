@@ -2,125 +2,90 @@
 # Script obtained from https://access.redhat.com/documentation/en-us/
 # red_hat_openstack_platform/16.1/html-single/framework_for_upgrades_13_to_16.1/
 # index#using-predictable-nic-names-preparing-undercloud
-- name: Rename network interfaces
+- name: Rename eth devices
   hosts: all
   become: true
   vars:
-    src_prefix: "eth"
-    dst_prefix: "em"
-    osnet_conf: "/etc/os-net-config/config.json"
-    src_interfaces: "{{ ansible_interfaces | select('match', src_prefix ~ '.*') | sort | list }}"
-    undercloud_conf: "~/undercloud.conf"
+    prefix: "em"
   tasks:
+    - set_fact:
+        eth_interfaces: "{{ ansible_interfaces | select('match','eth.*') | list }}"
+        osnet_conf: "/etc/os-net-config/config.json"
     - debug:
-        msg: "{{ src_interfaces }}"
-
-
+        msg: "{{ eth_interfaces }}"
     - name: Update udev rules
-      tags:
-        - udev
       lineinfile:
         line: >
           SUBSYSTEM=="net",
           ACTION=="add",
           DRIVERS=="?*",
           ATTR{address}=="{{ ansible_facts[item]['perm_macaddress'] | default(ansible_facts[item]['macaddress']) }}",
-          NAME="{{ item | replace(src_prefix, dst_prefix) }}"
+          NAME="{{ item|replace('eth',prefix) }}"
         path: /etc/udev/rules.d/70-rhosp-persistent-net.rules
         create: true
-      with_items: "{{ src_interfaces }}"
-
-
-    - name: Rename ifcfg files
-      tags:
-        - ifcfg
+      with_items: "{{ eth_interfaces }}"
+    - name: Rename eth files
       block:
-        - name: Check that src_prefix files exists
+        - name: Check that eth files exists
           stat:
             path: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
           register: nic_result
-          with_items: "{{ src_interfaces }}"
-
-        - name: Copy ifcfg files using dst_prefix
+          with_items: "{{ eth_interfaces }}"
+        - name: Copy nic files using the new prefix
           copy:
             remote_src: true
             src: "{{ item.stat.path }}"
-            dest: "{{ item.stat.path | replace(src_prefix, dst_prefix) }}"
+            dest: "{{ item.stat.path|replace('eth',prefix) }}"
           with_items: "{{ nic_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
         - name: Edit NAME in new network-script files
           lineinfile:
             regexp: "^NAME=.*"
-            line: "NAME={{ item.item | replace(src_prefix, dst_prefix) }}"
-            path: "{{ item.stat.path | replace(src_prefix, dst_prefix) }}"
+            line: "NAME={{ item.item|replace('eth',prefix) }}"
+            path: "{{ item.stat.path|replace('eth',prefix) }}"
           with_items: "{{ nic_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
         - name: Edit DEVICE in new network-script files
           lineinfile:
             regexp: "^DEVICE=.*"
-            line: "DEVICE={{ item.item | replace(src_prefix, dst_prefix) }}"
-            path: "{{ item.stat.path | replace(src_prefix, dst_prefix) }}"
+            line: "DEVICE={{ item.item|replace('eth',prefix) }}"
+            path: "{{ item.stat.path|replace('eth',prefix) }}"
           with_items: "{{ nic_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
-        - name: Backup old ifcfg network-script files
+        - name: Backup old eth network-script files
           copy:
             remote_src: true
             src: "{{ item.stat.path }}"
             dest: "{{ item.stat.path }}.bak"
           with_items: "{{ nic_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
-        - name: Remove old ifcfg network-script files
+        - name: Remove old eth network-script files
           file:
             path: "{{ item.stat.path }}"
             state: absent
           with_items: "{{ nic_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
-
     - name: Rename route files
-      tags:
-        - routes
       block:
         - name: Check that route files exists
           stat:
             path: /etc/sysconfig/network-scripts/route-{{ item }}
           register: route_result
-          with_items: "{{ src_interfaces }}"
-
-        - name: Copy route files using dst_prefix
+          with_items: "{{ eth_interfaces }}"
+        - name: Copy route files using the new prefix
           copy:
             remote_src: true
             src: "{{ item.stat.path }}"
-            dest: "{{ item.stat.path | replace(src_prefix, dst_prefix) }}"
+            dest: "{{ item.stat.path|replace('eth',prefix) }}"
           with_items: "{{ route_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
-        - name: Update dst_prefix in route files that use IP command arguments format
+        - name: Update prefix in route files that use IP command arguments format
           replace:
-            regexp: "{{ src_prefix }}"
-            replace: "{{ dst_prefix }}"
-            path: "{{ item.stat.path | replace(src_prefix, dst_prefix) }}"
+            regexp: "eth"
+            replace: "{{ prefix }}"
+            path: "{{ item.stat.path|replace('eth',prefix) }}"
           with_items: "{{ route_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
         - name: Backup old route files
           copy:
             remote_src: true
@@ -128,22 +93,13 @@
             dest: "{{ item.stat.path }}.bak"
           with_items: "{{ route_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
         - name: Remove old route files
           file:
             path: "{{ item.stat.path }}"
             state: absent
           with_items: "{{ route_result.results }}"
           when: item.stat.exists
-          loop_control:
-            label: "{{ item.item }}"
-
-
-    - name: Perform a final regex for any remaining src_prefix in ifcfg files
-      tags:
-        - ifcfg
+    - name: Perform a final regex for any remaining eth prefixes in ifcfg files
       block:
         - name: Get a list of all ifcfg files
           find:
@@ -151,45 +107,33 @@
             patterns: 'ifcfg-*'
             excludes: '*.bak'
           register: ifcfg_files
-
         - name: Perform final regex on ifcfg files
           replace:
             path: "{{ item[0].path }}"
             regexp: "{{ item[1] }}"
-            replace: "{{ item[1] | replace(src_prefix, dst_prefix) }}"
+            replace: "{{ item[1]|replace('eth',prefix) }}"
           with_nested:
             - "{{ ifcfg_files.files }}"
-            - "{{ src_interfaces }}"
-          loop_control:
-            label: "{{ item[1] }} -> {{ item[0].path }}"
-
-
-    - name: Replace interface name in TripleO configuration files
-      tags:
-        - tripleo
+            - "{{ eth_interfaces }}"
+    - name: Replace interface name in files referencing old eth interface
       block:
         - name: Check if undercloud.conf exists
           stat:
             path: "{{ undercloud_conf }}"
           register: undercloud_conf_stat
-
         - name: Replace interface name in undercloud.conf
           replace:
             path: "{{ undercloud_conf }}"
-            regexp: "{{ item }}"
-            replace: "{{ item | replace(src_prefix, dst_prefix) }}"
+            regexp: 'eth(\d+)'
+            replace: "{{ prefix }}\\1"
           when: undercloud_conf_stat.stat.exists
-          with_items: "{{ src_interfaces }}"
-
         - name: Check if os-net-config's config.json exists
           stat:
             path: "{{ osnet_conf }}"
           register: osnet_conf_stat
-
         - name: Replace interface name in config.json
           replace:
             path: "{{ osnet_conf }}"
-            regexp: "{{ item }}"
-            replace: "{{ item | replace(src_prefix, dst_prefix) }}"
+            regexp: 'eth(\d+)'
+            replace: "{{ prefix }}\\1"
           when: osnet_conf_stat.stat.exists
-          with_items: "{{ src_interfaces }}"
