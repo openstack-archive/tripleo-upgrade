@@ -15,13 +15,12 @@
 # under the License.
 
 import collections
-import six
 import yaml
 
 
 def to_inventory_hostmap(data):
     # Flattens inventory to a group->host mapping
-    if isinstance(data, six.string_types):
+    if isinstance(data, str):
         inventory = yaml.safe_load(data)
     else:
         inventory = data
@@ -51,7 +50,7 @@ def to_inventory_hostmap(data):
 
 def to_inventory_rolemap(data):
     # Falttens inventory to a group->role mapping
-    if isinstance(data, six.string_types):
+    if isinstance(data, str):
         inventory = yaml.safe_load(data)
     else:
         inventory = data
@@ -83,13 +82,13 @@ def to_inventory_rolemap(data):
 
 def to_inventory_roles(data):
     # Returns list of tripleo roles in inventory
-    if isinstance(data, six.string_types):
+    if isinstance(data, str):
         inventory = yaml.safe_load(data)
     else:
         inventory = data
 
     roles = {}
-    for group, group_data in six.iteritems(inventory):
+    for group, group_data in iter(inventory.items()):
         group_role = group_data.get('vars', {}).get('tripleo_role_name', None)
         if group_role is not None:
             roles[group_role] = True
