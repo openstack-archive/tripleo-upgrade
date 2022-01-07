@@ -36,7 +36,8 @@ if openstack overcloud upgrade run --help | grep -qe "--yes"; then
     RUN_ANSWER="--yes"
 fi
 
-{% if transfer_data -%}
+# Run the transfer data only if not doing the fast and furious upgrade
+{% if transfer_data and not fast_and_furious -%}
 
 if [ ! -f .system_upgrade_transfer_data ]; then
 
@@ -69,7 +70,7 @@ fi
 
 fi
 
-{% elif stop_services -%}
+{% elif stop_services and not fast_and_furious -%}
 
 echo "[$(date)] Started upgrade stop services for {{ hosts }}"
 

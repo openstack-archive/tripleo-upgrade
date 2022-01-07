@@ -1,0 +1,21 @@
+---
+- set_fact:
+    pcs_host: ""
+- name: Create /var/lib/tripleo/transfer-flags/var-lib-mysql in bootstrap node
+  become: true
+  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+  delegate_to: "{{ ((oc_roles_hosts|dict2items |
+                     selectattr('key', 'in', inventory_rolemap['mysql'] | default([]))) |
+                     map(attribute='value') | map('sort') |  list | flatten(1))[0]   }}"
+  shell: "sudo mkdir -p /var/lib/tripleo/transfer-flags && sudo touch /var/lib/tripleo/transfer-flags/var-lib-mysql"
+
+- name: upgrade the whole overcloud
+  vars:
+    host: "{{ item | reject('none') | join(',') }}"
+    pcs_present: false
+    compute_present: false
+    oc_role_host_list: >-
+      {{ (oc_roles_hosts|dict2items | default([])) |
+           map(attribute='value') | map('sort') | flatten(1) }}
+  include_tasks: overcloud_upgrade_hosts.yaml
+  with_together: "{{ (oc_role_host_list | length == 0) | ternary([[], []], oc_role_host_list) }}"
