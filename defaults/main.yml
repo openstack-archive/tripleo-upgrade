@@ -314,7 +314,7 @@ stein_registry_params:
 rhsm_overcloud_env: ''
 
 # ephemeral heat enabled
-ephemeral_heat: false
+ephemeral_heat: true
 
 # extra args for update prepare and update converge
 extra_args: ''
