@@ -50,9 +50,6 @@ openstack overcloud upgrade converge ${CONVERGE_ANSWER} \
     --disable-validations \
     --deployed-server \
     {% endif -%}
-    {% if ephemeral_heat|default(false)|bool -%}
-    --heat-type pod \
-    {% endif -%}
     {% if network_data_file|length >0 -%}
     -n {{ network_data_file }} \
     {% endif -%}
