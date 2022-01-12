@@ -144,9 +144,9 @@
 
         - name: Set upgrade compute host migrate timeout
           set_fact:
+            # install.upgrade.compute.migration.timeout default to 120 by infrared-plugin
             compute_migration_timeout: "{{ install.upgrade.compute.migration.timeout }}"
           when:
-            - install.upgrade.compute.migration.timeout
             - groups[compute_group] | length > 1
 
         - name: Set deployment-files base
