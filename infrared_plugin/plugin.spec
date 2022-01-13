@@ -106,6 +106,18 @@ subparsers:
                       help: |
                           Cold migrate instances between compute nodes during upgrade.
                       default: false
+                  upgrade-compute-migration-timeout:
+                      type: Value
+                      help: |
+                          Base timeout in seconds to wait for migration to finalize
+                          during upgrade. Timeout scales value by multiplying it by the
+                          number of instances that need to be migrated.
+                      default: 120
+                  upgrade-workloadexternal:
+                      type: Bool
+                      help: |
+                          Workload exist prior to upgrade.
+                      default: false
                   upgrade-controller-reboot:
                       type: Bool
                       help: |

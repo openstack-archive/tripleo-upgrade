@@ -6,7 +6,7 @@
 - name: create compute pre upgrade script for {{ item }}
   when:
     - compute_present | bool
-    - workload_launch | bool
+    - (workload_launch | bool) or (workload_external | bool)
   vars:
     node_name: "{{ item | reject('none') | join(',') }}"
   template:
