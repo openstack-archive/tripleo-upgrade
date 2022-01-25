@@ -80,7 +80,7 @@
 
 - name: Remove leapp actors
   file:
-    path: /usr/share/leapp-repository/repositories/system_upgrade/el7toel8/actors/{{ item }}/actor.py
+    path: /usr/share/leapp-repository/repositories/system_upgrade/common/actors/{{ item }}
     state: absent
   loop: "{{ leapp_actors_to_remove }}"
 
