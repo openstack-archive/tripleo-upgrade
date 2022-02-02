@@ -305,18 +305,6 @@ enforce_rhel: false
 # system upgrade run into a single step
 system_upgrade_compact: true
 
-# ceph registry parameters
-ceph3_registry_params:
-  ceph3_namespace: "registry.access.redhat.com/rhceph"
-  ceph3_image: "rhceph-3-rhel7"
-  ceph3_tag: "3-51"
-
-# stein registry parameters
-stein_registry_params:
-  namespace_stein: "{{ full_namespace | default('registry.access.redhat.com') }}"
-  tag_stein: "20200115.1"
-  name_prefix_stein: "rhosp15-openstack-"
-
 # rhsm overcloud environment location with subscription details
 rhsm_overcloud_env: ''
 
