@@ -64,26 +64,6 @@
         value: "{{ full_namespace.split('/')[0] }},{{ ceph_namespace }}"
       when: defined_container_registry.stdout_lines|length == 0
 
-    - name: Set the neutron_driver to openvswitch for the Undercloud
-      replace:
-        path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
-        regexp: '^(\s*neutron_driver\s*:)(.*)'
-        replace: '\1 openvswitch'
-
-  when: custom_uc_containers.stat.exists
-
-# adjust containers-prepare-parameter for FFWD
-- name: "Add stein registry parameters in {{ uc_containers_prepare_file }}"
-  lineinfile:
-    path: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
-    insertafter: "^.*namespace:.*$"
-    line: "      {{ item.key }}: {{ item.value }}"
-    regexp: "^      {{ item.key }}: {{ item.value }}"
-  loop: "{{ stein_registry_params | combine(ceph3_registry_params) | dict2items }}"
-  when:
-    - custom_uc_containers.stat.exists
-    - ffu_undercloud_upgrade|bool
-
 - name: adjust existing container_insecure_registries for undercloud upgrade
   vars:
     reg_list: '{{ defined_insecure_registry.stdout.split(",")|union([full_namespace.split("/")[0],ceph_namespace])|unique|join(",") }}'
