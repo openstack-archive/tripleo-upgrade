@@ -123,5 +123,12 @@ kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
 bash {{ working_dir }}/fip_http_check_stop.sh
 {% endif %}
 {% if launch_sanity_workload|bool %}
+#TODO (holser) Refactor neutron agent resilience
+#When rabbit is restarted neutron agent waits 10 min to restore operations with
+#rabbit. It means when controller-0 is upgraded and control is moved to it,
+#all TCP connections will be dropped so that will innitiate timeout in neutron
+#agent.
+sleep 60
+
 bash {{ working_dir }}/workload_launch.sh 'sanity'
 {% endif %}

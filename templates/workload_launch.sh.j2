@@ -51,16 +51,17 @@ function sanity_check {
 
     echo "Waiting for compute services to be up"
 
-    until openstack compute service list --service nova-compute -c State -f value | grep -qv down; do
+    while openstack compute service list --service nova-compute -f json | jq '.[].State' | grep -q 'down' || openstack network agent list -f json | jq '.[].Alive' | grep -q 'false'; do
         if [ $elapsed_seconds -ge $timeout_seconds ]; then
-            echo "FAILURE: Some nova-compute services are down"
+            echo "FAILURE: Some nova-compute or network agent services are down"
             openstack compute service list --service nova-compute
+            openstack network agent list
             exit 1
         fi
         sleep 5
         elapsed_seconds=$(( ${elapsed_seconds} + 5 ))
     done
-    echo "All compute services are up and running"
+    echo "All compute and networking services are up and running"
 }
 
 function sanity_teardown {
