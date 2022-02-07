@@ -57,6 +57,9 @@ run_validations: false
 # comma separated list of skipped validations
 skiplist_validations: ''
 
+# Validation Ansible inventory for Upgrade
+upgrade_validation_inventory: upgrade_validation_inventory.yaml
+
 # extra arguments to pass in the validations group
 # execution.
 # Example: validations_extra_args: "--extra-vars min_undercloud_ram_gb=5"
