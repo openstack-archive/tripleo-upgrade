@@ -78,10 +78,9 @@
     # Required for TLS-Everywhere, switch from authconfig to authselect
     leapp answer --section authselect_check.confirm=True --add
 
-- name: Remove leapp actors
-  file:
-    path: /usr/share/leapp-repository/repositories/system_upgrade/common/actors/{{ item }}
-    state: absent
+- name: Remove leapp actors to prevent them inhibiting the upgrade
+  command:
+    cmd: find /usr/share/leapp-repository/repositories/ -name {{ item }} -type d -print -exec rm -rf "{}" +
   loop: "{{ leapp_actors_to_remove }}"
 
 - name: Check if rhos-release is installed
