@@ -58,6 +58,13 @@
     mode: 0775
     force: true
 
+- name: create overcloud ovn external update
+  template:
+    src: "ovn-external-update.sh.j2"
+    dest: "{{ working_dir }}/ovn-external-update.sh"
+    mode: 0775
+    force: true
+
 - name: create overcloud_prepare_containers.sh script
   template:
     src: overcloud_prepare_containers.sh.j2

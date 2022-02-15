@@ -124,6 +124,17 @@
       tags:
         - overcloud_update_prepare_containers
 
+    - name: Update OVN controllers.
+      shell: |
+        set -o pipefail
+        ./ovn-external-update.sh 2>&1 {{ timestamper_cmd }} >> \
+          ovn-external-update.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
+      tags:
+        - overcloud_update_run
+
     - name: Ensure ansible-pacemaker module is present in CI.
       package:
         name: ansible-pacemaker
