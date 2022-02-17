@@ -267,6 +267,9 @@ enabled_services: {}
 # Ceph OSD service present in overcloud
 ceph_osd_enabled: false
 
+# time to wait for cephadm to complete update in minutes
+ceph_update_timeout: 20
+
 # Remove unused RPMs
 upgrade_remove_rpm: false
 

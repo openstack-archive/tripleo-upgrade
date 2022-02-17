@@ -93,13 +93,6 @@
     mode: 0755
     force: true
 
-- name: create ceph update script
-  template:
-    src: "ceph-update-run.sh.j2"
-    dest: "{{ working_dir }}/ceph-update-run.sh"
-    mode: 0755
-    force: true
-
 - name: Create L3-agent failover scripts
   import_tasks: ../common/create_l3_agent_failover_check_script.yml
 

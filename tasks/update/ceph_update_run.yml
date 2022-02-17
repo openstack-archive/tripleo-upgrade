@@ -1,20 +1,85 @@
 ---
-- name: run Ceph minor update
-  shell: |
-    set -o pipefail
-    ./ceph-update-run.sh 2>&1 {{ timestamper_cmd }} >> \
-      ceph-update-run.log
-  args:
-    chdir: "{{ working_dir }}"
-    executable: /usr/bin/bash
-  ignore_errors: true
-  register: ceph_update_status
+- name: Load variables from container environment file
+  slurp:
+    src: "{{ working_dir }}/{{ uc_containers_prepare_file }}"
+  register: container_env
+
+- name: Set required ceph image facts from container environment file
+  set_fact:
+    ceph_image_tag: "{{ (container_env.content|b64decode|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_tag }}"
+    ceph_image: "{{ (container_env.content|b64decode|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_image }}"
+    ceph_namespace: "{{ (container_env.content|b64decode|from_yaml).parameter_defaults.ContainerImagePrepare[0].set.ceph_namespace.split('/')[1] }}"
+    container_registry: "{{ undercloud_short_host_name }}.{{ docker_registry_network }}.{{ undercloud_domain }}:8787"
+
+- name: Get Ceph cluster health status
+  shell: cephadm shell ceph -s -f json | jq .health.status -r
+  register: ceph_status
+  become: true
+  become_user: root
+  delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
+
+- name: Fail before ceph update when ceph cluster is unhealthy
+  fail:
+    msg: Ceph update failed because ceph cluster is unhealthy
+  when: ceph_status.stdout != "HEALTH_OK"
+
+- name: import tasks from l3_agent_connectivity_check_start_script
+  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
 - block:
-    - name: print Ceph update failures
-      command: tail {{ working_dir }}/ceph-update-run.log
+    - name: Start Ceph update using cephadm
+      command:
+        cmd: >
+          cephadm shell --
+          ceph orch upgrade start --image {{ image }}
+      vars:
+        image: "{{ container_registry }}/{{ ceph_namespace }}/{{ ceph_image }}:{{ ceph_image_tag }}"
+      become: true
+      become_user: root
+      delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
 
-    - name: fail Ceph update
+    - name: Wait while ceph update is in progress
+      shell: |
+        set -o pipefail
+        cephadm shell -- ceph -s -f json | jq .progress_events
+      changed_when: false
+      register: ceph_progress_events
+      retries: "{{ ceph_update_timeout }}"
+      delay: 60
+      until:
+        - ceph_progress_events.stdout == '{}'
+      become: true
+      become_user: root
+      delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
+
+    - name: Check update status
+      shell: |
+        set -o pipefail
+        cephadm shell -- ceph log last cephadm | grep 'Upgrade: Complete!'
+      become: true
+      become_user: root
+      delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
+      register: ceph_update_status
+
+    - name: Fail Ceph update
       fail:
         msg: Ceph minor update failed
-  when: ceph_update_status is failed
+      when: ceph_update_status.rc != 0
+  rescue:
+    - name: print Ceph update failures
+      command:
+        cmd: >
+          cephadm shell --
+          ceph log last cephadm
+      become: true
+      become_user: root
+      delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
+
+    - name: Fail Ceph update
+      fail:
+        msg: Ceph minor update failed
+  always:
+    - name: import tasks from l3_agent_connectivity_check_stop_script
+      import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
+      vars:
+        current_stage_error: "{{ update_loss_threshold }}"

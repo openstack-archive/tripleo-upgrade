@@ -184,8 +184,10 @@
         - overcloud_update_run
 
     - name: update Ceph
-      include_tasks: ceph_update_run.yml
+      import_tasks: ceph_update_run.yml
       when: ceph_osd_enabled|bool
+      tags:
+        - ceph_update_run
 
     - name: run online data migration
       args:

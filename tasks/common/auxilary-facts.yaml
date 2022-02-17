@@ -44,6 +44,42 @@
   set_fact:
     ceph_osd_enabled: "{{  enabled_services.values() | list | flatten | intersect(['ceph_osd','ceph_mgr','ceph_mon']) | length > 0 | bool }}"
 
+- name: get container registry network
+  shell: |
+    {% if ephemeral_heat | bool %}
+    import yaml
+    e = yaml.safe_load(open("{{ working_dir }}/overcloud-deploy/{{ overcloud_stack_name }}/{{ overcloud_stack_name }}-export.yaml"))
+    print(e['parameter_defaults']['AllNodesExtraMapData']['docker_registry_network'])
+    {% else %}
+    source {{ undercloud_rc }}
+    openstack stack output show -f yaml {{ overcloud_stack_name }} DockerRegistryNetwork -c output_value
+    {% endif %}
+  args:
+    executable: "{{ (ephemeral_heat | bool) | ternary('/usr/bin/python3', '/bin/bash') }}"
+  register: docker_registry_network_out
+  when:
+    - not mock_environment|bool
+
+- name: set container registry network fact
+  set_fact:
+    docker_registry_network: "{{ docker_registry_network_out.get('stdout', '') }}"
+
+- name: get undercloud short host name
+  command: hostname -s
+  register: undercloud_short_host_name
+
+- name: set undercloud short host name fact
+  set_fact:
+    undercloud_short_host_name: "{{ undercloud_short_host_name.stdout }}"
+
+- name: get undercloud DNS domain name
+  command: hostname -d
+  register: undercloud_domain
+
+- name: set undercloud DNS domain name fact
+  set_fact:
+    undercloud_domain: "{{ undercloud_domain.stdout }}"
+
 - name: get network-data-file
   shell: |
     awk '/-n\s/ || /--networks-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
