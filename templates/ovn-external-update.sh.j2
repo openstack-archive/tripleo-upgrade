@@ -1,0 +1,64 @@
+#!/bin/env bash
+set -euo pipefail
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_start_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_start_ping.sh
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_pre.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_pre.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
+bash {{ working_dir }}/fip_http_check_start.sh &
+{% endif %}
+
+source {{ undercloud_rc }}
+
+set +o pipefail
+EXTERNAL_ANSWER=""
+if openstack overcloud external-update run --help | grep -qe "--yes"; then
+    EXTERNAL_ANSWER="--yes"
+fi
+set -o pipefail
+
+echo "[$(date)] Started OVN controller external update step"
+
+openstack overcloud external-update run ${EXTERNAL_ANSWER} \
+    --stack {{ overcloud_stack_name }} \
+    {% if overcloud_ssh_user != '' -%}
+    --ssh-user {{ overcloud_ssh_user }} \
+    {% endif -%}
+    {% if ovn_external_update_skip_tags|default(false) -%}
+    --skip-tags "{{ ovn_external_update_skip_tags }}" \
+    {% endif -%}
+    --tags ovn 2>&1
+
+echo "[$(date)] Finished OVN controller update"
+
+{% if l3_agent_connectivity_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_stop_ping.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_stop_ping.sh {{ update_loss_threshold }}
+fi
+{% endif %}
+
+{% if l3_agent_failover_check|bool %}
+if [[ -e {{ working_dir }}/l3_agent_failover_post.sh ]]; then
+    source {{ overcloud_rc }}
+    bash {{ working_dir }}/l3_agent_failover_post.sh
+fi
+{% endif %}
+
+{% if fip_http_check|bool %}
+source {{ overcloud_rc }}
+kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
+bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
