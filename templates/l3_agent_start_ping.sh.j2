@@ -26,4 +26,4 @@ fi
 # we will make the awk wait until this ping exits as it will hold
 # the output pipes. So again &>> instead of >> is necessary.
 
-ping -D ${VM_IP} &>> ~/ping_results_$(date +%Y%m%d%H%M).log &
+ping -D ${VM_IP} &>> ~/ping_results_$(date +%Y%m%d%H%M%S).log &
