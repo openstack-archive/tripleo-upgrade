@@ -16,6 +16,9 @@ host_quiesced() {
                 echo "Guests still pending migration"
                 return 1
             fi
+        else
+            echo "Guests still pending migration"
+            return 1
         fi
     else
         echo "All ACTIVE guests are off the host"
@@ -82,9 +85,6 @@ timeout_seconds=$(( $MIGRATION_TIMEOUT * ( ${#VM_IDs[@]} + 1 ) ))
 elapsed_seconds=0
 while ! host_quiesced; do
     echo "Waiting for ${HOST} to get quiesced ..."
-    if host_quiesced; then
-        break
-    fi
     sleep 3
     (( elapsed_seconds += 3 ))
     if [ $elapsed_seconds -ge $timeout_seconds ]; then
