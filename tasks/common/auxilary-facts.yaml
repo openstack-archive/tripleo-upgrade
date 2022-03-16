@@ -46,7 +46,7 @@
 
 - name: get network-data-file
   shell: |
-    awk '/-n\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+    awk '/-n\s/ || /--networks-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
   register: network_data_file
 
 - name: set network_data_file fact
