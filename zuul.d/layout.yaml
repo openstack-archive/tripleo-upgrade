@@ -24,6 +24,7 @@
               - ^metadata.json$
               - ^releasenotes/.*$
               - ^test-requirements.txt$
+              - ^setup.*$
               - ^spec/.*$
               - ^Puppetfile.*$
               - tox.ini
