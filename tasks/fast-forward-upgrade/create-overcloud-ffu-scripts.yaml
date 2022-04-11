@@ -114,7 +114,7 @@
     # - Then with_together does a zip_longest to combine the list of lists,
     #   using None to fill the gaps.
     # - We take care of the possible [] value by replacing it with two empty lists.
-    - name: create whole overcloud overcloud system upgrade script
+    - name: create whole overcloud system upgrade script
       vars:
         pcs_present: false
         compute_present: false
