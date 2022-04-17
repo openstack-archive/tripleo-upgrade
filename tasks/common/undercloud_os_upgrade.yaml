@@ -49,6 +49,10 @@
      -ceph-ansible
      -python2-chardet
 
+- name: Install jq
+  package:
+    name:
+      - jq
 
 - name: Install leapp
   package:
@@ -104,13 +108,25 @@
     - rhos_release_installed.rc == 0
     - not rhos_release_installed.changed
 
-- name: "Disable the kernel modules in Leapp database (removed_drivers.txt) that are no longer supported in RHEL 8 (rhbz#1962365)"
+- name: "Delete the kernel modules in Leapp database (removed_drivers.txt) that are no longer supported in RHEL 8 (rhbz#1962365 < leapp-upgrade-el7toel8-0.15)"
   vars:
     modules_to_unload: ['pata_acpi', 'floppy']
   lineinfile:
     path: "/usr/share/leapp-repository/repositories/system_upgrade/el7toel8/actors/kernel/checkkerneldrivers/files/removed_drivers.txt"
     regexp: "{{ item }}"
     state: absent
+  loop: "{{ modules_to_unload }}"
+
+- name: "Delete the kernel modules in Leapp database (device_driver_deprecation_data.json) that are no longer supported in RHEL 8 (rhbz#2064383 > leapp-upgrade-el7toel8-0.16.0)"
+  vars:
+    modules_to_unload: ['pata_acpi', 'floppy']
+  shell: >
+    set -o pipefail &&
+    jq '. | del(.data[] | select(.driver_name == "{{ item }}"))'
+    /etc/leapp/files/device_driver_deprecation_data.json >
+    /etc/leapp/files/device_driver_deprecation_data.json_modified &&
+    mv /etc/leapp/files/device_driver_deprecation_data.json_modified
+    /etc/leapp/files/device_driver_deprecation_data.json
   loop: "{{ modules_to_unload }}"
 
 - name: Get enablerepo line for leapp
