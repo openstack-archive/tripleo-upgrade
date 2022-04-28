@@ -6,6 +6,16 @@
   when: workload_launch|bool or launch_sanity_workload|bool
   tags: always
 
+- name: install packages required to apply workaround
+  become: true
+  become_user: root
+  package:
+    name:
+      - patch
+      - curl
+    state: latest
+  tags: always
+
 - name: launch workload
   shell: |
     set -o pipefail
