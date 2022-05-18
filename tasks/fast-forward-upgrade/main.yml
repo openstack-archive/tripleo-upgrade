@@ -249,7 +249,7 @@
     #      tags: ffu_overcloud_run
 
     ############## OS upgrade + Overcloud node upgrade run ##############
-    - name: Start overcloud upgrade run for all roles.
+    - name: Start overcloud upgrade run with outage for all roles.
       import_tasks: overcloud_upgrade_fast_and_furious.yaml
       tags: ffu_overcloud_run
       when: fast_and_furious|bool
