@@ -121,10 +121,9 @@
       include_tasks: create-overcloud-ffu-hosts-scripts.yaml
       with_together: "{{ (oc_roles_hosts|dict2items |  default([])) | map(attribute='value') | map('sort') | flatten(1) }}"
 
-# TODO: Not comptatible with oooq
 - name: build extra templates based on new options.
   import_tasks: ../common/build_extra_template.yaml
-  when: not use_oooq|bool
+  when: config_heat_extra_yaml is defined
 
 - name: create overcloud upgrade prepare script
   vars:

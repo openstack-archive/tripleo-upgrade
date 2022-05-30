@@ -261,6 +261,19 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
+        - name: Set parameter_defaults for config_heat_extra.yaml
+          set_fact:
+            config_heat_extra_yaml:
+              parameter_defaults: "{{ install.get('config', {}).get('heat', {}) }}"
+          when: install.get('config', {}).get('heat', {})
+
+        - name: Set resource_registry for config_heat_extra.yaml
+          vars:
+            config_resource: "{{ install.get('config', {}).get('resource', {}) }}"
+          set_fact:
+            config_heat_extra_yaml: "{{ config_heat_extra_yaml | default({}) | combine({'resource_registry': config_resource}) }}"
+          when: install.get('config', {}).get('resource', {})
+
         - name: Enable the execution of  validations
           set_fact:
             run_validations: true
