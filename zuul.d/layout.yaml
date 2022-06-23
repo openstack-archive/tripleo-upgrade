@@ -1,5 +1,6 @@
 ---
 - project:
+    queue: tripleo
     templates:
       - check-requirements
       - openstack-tox-molecule
@@ -50,7 +51,6 @@
             dependencies:
               - tripleo-ci-centos-8-content-provider-train
     gate:
-      queue: tripleo
       jobs:
         - tripleo-ci-centos-8-content-provider-train:
             dependencies:
