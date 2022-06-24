@@ -10,8 +10,6 @@
     - name: Set fact validations_filtered which removes validations from skiplist
       set_fact:
         validations_filtered: "{{ validations_in_group.stdout_lines | difference( skiplist_validations.split(',') ) }}"
-    - name: Generate TripleO Upgrade ansible inventory
-      command: "tripleo-ansible-inventory --stack {{ overcloud_stack_name }} --static-yaml-inventory {{ upgrade_validation_inventory }}"
     - name: "Running validations {{ validations_filtered }}"
       register: validations_result
       shell: |

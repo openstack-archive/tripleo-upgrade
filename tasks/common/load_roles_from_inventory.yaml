@@ -1,15 +1,7 @@
 ---
-- name: generate inventory file
-  shell: |
-    source {{ undercloud_rc }}
-    /usr/bin/tripleo-ansible-inventory --plan {{ overcloud_stack_name }} \
-        {% if overcloud_ssh_user %} --ansible_ssh_user {{ overcloud_ssh_user }} {% endif %} \
-        --static-yaml-inventory {{ working_dir }}//tripleo-ansible-inventory.yaml
-  when: not mock_environment|bool
-
 - name: load inventory file
   slurp:
-    src: "{{ working_dir }}//tripleo-ansible-inventory.yaml"
+    src: "{{ upgrade_validation_inventory }}"
   register: upgrade_tripleo_inventory
 
 - name: set inventory facts
