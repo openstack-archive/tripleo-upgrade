@@ -74,14 +74,11 @@ fi
 
 echo "[$(date)] Started system upgrade step for {{ hosts }}"
 
-tripleo-ansible-inventory --stack {{ overcloud_stack_name }} --static-yaml-inventory upgrade_inventory.yaml --undercloud-connection ssh --undercloud-key-file /var/lib/mistral/.ssh/tripleo-admin-rsa --ansible_ssh_user tripleo-admin
-
 bkg_pids=""
 for host in $(echo "{{ hosts }}" | sed "s/,/ /g")
 do
   openstack overcloud upgrade run ${RUN_ANSWER} \
           --stack {{ overcloud_stack_name }} \
-          --static-inventory upgrade_inventory.yaml \
           --tags system_upgrade \
           --limit "${host}" 2>&1 | tee -a "RHEL_upgrade_${host}" &
   bkg_pids+=" $! "

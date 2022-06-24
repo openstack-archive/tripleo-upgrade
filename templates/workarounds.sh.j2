@@ -90,11 +90,7 @@ function ansible_patch {
     then
         overcloud_stack_name="${OVERCLOUD_STACK_NAME}"
     fi
-    inventory_file=${ansible_dir}/tripleo-inventory.yaml
-    if [ ! -f "$inventory_file" ]; then
-        source {{ undercloud_rc }}
-        tripleo-ansible-inventory --plan "${overcloud_stack_name}" --ansible_ssh_user ${ansible_ssh_user} --static-yaml-inventory ${inventory_file}
-    fi
+    inventory_file=$HOME/overcloud-deploy/${overcloud_stack_name}/config-download/${overcloud_stack_name}/tripleo-ansible-inventory.yaml
 
     # Run ansible playbook
     ansible-playbook -v -i ${inventory_file} --become  --become-user root ${ansible_dir}/${ansible_filename}.yaml ${ansible_limit}

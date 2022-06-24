@@ -50,4 +50,16 @@
       loop:
         - 'overcloud_deploy.sh'
         - 'stackrc'
-        - 'tripleo-ansible-inventory.yaml'
+
+    - name: Ensures config-download directory exists
+      file:
+        path: "/home/{{ ansible_user }}/overcloud-deploy/qe-Cloud-0/config-download/qe-Cloud-0"
+        state: directory
+
+    - name: "Copy inventory to expected location"
+      copy:
+        src: "{{ tripleo_upgrade_project_path }}/molecule/default/mock_files/tripleo-ansible-inventory.yaml"
+        dest: "/home/{{ ansible_user }}/overcloud-deploy/qe-Cloud-0/config-download/qe-Cloud-0/tripleo-ansible-inventory.yaml"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
