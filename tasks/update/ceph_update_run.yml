@@ -41,13 +41,13 @@
     - name: Wait while ceph update is in progress
       shell: |
         set -o pipefail
-        cephadm shell -- ceph -s -f json | jq .progress_events
+        cephadm shell -- ceph orch upgrade status | jq .in_progress -r
       changed_when: false
-      register: ceph_progress_events
+      register: ceph_upgrade_progress
       retries: "{{ ceph_update_timeout }}"
       delay: 60
       until:
-        - ceph_progress_events.stdout == '{}'
+        - ceph_upgrade_progress.stdout == "false"
       become: true
       become_user: root
       delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
