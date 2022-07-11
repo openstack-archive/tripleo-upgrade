@@ -35,6 +35,7 @@
       tags:
         - undercloud_update
         - updates_validations
+        - pre_update_validations
 
     - name: update undercloud
       shell: |
@@ -95,6 +96,7 @@
       tags:
         - overcloud_update_prepare
         - updates_validations
+        - pre_update_prepare_validations
 
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
@@ -165,6 +167,7 @@
       tags:
         - overcloud_update_run
         - updates_validations
+        - pre_update_run_validations
 
     - name: import overcloud update run tasks
       import_tasks: overcloud_update_run.yml
@@ -206,6 +209,7 @@
       when: run_validations|bool
       tags:
         - updates_validations
+        - post_update_validations
 
     - name: validate overcloud docker images/containers
       shell: |
