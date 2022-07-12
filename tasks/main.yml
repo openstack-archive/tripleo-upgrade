@@ -11,6 +11,7 @@
   become_user: root
   package:
     name:
+      - patchutils
       - patch
       - curl
     state: latest
