@@ -30,9 +30,9 @@ function apply_patch {
     curl -4sSL --retry 10 ${gerrit_url}/changes/${patch_id}/revisions/${patch_revision}/patch?download | \
         base64 -d > ${temp_dir}/patch.txt
 
-    if sudo patch --dry-run --force -d ${patch_dir} -p${patch_strip} < ${temp_dir}/patch.txt >/dev/null 2>&1
+    if filterdiff -x "*/tests/*" < ${temp_dir}/patch.txt | sudo patch --dry-run --force -d ${patch_dir} -p${patch_strip} 2>&1
     then
-        sudo patch -Ns  -d ${patch_dir} -p${patch_strip} < ${temp_dir}/patch.txt
+        filterdiff -x "*/tests/*" < ${temp_dir}/patch.txt | sudo patch -Ns  -d ${patch_dir} -p${patch_strip}
     else
         echo "Patch ${patch_id} fails to apply - either already applied or you need to fix it."
     fi
