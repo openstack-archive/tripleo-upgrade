@@ -72,7 +72,14 @@
     mode: '0700'
   loop:
     - 'pes-events.json'
-    - 'repomap.csv'
+    - 'device_driver_deprecation_data.json'
+    - 'repomap.json'
+    - 'unsupported_driver_names.json'
+    - 'unsupported_pci_ids.json'
+  register: get_url_result
+  until: get_url_result.status_code == 200
+  delay: 10
+  retries: 3
 
 - name: Check if rhos-release is installed
   package:
