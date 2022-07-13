@@ -156,10 +156,6 @@
       import_tasks: ../common/convert_nic_templates.yaml
       tags: ffu_overcloud_prepare
 
-    - name: convert tls templates
-      import_tasks: convert_tls_templates.yaml
-      tags: ffu_overcloud_prepare
-
     - name: replace environment files
       import_tasks: ../common/replace_environment_files.yaml
       tags: ffu_overcloud_prepare
