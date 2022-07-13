@@ -119,7 +119,7 @@
         pcs_present: false
         compute_present: false
       include_tasks: create-overcloud-ffu-hosts-scripts.yaml
-      with_together: "{{ (oc_roles_hosts|dict2items |  default([])) | map(attribute='value') | map('sort') | flatten(1) }}"
+      with_together: "{{ (oc_roles_hosts|dict2items |  default([])) | map(attribute='value') | map('sort') | flatten(1) + ['undercloud'] }}"
 
 - name: build extra templates based on new options.
   import_tasks: ../common/build_extra_template.yaml
@@ -127,7 +127,10 @@
 
 - name: create overcloud upgrade prepare script
   vars:
-    old_img: "{{ working_dir }}/{{ container_registry_file }}"
+    old_img:
+      - "{{ working_dir }}/{{ container_registry_file }}"
+      - "/usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
+      - "{{ network_environment_file | default('') }}"
   template:
     src: "overcloud_upgrade_prepare.sh.j2"
     dest: "{{ overcloud_upgrade_prepare_script }}"
@@ -136,12 +139,27 @@
 
 - name: create overcloud converge script
   vars:
-    old_img: "{{ working_dir }}/{{ container_registry_file }}"
+    old_img:
+      - "{{ working_dir }}/{{ container_registry_file }}"
+      - "/usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
+      - "{{ network_environment_file | default('') }}"
   template:
     src: "overcloud_upgrade_converge.sh.j2"
     dest: "{{ working_dir }}/overcloud_upgrade_converge.sh"
     mode: 0775
     force: true
+
+- name: create ceph_host_limit file
+  vars:
+    # roles where the cephadm-admin and keyring is shared
+    ceph_limit_roles:
+      - Undercloud
+      - ceph_osd
+      - ceph_mon
+  template:
+    src: "ceph_host_limit.txt.j2"
+    dest: "{{ working_dir }}/ceph_host_limit.txt"
+    mode: 0764
 
 - name: create ceph upgrade script
   template:

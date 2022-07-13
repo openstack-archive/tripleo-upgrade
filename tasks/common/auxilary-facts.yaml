@@ -98,6 +98,11 @@
   set_fact:
     initial_env_file: "{{ initial_env_file }}"
 
+- name: get network environment fact for FFWD3
+  set_fact:
+    network_environment_file: "{{initial_env_file.stdout_lines | select('search','network-environment')| first}}"
+  when: initial_env_file.stdout_lines | select('search','network-environment') | list | count > 0
+
 - name: fetch roles-data file referenced in initial deploy script
   shell: |
     awk '/-r\s|--roles-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}

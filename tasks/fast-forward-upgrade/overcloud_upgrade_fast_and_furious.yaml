@@ -18,4 +18,4 @@
       {{ (oc_roles_hosts|dict2items | default([])) |
            map(attribute='value') | map('sort') | flatten(1) }}
   include_tasks: overcloud_upgrade_hosts.yaml
-  with_together: "{{ (oc_role_host_list | length == 0) | ternary([[], []], oc_role_host_list) }}"
+  with_together: "{{ (oc_role_host_list | length == 0) | ternary([[], []], oc_role_host_list) + ['undercloud'] }}"
