@@ -68,6 +68,15 @@
       tags:
         - overcloud_update_prepare
 
+    - name: Search for controller host
+      set_fact:
+        controller_host: "{{item.value| first}}"
+      loop: "{{ groups|dict2items}}"
+      when: '"controller" in item.key'
+
+    - name: run pre-update fencing check
+      import_tasks: disable_fencing.yaml
+
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
       tags:
@@ -126,6 +135,9 @@
     - name: update Ceph
       include_tasks: ceph_update_run.yml
       when: ceph_osd_enabled|bool
+
+    - name: run post-update fencing check
+      import_tasks: enable_fencing.yaml
 
     - name: apply pre overcloud update converge workarounds
       shell: |
