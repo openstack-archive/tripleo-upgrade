@@ -96,6 +96,12 @@
         - overcloud_update_prepare
         - updates_validations
 
+    - set_fact:
+        controller_host: "{{ inventory_hostmap[controller_role_name]|first }}"
+
+    - name: run pre-update fencing check
+      import_tasks: disable_fencing.yaml
+
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
       tags:
@@ -195,6 +201,9 @@
         set -o pipefail
         ./overcloud_online_data_migration.sh 2>&1 {{ timestamper_cmd }} >> \
             overcloud_update_data_migration.log
+
+    - name: run post-update fencing check
+      import_tasks: enable_fencing.yaml
 
     - name: apply pre overcloud update converge workarounds
       shell: |
