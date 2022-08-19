@@ -1,0 +1,28 @@
+---
+- name: Check if fencing.yaml file is present
+  stat:
+    path: "{{ working_dir }}/fencing.yaml"
+  register: fencing_file
+
+- name: verify the fencing status after update
+  become: true
+  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+  delegate_to: "{{ controller_host }}"
+  shell: "sudo pcs property config stonith-enabled | tail -1"
+  register: pcs_out
+  changed_when: false
+  failed_when: false
+
+- block:
+    - name: set EnableFencing to true in fencing.yaml
+      replace:
+        path: "{{ working_dir }}/fencing.yaml"
+        regexp: "EnableFencing: false"
+        replace: "EnableFencing: true"
+
+    - name: enable fencing after running update
+      become: true
+      become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+      delegate_to: "{{ controller_host }}"
+      shell: "sudo pcs property set stonith-enabled=true"
+  when: pcs_out.stdout.find('false') != -1 and fencing_file.stat.exists
