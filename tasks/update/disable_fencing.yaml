@@ -1,0 +1,23 @@
+---
+- name: verify if fencing is enabled before running overcloud update
+  become: true
+  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+  delegate_to: "{{ controller_host }}"
+  shell: "sudo pcs property config stonith-enabled | tail -1"
+  register: pcs_out
+  changed_when: false
+  failed_when: false
+
+- block:
+    - name: set EnableFencing to false in fencing.yaml
+      replace:
+        path: "{{ working_dir }}/fencing.yaml"
+        regexp: "EnableFencing: true"
+        replace: "EnableFencing: false"
+
+    - name: disable fencing before running update
+      become: true
+      become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+      delegate_to: "{{ controller_host }}"
+      shell: "sudo pcs property set stonith-enabled=false"
+  when: pcs_out.stdout.find('true') != -1
