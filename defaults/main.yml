@@ -334,3 +334,8 @@ rhsm_overcloud_env: ''
 # nic prefix used when renaming network interfaces
 # if the environment uses unpredictable interfaces  name.
 nic_prefix: "em"
+
+# freeipa admin password
+# we need to make sure this password matches with the passwd
+# define in tls-everywhere role
+freeipa_admin_password: 12345678

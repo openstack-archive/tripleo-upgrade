@@ -20,3 +20,10 @@
     - 'pre_undercloud_update_workarounds'
     - 'post_undercloud_update_workarounds'
   when: updates_workarounds|bool
+
+- name: create IPA permission script
+  template:
+    src: ipa-permission.sh.j2
+    dest: "{{ working_dir }}/ipa-permission.sh"
+    mode: 0775
+    force: true
