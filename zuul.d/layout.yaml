@@ -2,13 +2,4 @@
 - project:
     templates:
       - check-requirements
-    check:
-      jobs:
-        - openstack-tox-linters
-    gate:
-      queue: tripleo
-      jobs:
-        - openstack-tox-linters
-    post:
-      jobs:
-        - publish-openstack-python-branch-tarball
+      - release-notes-jobs
