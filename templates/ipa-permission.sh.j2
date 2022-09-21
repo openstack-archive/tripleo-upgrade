@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# This script make we we have 'System: Modify Realm Domains' privilege
+# set on 'Nova Host Management'
+
+set -o pipefail
+
+echo {{ freeipa_admin_password }} | kinit admin
+
+ipa privilege-show 'Nova Host Management' --all --raw | grep "memberof: cn=System: Modify Realm Domains"
+rc=$?
+if [ $rc -ne 0]; then
+    ipa privilege-add-permission 'Nova Host Management' --permission 'System: Modify Realm Domains'
+else
+    echo "Privilege already added"
+fi

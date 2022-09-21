@@ -21,6 +21,21 @@
       tags:
         - undercloud_update
 
+    - name: Check for IdM/FreeIPA host configuration
+      stat:
+        path: /etc/ipa/default.conf
+      register: ipa_conf_stat
+
+    # 'System: Modify Realm Domains' permission is required. Check OSP-17785
+    - name: IPA permission
+      shell: |
+          set -o pipefail
+          ./ipa-permission.sh 2>&1  {{ timestamper_cmd }} >> \
+            ipa-permission.log
+      args:
+        executable: /usr/bin/bash
+      when: ipa_conf_stat.stat.exists
+
     - name: install/update required packages before updating the undercloud
       become: true
       become_user: root
