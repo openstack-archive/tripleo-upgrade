@@ -107,7 +107,7 @@ launch_sanity_workload: true
 workload_launch: false
 workload_cleanup: false
 external_network_name: "public"
-workload_image_url: "https://download.cirros-cloud.net/0.5.2/cirros-0.5.2-x86_64-disk.img"
+workload_image_url: "https://download.cirros-cloud.net/0.6.0/cirros-0.6.0-x86_64-disk.img"
 workload_memory: "512"
 workload_user: "cirros"
 workload_disk: 5

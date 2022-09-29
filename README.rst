@@ -114,7 +114,7 @@ Name of the external network providing floating IPs for instance connectivity. T
 
 URL of the image used for the workload instance::
 
-    workload_image_url: "https://download.cirros-cloud.net/0.5.2/cirros-0.5.2-x86_64-disk.img"
+    workload_image_url: "https://download.cirros-cloud.net/0.6.0/cirros-0.6.0-x86_64-disk.img"
 
 Amount of memory assigned for the workload instance::
 
