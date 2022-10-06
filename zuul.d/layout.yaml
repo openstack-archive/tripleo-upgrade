@@ -1,5 +1,15 @@
 ---
 - project:
+    queue: tripleo
     templates:
       - check-requirements
       - release-notes-jobs
+    check:
+      jobs:
+        - noop
+    gate:
+      jobs:
+        - noop
+    post:
+      jobs:
+        - publish-openstack-python-branch-tarball
