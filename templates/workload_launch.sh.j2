@@ -271,6 +271,13 @@ function workload_launch {
 
     echo "Assign FIP[${INSTANCE_FIP}] to server ${INSTANCE_NAME}"
     openstack server add floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
+    if [ $? -ne 0 ]; then
+        echo "Network related error detected while attaching FIP to VM. Exiting with non-zero code"
+        if [[ "${MODE}" == "sanity" ]]; then
+            sanity_teardown
+        fi
+        exit 1
+    fi
     VM_IP=${INSTANCE_FIP}
     {%- endif %}
 
@@ -278,32 +285,38 @@ function workload_launch {
     CINDER_VOL_ID=$(openstack volume create --size 1 vol_${SUFFIX} -f json | jq -r .id)
     echo "Attach volume vol_${SUFFIX} to instance ${INSTANCE_NAME}"
     openstack server add volume ${INSTANCE_NAME} ${CINDER_VOL_ID}
+    if [ $? -ne 0 ]; then
+        echo "Storage related error detected while attaching VOLUME to VM. Exiting with non-zero code"
+        if [[ "${MODE}" == "sanity" ]]; then
+            sanity_teardown
+        fi
+        exit 1
+    fi
 
     ## SSH to VM through it's floating ip or external ip
-    if [[ "${MODE}" == "sanity" ]]; then
-        timeout_seconds=180
-        elapsed_seconds=0
-
-        while true; do
-            # assert instance is reachable via ssh
-            echo "  [$(date)] Trying to ssh to ${VM_IP}"
-            ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-                ${INSTANCE_USER}@${VM_IP} 'whoami'
-
-            if [[ ${?} -eq 0 ]]; then
-                echo "Instance ${INSTANCE_NAME} is reachable via ${VM_IP}"
-                break
-            fi
-            sleep 3
-            elapsed_seconds=$(expr $elapsed_seconds + 3)
-            if [ $elapsed_seconds -ge $timeout_seconds ]; then
-                echo "FAILURE: Instance failed to boot."
+    timeout_seconds=180
+    elapsed_seconds=0
+    while true; do
+        # assert instance is reachable via ssh
+        echo "  [$(date)] Trying to ssh to ${VM_IP}"
+        ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            ${INSTANCE_USER}@${VM_IP} 'whoami'
+        if [[ ${?} -eq 0 ]]; then
+            echo "Instance ${INSTANCE_NAME} is reachable via ${VM_IP}"
+            echo "Write VM_IP ${VM_IP} to file"
+            echo "vm-ip: ${VM_IP}" > ~/${INSTANCE_NAME}
+            break
+        fi
+        sleep 3
+        elapsed_seconds=$(expr $elapsed_seconds + 3)
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: Instance failed to boot."
+            if [[ "${MODE}" == "sanity" ]]; then
                 sanity_teardown
-                exit 1
             fi
-        done
-    fi
-    echo "vm-ip: ${VM_IP}" > ~/${INSTANCE_NAME}
+            exit 1
+        fi
+    done
 }
 
 if [[ "${MODE}" == "workload" ]]; then
