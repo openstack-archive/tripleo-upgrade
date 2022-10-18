@@ -152,10 +152,6 @@
         - overcloud_upgrade_prepare
         - upgrades_validations
 
-    - name: convert nic templates
-      import_tasks: ../common/convert_nic_templates.yaml
-      tags: ffu_overcloud_prepare
-
     - name: replace environment files
       import_tasks: ../common/replace_environment_files.yaml
       tags: ffu_overcloud_prepare
