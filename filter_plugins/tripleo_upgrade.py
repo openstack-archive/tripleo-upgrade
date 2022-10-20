@@ -49,7 +49,7 @@ def to_inventory_hostmap(data):
 
 
 def to_inventory_rolemap(data):
-    # Falttens inventory to a group->role mapping
+    # Flattens inventory to a group->role mapping
     if isinstance(data, str):
         inventory = yaml.safe_load(data)
     else:
@@ -65,6 +65,7 @@ def to_inventory_rolemap(data):
                 inventory[group]['vars']['tripleo_role_name']
             ]
         else:
+            group_role_map[group] = []
             if 'children' in inventory[group]:
                 for child in inventory[group]['children']:
                     # Children have not all been flattened yet
@@ -73,7 +74,6 @@ def to_inventory_rolemap(data):
                         todo.append(group)
                         break
                 else:
-                    group_role_map[group] = []
                     for child in inventory[group]['children']:
                         group_role_map[group] += group_role_map[child]
                     group_role_map[group].sort()
