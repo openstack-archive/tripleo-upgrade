@@ -4,7 +4,13 @@
 # set on 'Nova Host Management'
 
 set -o pipefail -e
-echo {{ freeipa_admin_password }} | kinit admin
+
+# Password may need to be renewed.
+kinit admin <<'EOI'
+{{ freeipa_admin_password }}
+{{ freeipa_admin_password }}
+{{ freeipa_admin_password }}
+EOI
 
 if ipa privilege-show 'Nova Host Management' --all --raw | grep "memberof: cn=System: Modify Realm Domains"; then
     echo "Privilege already added"
