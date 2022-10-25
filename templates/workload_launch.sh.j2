@@ -100,6 +100,22 @@ function sanity_teardown {
     echo "Remove cinder volume ${CINDER_VOL_ID}"
     openstack volume delete ${CINDER_VOL_ID}
 
+    while true; do
+        openstack volume list -f value -c ID | grep -q ${CINDER_VOL_ID}
+        if [[ ${?} -eq 1 ]]; then
+            echo "The volume ${CINDER_VOL_ID} successfully removed"
+            break
+        fi
+
+        sleep 5
+        elapsed_seconds=$(( ${elapsed_seconds} + 5 ))
+
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: Failed to remove the volume ${CINDER_VOL_ID}"
+            exit 1
+        fi
+    done
+
     echo "Clear default gateway from ${TENANT_NET_NAME}_router"
     openstack router unset --external-gateway ${TENANT_NET_NAME}_router
 
@@ -283,8 +299,25 @@ function workload_launch {
 
     ## create and attach a volume
     CINDER_VOL_ID=$(openstack volume create --size 1 vol_${SUFFIX} -f json | jq -r .id)
+    while true; do
+        openstack volume list -f value -c ID | grep -q ${CINDER_VOL_ID}
+        if [[ ${?} -eq 0 ]]; then
+            echo "The volume ${CINDER_VOL_ID} successfully created"
+            break
+        fi
+
+        sleep 5
+        elapsed_seconds=$(( ${elapsed_seconds} + 5 ))
+
+        if [ $elapsed_seconds -ge $timeout_seconds ]; then
+            echo "FAILURE: Failed to create the volume ${CINDER_VOL_ID}"
+            exit 1
+        fi
+    done
+
     echo "Attach volume vol_${SUFFIX} to instance ${INSTANCE_NAME}"
     openstack server add volume ${INSTANCE_NAME} ${CINDER_VOL_ID}
+
     if [ $? -ne 0 ]; then
         echo "Storage related error detected while attaching VOLUME to VM. Exiting with non-zero code"
         if [[ "${MODE}" == "sanity" ]]; then
