@@ -298,11 +298,12 @@ function workload_launch {
     {%- endif %}
 
     ## create and attach a volume
+    ## The cinder resource must be created and available to be attach
     CINDER_VOL_ID=$(openstack volume create --size 1 vol_${SUFFIX} -f json | jq -r .id)
     while true; do
-        openstack volume list -f value -c ID | grep -q ${CINDER_VOL_ID}
-        if [[ ${?} -eq 0 ]]; then
-            echo "The volume ${CINDER_VOL_ID} successfully created"
+        VOL_STATUS=$(openstack volume show ${CINDER_VOL_ID} -f value -c status)
+        if [[ ${VOL_STATUS} == "available" ]]; then
+            echo "The volume ${CINDER_VOL_ID} successfully created and available"
             break
         fi
 
