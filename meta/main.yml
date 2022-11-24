@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  author:
-    - Mathie Bultel
-    - Marius Cornea
+  namespace: openstack
+  role_name: tripleo_upgrade
+  author: OpenStack
   description: "Manage OpenStack upgrade"
-  company:
+  company: Red Hat
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
@@ -19,7 +19,7 @@ galaxy_info:
   # - CC-BY
   license: Apache 2.0
 
-  min_ansible_version: 2.4
+  min_ansible_version: 2.8
 
   # Optionally specify the branch Galaxy will use when accessing the GitHub
   # repo for this role. During role install, if no tags are available,
