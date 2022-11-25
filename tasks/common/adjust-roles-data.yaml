@@ -6,6 +6,53 @@
 # testing on preprod or can take small outage. We should also parallelize it in
 # CI as we just waste time here.
 
+- name: "Drop {{item}} service"
+  replace:
+    dest: "{{ roles_data }}"
+    regexp: '(\s+)(- {{item}}$)'
+    replace: ''
+  loop:
+    - "OS::TripleO::Services::CinderBackendDellEMCXTREMIOISCSI"
+    - "OS::TripleO::Services::CinderBackendDellPs"
+    - "OS::TripleO::Services::CinderBackendVRTSHyperScale"
+    - "OS::TripleO::Services::Ec2Api"
+    - "OS::TripleO::Services::Fluentd"
+    - "OS::TripleO::Services::Fluentd"
+    - "OS::TripleO::Services::FluentdAlt"
+    - "OS::TripleO::Services::Keepalived"
+    - "OS::TripleO::Services::MistralApi"
+    - "OS::TripleO::Services::MistralEngine"
+    - "OS::TripleO::Services::MistralEventEngine"
+    - "OS::TripleO::Services::MistralExecutor"
+    - "OS::TripleO::Services::NeutronLbaasv2Agent"
+    - "OS::TripleO::Services::NeutronLbaasv2Api"
+    - "OS::TripleO::Services::NeutronML2FujitsuCfab"
+    - "OS::TripleO::Services::NeutronML2FujitsuFossw"
+    - "OS::TripleO::Services::NeutronSriovHostConfig"
+    - "OS::TripleO::Services::NovaConsoleauth"
+    - "OS::TripleO::Services::Ntp"
+    - "OS::TripleO::Services::OpenDaylightApi"
+    - "OS::TripleO::Services::OpenDaylightOvs"
+    - "OS::TripleO::Services::OpenDaylightOvs"
+    - "OS::TripleO::Services::OpenShift::GlusterFS"
+    - "OS::TripleO::Services::OpenShift::Infra"
+    - "OS::TripleO::Services::OpenShift::Master"
+    - "OS::TripleO::Services::OpenShift::Worker"
+    - "OS::TripleO::Services::PankoApi"
+    - "OS::TripleO::Services::Rear"
+    - "OS::TripleO::Services::SaharaApi"
+    - "OS::TripleO::Services::SaharaEngine"
+    - "OS::TripleO::Services::SensuClient"
+    - "OS::TripleO::Services::SensuClient"
+    - "OS::TripleO::Services::SensuClientAlt"
+    - "OS::TripleO::Services::SkydiveAgent"
+    - "OS::TripleO::Services::SkydiveAnalyzer"
+    - "OS::TripleO::Services::Tacker"
+    - "OS::TripleO::Services::TripleoUI"
+    - "OS::TripleO::Services::UndercloudMinionMessaging"
+    - "OS::TripleO::Services::UndercloudUpgradeEphemeralHeat"
+    - "OS::TripleO::Services::Zaqar"
+
 - name: Read the existing roles data file
   slurp:
     src: "{{ roles_data }}"
