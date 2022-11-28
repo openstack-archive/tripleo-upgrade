@@ -11,6 +11,7 @@
               - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
         - tripleo-tox-molecule
+        - tripleo-ci-centos-8-content-provider: *content_provider_deps
         - tripleo-upgrade-centos-8-molecule:
             dependencies:
               - tripleo-tox-molecule
@@ -51,7 +52,12 @@
                 - build
             dependencies:
               - tripleo-ci-centos-9-content-provider
-
+        - tripleo-ci-centos-8-9-multinode-mixed-os-update:
+            irrelevant-files: *multinode_ignored
+            vars: *multi_consumer_vars
+            dependencies:
+              - tripleo-ci-centos-9-content-provider
+              - tripleo-ci-centos-8-content-provider
     gate:
       jobs:
         - openstack-tox-linters
