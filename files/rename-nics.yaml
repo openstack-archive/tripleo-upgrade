@@ -4,6 +4,7 @@
 # index#using-predictable-nic-names-preparing-undercloud
 - name: Rename network interfaces
   hosts: all
+  any_errors_fatal: true
   become: true
   vars:
     src_prefix: "eth"
