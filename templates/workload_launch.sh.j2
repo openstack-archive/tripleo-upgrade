@@ -32,15 +32,15 @@ function prepare_env {
 
     source ${OVERCLOUD_RC}
     {% if ffu_overcloud_upgrade | bool -%}
-    # Pin the API's to Queens max versions
-    export OS_COMPUTE_API_VERSION=2.60
-    export OS_SHARE_API_VERSION=2.42
-    export OS_VOLUME_API_VERSION=3
-    {% elif overcloud_upgrade | bool -%}
     # Pin the API's to Train max versions
     export OS_COMPUTE_API_VERSION=2.79
     export OS_SHARE_API_VERSION=2.51
-    export OS_VOLUME_API_VERSION=3
+    export OS_VOLUME_API_VERSION=3.59
+    {% elif overcloud_upgrade | bool -%}
+    # Pin the API's to Victoria max versions
+    export OS_COMPUTE_API_VERSION=2.87
+    export OS_SHARE_API_VERSION=2.57
+    export OS_VOLUME_API_VERSION=3.62
     {%- endif %}
 
 }
