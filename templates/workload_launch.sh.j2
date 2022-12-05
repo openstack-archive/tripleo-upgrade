@@ -32,15 +32,15 @@ function prepare_env {
 
     source ${OVERCLOUD_RC}
     {% if ffu_overcloud_upgrade | bool -%}
-    # Pin the API's to Queens max versions
-    export OS_COMPUTE_API_VERSION=2.60
-    export OS_SHARE_API_VERSION=2.42
-    export OS_VOLUME_API_VERSION=3
+    # Pin the API's to Wallaby max versions
+    export OS_COMPUTE_API_VERSION=2.88
+    export OS_SHARE_API_VERSION=2.63
+    export OS_VOLUME_API_VERSION=3.64
     {% elif overcloud_upgrade | bool -%}
-    # Pin the API's to Train max versions
-    export OS_COMPUTE_API_VERSION=2.79
-    export OS_SHARE_API_VERSION=2.51
-    export OS_VOLUME_API_VERSION=3
+    # Pin the API's to Yoga max versions
+    export OS_COMPUTE_API_VERSION=2.90
+    export OS_SHARE_API_VERSION=2.70
+    export OS_VOLUME_API_VERSION=3.68
     {%- endif %}
 
 }
