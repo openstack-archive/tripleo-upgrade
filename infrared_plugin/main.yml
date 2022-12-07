@@ -257,6 +257,11 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
+        - name: Set disable_fencing
+          set_fact:
+            disable_fencing: true
+          when: install.disable.fencing
+
         - name: Set rhsm_overcloud_env
           set_fact:
             rhsm_overcloud_env: "{{ install.rhsm.overcloud.env }}"

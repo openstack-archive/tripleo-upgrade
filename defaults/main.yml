@@ -312,6 +312,9 @@ leapp_actors_to_remove: ['persistentnetnamesdisable']
 # Avoid Rhel Enforcement policies.
 enforce_rhel: false
 
+# Disable fencing in pacemaker before update
+disable_fencing: true
+
 # Compact system upgrade prepare and
 # system upgrade run into a single step
 system_upgrade_compact: true

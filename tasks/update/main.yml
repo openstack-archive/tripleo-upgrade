@@ -113,11 +113,18 @@
         - updates_validations
         - pre_update_prepare_validations
 
-    - set_fact:
+    - name: set controller node name for fencing tasks delegation
+      set_fact:
         controller_host: "{{ inventory_hostmap[controller_role_name]|first }}"
+      when:
+        - disable_fencing|bool
+        - controller_role_name|length > 0
 
     - name: run pre-update fencing check
       import_tasks: disable_fencing.yaml
+      when:
+        - controller_host is defined
+        - disable_fencing|bool
 
     - name: import oc update prepare tasks
       import_tasks: overcloud_update_prepare.yml
@@ -222,6 +229,9 @@
 
     - name: run post-update fencing check
       import_tasks: enable_fencing.yaml
+      when:
+        - controller_host is defined
+        - disable_fencing|bool
 
     - name: apply pre overcloud update converge workarounds
       shell: |
