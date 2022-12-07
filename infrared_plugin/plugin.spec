@@ -201,6 +201,11 @@ subparsers:
                       help: |
                          Skip Rhel Enforcment, false by default, use only when registred.
                       default: false
+                  disable-fencing:
+                      type: Bool
+                      help: |
+                         Disable fencing before update, true by default.
+                      default: true
                   run-validations:
                       type: Bool
                       help: |

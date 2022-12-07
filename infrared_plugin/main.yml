@@ -261,6 +261,11 @@
             enforce_rhel: true
           when: install.enforce.rhel
 
+        - name: Set disable_fencing
+          set_fact:
+            disable_fencing: true
+          when: install.disable.fencing
+
         - name: Set parameter_defaults for config_heat_extra.yaml
           set_fact:
             config_heat_extra_yaml:
