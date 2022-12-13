@@ -38,7 +38,7 @@
 # need to start always by the bootstrap node for Pacemaker.
 - name: Retrieve the pacemaker bootstrap controller node.
   shell: "sudo hiera -c /etc/puppet/hiera.yaml pacemaker_short_bootstrap_node_name"
-  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
+  become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'tripleo-admin') }}"
   delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
   register: pcmkr_bootstrap_node_out
   when:
