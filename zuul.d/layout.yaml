@@ -6,7 +6,7 @@
       - openstack-tox-molecule
     check:
       jobs:
-        - tripleo-ci-centos-8-content-provider: &content_provider_deps
+        - tripleo-ci-centos-9-content-provider: &content_provider_deps
             dependencies:
               - tripleo-upgrade-centos-8-molecule
         - openstack-tox-linters
@@ -14,7 +14,7 @@
         - tripleo-upgrade-centos-8-molecule:
             dependencies:
               - tripleo-tox-molecule
-        - tripleo-ci-centos-8-scenario000-multinode-oooq-container-updates:
+        - tripleo-ci-centos-9-scenario000-multinode-oooq-container-updates:
             irrelevant-files: &multinode_ignored
               - ^.*\.md$
               - ^.*\.rst$
@@ -50,24 +50,12 @@
               remove_tags:
                 - build
             dependencies:
-              - tripleo-ci-centos-8-content-provider
-        - tripleo-ci-centos-9-content-provider: *content_provider_deps
-        - tripleo-ci-centos-9-scenario000-multinode-oooq-container-updates:
-            irrelevant-files: *multinode_ignored
-            vars: *multi_consumer_vars
-            dependencies:
               - tripleo-ci-centos-9-content-provider
 
     gate:
       jobs:
-        - tripleo-ci-centos-8-content-provider: *content_provider_deps
         - openstack-tox-linters
         - tripleo-upgrade-centos-8-molecule
-        - tripleo-ci-centos-8-scenario000-multinode-oooq-container-updates:
-            irrelevant-files: *multinode_ignored
-            vars: *multi_consumer_vars
-            dependencies:
-              - tripleo-ci-centos-8-content-provider
         - tripleo-ci-centos-9-content-provider: *content_provider_deps
         - tripleo-ci-centos-9-scenario000-multinode-oooq-container-updates:
             irrelevant-files: *multinode_ignored
