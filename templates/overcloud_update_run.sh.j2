@@ -34,6 +34,6 @@ openstack overcloud update run ${RUN_ANSWER} \
     {% if tripleo_upgrade_debug|bool %}
     --debug \
     {% endif %}
-    --limit {{ item }} --playbook all 2>&1
+    --limit {{ item }} 2>&1
 
 {% endif %}
