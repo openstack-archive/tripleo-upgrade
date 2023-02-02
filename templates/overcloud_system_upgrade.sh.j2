@@ -4,88 +4,14 @@
 #
 
 set -eu
-
 source {{ undercloud_rc }}
-
-EXTERNAL_ANSWER=""
-if openstack overcloud external-upgrade run --help | grep -qe "--yes"; then
-    EXTERNAL_ANSWER="--yes"
-fi
-
-RUN_ANSWER=""
-if openstack overcloud upgrade run --help | grep -qe "--yes"; then
-    RUN_ANSWER="--yes"
-fi
 set -o pipefail
-
-{% if enabled_services[role]|intersect(['ceph_osd','ceph_mon','ceph_mgr'])|length > 0 -%}
-
-echo "[$(date)] Started ceph systemd units migration run for {{ item }} role"
-
-openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
-	--skip-tags validation,opendev-validation-ceph,opendev-validation \
-        --stack {{ overcloud_stack_name }} \
-        --tags ceph_systemd \
-        -e ceph_ansible_limit={{ item }} 2>&1
-
-echo "[$(date)] Finished ceph systemd units migration run for {{ item }} role"
-
-{% endif -%}
-
-{% if system_upgrade_compact|bool -%}
-echo "[$(date)] Started system upgrade step for {{ item }} role"
-
-openstack overcloud upgrade run ${RUN_ANSWER} \
-        --stack {{ overcloud_stack_name }} \
-        --playbook upgrade_steps_playbook.yaml \
-        --tags system_upgrade \
-        --limit {{ item }} 2>&1
-
-echo "[$(date)] Finished system upgrade step for {{ item }} role"
-
-{% else -%}
-
-echo "[$(date)] Started system upgrade prepare for {{ item }} role"
-
-openstack overcloud upgrade run ${RUN_ANSWER} \
-        --stack {{ overcloud_stack_name }} \
-        --playbook upgrade_steps_playbook.yaml \
-        --tags system_upgrade_prepare \
-        --limit {{ item }} 2>&1
-
-echo "[$(date)] Finished system upgrade prepare for {{ item }} role"
 
 echo "[$(date)] Started system upgrade run for {{ item }} role"
 
-openstack overcloud upgrade run ${RUN_ANSWER} \
+openstack overcloud upgrade run --yes \
         --stack {{ overcloud_stack_name }} \
-        --playbook upgrade_steps_playbook.yaml \
         --tags system_upgrade_run \
         --limit {{ item }} 2>&1
 
 echo "[$(date)] Finished system upgrade run for {{ item }} role"
-
-{% endif -%}
-
-{% if 'Controller' in role and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
-
-echo "[$(date)] Started system upgrade stop services for {{ item }} role"
-
-openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
-        --stack {{ overcloud_stack_name }} \
-        --tags system_upgrade_stop_services 2>&1
-
-echo "[$(date)] Finished system upgrade transfer data for {{ item }} role"
-{% endif -%}
-
-{% if enabled_services and enabled_services[role]|intersect(['mysql'])|length > 0 and role_hosts|length > 1 and role_hosts.index(item) == 0 -%}
-
-
-echo "[$(date)] Started system upgrade transfer data for {{ item }} role"
-
-openstack overcloud external-upgrade run ${EXTERNAL_ANSWER} \
-        --stack {{ overcloud_stack_name }} \
-        --tags system_upgrade_transfer_data 2>&1
-
-echo "[$(date)] Finished system upgrade transfer data for {{ item }} role"
-{% endif -%}

@@ -29,16 +29,10 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 {% endif %}
 
 source {{ undercloud_rc }}
-
-set +o pipefail
-RUN_ANSWER=""
-if openstack overcloud upgrade run --help | grep -qe "--yes"; then
-    RUN_ANSWER="--yes"
-fi
 set -o pipefail
 
 echo "[$(date)] Running major upgrade {{ playbook }} playbook for {{ item }} role"
-openstack overcloud upgrade run ${RUN_ANSWER} \
+openstack overcloud upgrade run --yes \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool -%}
         --debug \
@@ -96,16 +90,10 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 {% endif %}
 
 source {{ undercloud_rc }}
-
-set +o pipefail
-RUN_ANSWER=""
-if openstack overcloud upgrade run --help | grep -qe "--yes"; then
-    RUN_ANSWER="--yes"
-fi
 set -o pipefail
 
 echo "[$(date)] Running major upgrade for {{ item }} role"
-openstack overcloud upgrade run ${RUN_ANSWER} \
+openstack overcloud upgrade run --yes \
         --stack {{ overcloud_stack_name }} \
         {% if tripleo_upgrade_debug|bool %}
         --debug \

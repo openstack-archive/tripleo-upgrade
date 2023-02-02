@@ -1,8 +1,4 @@
 ---
-- set_fact:
-    pcs_upgrade_hosts: "{{ item | reject('none') |  join(',') + ',' + pcs_upgrade_hosts }}"
-  when: pcs_present
-
 - name: create compute pre upgrade script for {{ item }}
   when:
     - compute_present | bool
@@ -26,8 +22,7 @@
 
 - name: create overcloud upgrade script for {{ item }}
   vars:
-    hosts: "{{ pcs_upgrade_hosts | regex_replace(',$', '')
-            if pcs_present else item | reject('none') | join(',') }}"
+    hosts: "{{ item | reject('none') | join(',') }}"
     transfer_data: >
       {{ inventory_hostmap.mysql | intersect (item) | length > 0 }}
     stop_services: >

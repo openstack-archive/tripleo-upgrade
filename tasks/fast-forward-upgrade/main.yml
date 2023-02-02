@@ -39,17 +39,8 @@
         - upgrades_validations
       when: run_validations|bool
 
-    - name: Clean up httpd folder
-      become: true
-      become_user: root
-      file:
-        path: /etc/httpd
-        state: absent
-
-    - name: Upgrade operating system
-      become: true
-      become_user: root
-      import_tasks: ../common/undercloud_os_upgrade.yaml
+    - name: system upgrade
+      import_tasks: ../common/undercloud_system_upgrade.yaml
       when: not use_oooq|bool
 
     - name: apply post FFU undercloud OS upgrade workarounds

@@ -18,6 +18,7 @@
 #   using None to fill the gaps. eg: [ctrl-1, DB1, ctrl2, None, ctrl-3, None]
 # - We take care of the possible [] value by replacing it with two empty lists.
 - name: upgrade controlplane {{ item }}
+  tags: ffu_overcloud_run_ctlplane
   vars:
     host: "{{ item | reject('none') | join(',') }}"
     pcs_present: true
@@ -41,6 +42,7 @@
 #   using None to fill the gaps.
 # - We take care of the possible [] value by replacing it with two empty lists.
 - name: upgrade computes {{ item }}
+  tags: ffu_overcloud_run_compute
   vars:
     host: "{{ item | reject('none') | join(',') }}"
     pcs_present: false

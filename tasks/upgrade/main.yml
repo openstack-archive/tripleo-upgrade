@@ -20,10 +20,10 @@
         chdir: "{{ working_dir }}"
       when: upgrade_workarounds|bool
 
-    - name: Upgrade operating system
+    - name: system upgrade
       become: true
       become_user: root
-      import_tasks: ../common/undercloud_os_upgrade.yaml
+      import_tasks: ../common/undercloud_system_upgrade.yaml
       when: not use_oooq|bool
 
     - name: apply post undercloud OS upgrade workarounds

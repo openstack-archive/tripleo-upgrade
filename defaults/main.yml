@@ -32,6 +32,8 @@ ffu_noop: false
 ffu_bulk: true
 ffu_computes_rolling: false
 
+# path for system_upgrade_yaml file default to ./system_upgrade.yaml
+system_upgrade_yaml: "{{ working_dir }}/system_upgrade.yaml"
 # enable all at once FFWD upgrade.
 # This procedure will pause ceph and upgrade the whole overcloud
 # at once.
