@@ -158,6 +158,11 @@ containers_default_parameters: "{{ working_dir }}/docker-osp12.yaml"
 # container_images.yaml file location
 container_images_location: "{{ working_dir }}/container_images.yaml"
 
+# comma seperated list of container names that are expected to be not updated before container test
+# Exclude nova_virtlogd by default, because container iamge test happens before overcloud reboot
+# https://opendev.org/openstack/tripleo-heat-templates/src/commit/64a52f31507f464a0437aac0a53f65250845324b/releasenotes/notes/nova_virtlogd_wrapper-120fcfcfa0787b2b.yaml
+excluded_containers_from_check: "nova_virtlogd"
+
 # undercloud_hiera.yaml file location
 undercloud_hiera: "{{ working_dir }}/undercloud_hiera.yaml"
 
