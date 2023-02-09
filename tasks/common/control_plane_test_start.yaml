@@ -1,0 +1,5 @@
+---
+- name: Start control plane testing.
+  shell: |
+    {{ working_dir }}/control_plane_test_start.sh
+  when: control_plane_check|bool

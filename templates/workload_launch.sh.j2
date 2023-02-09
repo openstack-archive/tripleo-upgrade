@@ -11,6 +11,7 @@
 #   - cleanup:  clean up VM and other elements created previously
 #
 set -o pipefail
+set -x
 
 IN_TEARDOWN=false
 FAST=""
@@ -419,7 +420,7 @@ if [[ "${MODE}" == "sanity" ]]; then
 fi
 
 if [[ "${MODE}" == "sanityfast" ]]; then
-    FAST=10
+    FAST=20
     trap cleanup_on_exit EXIT
     SUFFIX=$(openssl rand -hex 5)
     prepare_env

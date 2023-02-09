@@ -20,6 +20,15 @@ kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh ) || :
 bash {{ working_dir }}/fip_http_check_start.sh &
 {% endif %}
 
+{% if control_plane_check|bool %}
+if [[ -e {{ working_dir }}/control_plane_test_start.sh ]]; then
+    bash {{ working_dir }}/control_plane_test_start.sh
+    # Give some time for the test to start as it need to download some
+    # image.
+    sleep 10
+fi
+{% endif %}
+
 source {{ undercloud_rc }}
 
 set +o pipefail
@@ -61,4 +70,10 @@ fi
 source {{ overcloud_rc }}
 kill -9 $( lsof -t {{ working_dir }}/fip_http_check_start.sh )
 bash {{ working_dir }}/fip_http_check_stop.sh
+{% endif %}
+
+{% if control_plane_check|bool %}
+if [[ -e {{ working_dir }}/control_plane_test_stop.sh ]]; then
+    bash {{ working_dir }}/control_plane_test_stop.sh 0 0
+fi
 {% endif %}

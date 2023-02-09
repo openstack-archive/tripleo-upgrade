@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# Script to test control plane by creating a vm in a loop during the
+# update. Start sequence.
+set -eu
+
+continuous_test_wrapper={{ working_dir }}/continuous-test.sh
+
+if [ -e "${continuous_test_wrapper}" ]; then
+    export CT_SCRIPT_ARGS=sanityfast
+    ${continuous_test_wrapper} -o {{ working_dir}} -l control-plane-test -p control-plane-test.pid ./workload_launch.sh
+fi
