@@ -124,6 +124,9 @@
 - name: Create L3-agent failover scripts
   import_tasks: ../common/create_l3_agent_failover_check_script.yml
 
+- name: include control plane test tasks
+  import_tasks: ../common/create_control_plane_test_scripts.yaml
+
 - name: create nova actions check script
   import_tasks: ../common/create_nova_actions_check_script.yml
 

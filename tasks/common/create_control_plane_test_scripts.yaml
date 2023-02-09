@@ -1,0 +1,20 @@
+---
+- block:
+    - name: Create control plane wrapper
+      copy:
+        src: "continuous-test.sh"
+        dest: "{{ working_dir }}/continuous-test.sh"
+        mode: 0775
+
+    - name: Create control plane start script.
+      template:
+        src: "control_plane_test_start.sh.j2"
+        dest: "{{ working_dir }}/control_plane_test_start.sh"
+        mode: 0775
+
+    - name: Create control plane stop script.
+      template:
+        src: "control_plane_test_stop.sh.j2"
+        dest: "{{ working_dir }}/control_plane_test_stop.sh"
+        mode: 0775
+  when: control_plane_check|bool

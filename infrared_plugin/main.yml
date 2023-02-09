@@ -110,6 +110,11 @@
             updates_workarounds: true
           when: install.updates.workarounds
 
+        - name: Set update control plane testing
+          set_fact:
+            control_plane_check: true
+          when: install.get('update', {}).get('controlplane', {}).get('check', {})
+
         - name: Set upgrade floating ip check
           set_fact:
             l3_agent_connectivity_check: true

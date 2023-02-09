@@ -186,6 +186,13 @@ log_playbook: "{{ working_dir }}/collect_log.yaml"
 log_playbook_script: "{{ working_dir }}/collect_log"
 log_stages: true
 
+# enable control plane testing.
+control_plane_check: false
+# Max number of workload launch consecutive failure
+tu_ctl_plane_max_successive_failure: 2
+# Max number of total failure (euristic for update run)
+tu_ctl_plane_max_failure: 6
+
 # enable web load test
 fip_http_check: false
 

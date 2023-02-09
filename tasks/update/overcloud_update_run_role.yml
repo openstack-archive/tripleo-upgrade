@@ -10,6 +10,26 @@
     - not overcloud_batch_update|bool
     - log_stages|bool
 
+- name: Start control plane testing
+  import_tasks: ../common/control_plane_test_start.yaml
+  when:
+    - overcloud_batch_update|bool
+
+- name: Start control plane testing (serial)
+  import_tasks: ../common/control_plane_test_start.yaml
+  vars:
+    max_cons_err: 0
+    max_err: 0
+  when:
+    - not overcloud_batch_update|bool
+    - oc_current_role[0] != "Controller"
+
+- name: Start control plane testing (serial - controller)
+  import_tasks: ../common/control_plane_test_start.yaml
+  when:
+    - not overcloud_batch_update|bool
+    - oc_current_role[0] == "Controller"
+
 - name: run overcloud minor update in each of the roles/hostgroups
   async: 25200
   poll: 0
@@ -40,3 +60,6 @@
   import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
   vars:
     current_stage_error: "{{ update_loss_threshold }}"
+
+- name: Stop control plane testing
+  import_tasks: ../common/control_plane_test_stop.yaml
