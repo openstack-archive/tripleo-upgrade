@@ -20,3 +20,10 @@
     - 'pre_undercloud_update_workarounds'
     - 'post_undercloud_update_workarounds'
   when: updates_workarounds|bool
+
+- name: collect log for the current stage - batch
+  include_tasks: ../common/create_log_collection_scripts.yml
+  vars:
+    log_current_stage: 'before_undercloud_update'
+  when:
+    - log_stages|bool

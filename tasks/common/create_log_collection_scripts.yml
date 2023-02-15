@@ -1,0 +1,15 @@
+---
+- block:
+    - name: create log playbook
+      template:
+        src: "collect_logs.yaml.j2"
+        dest: "{{ log_playbook }}"
+        mode: 0775
+
+    - name: create script to run log playbook
+      template:
+        src: "collect_logs.sh.j2"
+        dest: "{{ log_playbook_script }}-{{ log_current_stage }}.sh"
+        mode: 0775
+
+  when: log_stages|bool

@@ -2,6 +2,14 @@
 - name: import tasks from l3_agent_connectivity_check_start_script
   import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
+- name: collect log for the current stage - serial
+  include_tasks: ../common/trigger_log.yml
+  vars:
+    log_current_stage: "before_oc_update_run_{{ oc_current_role[0] }}"
+  when:
+    - not overcloud_batch_update|bool
+    - log_stages|bool
+
 - name: run overcloud minor update in each of the roles/hostgroups
   async: 25200
   poll: 0
