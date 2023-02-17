@@ -2,7 +2,10 @@
 # tasks file for tripleo-upgrade
 
 - name: prepare workload scripts
-  include_tasks: common/create_workload.yml
+  include_tasks:
+    file: common/create_workload.yml
+    apply:
+      tags: always
   when: workload_launch|bool or launch_sanity_workload|bool
   tags: always
 
