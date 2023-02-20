@@ -117,7 +117,7 @@
 
 - hosts: undercloud
   gather_facts: false
-  become: false
+  become: true
   tasks:
     - name: ensure extra directory is present
       file:
