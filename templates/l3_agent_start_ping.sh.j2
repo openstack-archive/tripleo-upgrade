@@ -9,7 +9,7 @@ else
     {% if workload_sriov | bool %}
     echo export VM_IP=$(openstack server list -f json | jq -r -c '.[0]["Networks"]' | cut -d"=" -f2) > {{ working_dir }}/vm_ip.sh
     {% else %}
-    echo export VM_IP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1) > {{ working_dir }}/vm_ip.sh
+    echo export VM_IP=$(openstack floating ip list -c 'Floating IP Address' -f json | grep Address | cut -d '"' -f4 | grep "`openstack server list --status ACTIVE -c Networks -f json | grep Networks | cut  -d'=' -f2 |  sed -e 's/, /\n/g'  -e 's/\"//'`" | head -n1) > {{ working_dir }}/vm_ip.sh
     {% endif %}
     source {{ working_dir }}/vm_ip.sh
 fi
