@@ -4,7 +4,7 @@
 
 CURRENT_STAGE=${1:-{{ log_current_stage }}}
 SSH_USER={{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'tripleo-admin') }}
-EXCLUDED_CONTAINERS_FROM_CHECK=${3:-{{ excluded_containers_from_check }}}
+EXCLUDED_CONTAINERS_FROM_CHECK=${2:-{{ excluded_containers_from_check }}}
 
 # This should always be true for tripleo>=wallaby.
 if [ ! -f {{ upgrade_validation_inventory }} ]; then
