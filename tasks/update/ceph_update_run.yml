@@ -18,15 +18,35 @@
   become_user: root
   delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
 
+- name: Check if ceph update is required
+  shell: cephadm shell ceph orch upgrade check {{ image }} | jq .needs_update -r
+  vars:
+    image: "{{ container_registry }}/{{ ceph_namespace }}/{{ ceph_image }}:{{ ceph_image_tag }}"
+  register: ceph_needs_update
+  become: true
+  become_user: root
+  delegate_to: "{{ inventory_hostmap[controller_role_name]|first }}"
+
 - name: Fail before ceph update when ceph cluster is unhealthy
   fail:
     msg: Ceph update failed because ceph cluster is unhealthy
-  when: ceph_status.stdout != "HEALTH_OK"
+  when:
+    - ceph_status.stdout != "HEALTH_OK"
+    - ceph_needs_update.stdout != "{}"
 
-- name: import tasks from l3_agent_connectivity_check_start_script
-  import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
+- name: Exclude ceph images from container check when ceph update not required
+  lineinfile:
+    path: "{{ log_playbook_script }}-before_reboot.sh"
+    regexp: "^EXCLUDED_CONTAINERS_FROM_CHECK="
+    line: "EXCLUDED_CONTAINERS_FROM_CHECK=${2:-{{ excluded_containers_from_check }},ceph}"
+    state: present
+    backup: true
+  when: ceph_needs_update.stdout == "{}"
 
 - block:
+    - name: import tasks from l3_agent_connectivity_check_start_script
+      import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
+
     - name: Start Ceph update using cephadm
       command:
         cmd: >
@@ -65,6 +85,7 @@
       fail:
         msg: Ceph minor update failed
       when: ceph_update_status.rc != 0
+  when: ceph_needs_update.stdout != "{}"
   rescue:
     - name: print Ceph update failures
       command:
