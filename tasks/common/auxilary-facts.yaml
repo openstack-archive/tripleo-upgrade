@@ -82,7 +82,9 @@
 
 - name: get network-data-file
   shell: |
-    awk '/-n\s/ || /--networks-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+    cat {{ overcloud_deploy_script }} | \
+       tr -s ' ' | tr '[:space:]' '\n' | \
+       awk '/^-(n|-networks-file)\s*$/ {getline param_value ; print param_value}'
   register: network_data_file
 
 - name: set network_data_file fact
@@ -91,7 +93,9 @@
 
 - name: get env files used during deploy
   shell: |
-    awk '/-e\s|--environment-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+    cat {{ overcloud_deploy_script }} | \
+       tr -s ' ' | tr '[:space:]' '\n' | \
+       awk '/^-(e|-environment-files)\s*$/ {getline param_value ; print param_value}'
   register: initial_env_file
 
 - name: set initial_env_file fact
@@ -105,7 +109,9 @@
 
 - name: fetch roles-data file referenced in initial deploy script
   shell: |
-    awk '/-r\s|--roles-file\s/ {gsub(/[[:space:]]/, "", $2); print $2}' {{ overcloud_deploy_script }}
+    cat {{ overcloud_deploy_script }} | \
+       tr -s ' ' | tr '[:space:]' '\n' | \
+       awk '/^-(r|-roles-file)\s*$/ {getline param_value ; print param_value}'
   register: roles_data_file
 
 - name: set roles-data fact
