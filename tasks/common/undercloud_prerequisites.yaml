@@ -11,6 +11,17 @@
       - "{{ (ansible_python.version.major is version('3', '>=')) | ternary('python3-tripleoclient', 'python-tripleoclient') }}"
     state: latest
 
+- name: Update validation packages prior to the undercloud upgrade
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - python3-validations-libs
+    - validations-common
+    - openstack-tripleo-validations
+  tags:
+    - update_validation_packages
+
 - name: get installed package fact
   package_facts:
     manager: "auto"
