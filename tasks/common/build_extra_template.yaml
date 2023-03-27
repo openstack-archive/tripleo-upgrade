@@ -1,5 +1,5 @@
 ---
 - name: inject config_heat_extra.yaml
   copy:
-      dest: "{{ install.deployment.files | basename }}/config_heat_extra.yaml"
+      dest: "{{ working_dir }}/{{ install.deployment.files | basename }}/config_heat_extra.yaml"
       content: "{{ config_heat_extra_yaml | to_nice_yaml }}"
