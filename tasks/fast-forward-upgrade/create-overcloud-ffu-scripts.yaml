@@ -55,12 +55,10 @@
     mode: 0755
     force: true
 
-- set_fact:
-    pcs_upgrade_hosts: ""
-
 - name: Upgrade without outage
   when: not fast_and_furious|bool
   block:
+
     # The below filter chain does the following:
     # - Get the list of roles NOT present in the nova_compute groups
     # - Get the list of hosts in each role into an array
@@ -78,13 +76,9 @@
     # - We take care of the possible [] value by replacing it with two empty lists.
     - name: create controlplane based overcloud system upgrade script for {{ item }}
       vars:
-        pcs_present: true
         compute_present: false
       include_tasks: create-overcloud-ffu-hosts-scripts.yaml
       with_together: "{{ (oc_role_host_list_controlplane | length == 0) | ternary([[], []], oc_role_host_list_controlplane) }}"
-
-    - set_fact:
-        pcs_upgrade_hosts: ""
 
     # The below filter chain does the following:
     # - Get the list of roles present in the nova_compute group
@@ -103,7 +97,6 @@
     # - We take care of the possible [] value by replacing it with two empty lists.
     - name: create compute based overcloud system upgrade script for {{ item }}
       vars:
-        pcs_present: false
         compute_present: true
       include_tasks: create-overcloud-ffu-hosts-scripts.yaml
       with_together: "{{ (oc_role_host_list_nova_compute | length == 0) | ternary([[], []], oc_role_host_list_nova_compute) }}"

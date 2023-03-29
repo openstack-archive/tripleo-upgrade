@@ -1,0 +1,19 @@
+---
+- name: Run leapp upgrade (download packages)
+  shell: |
+    set -o pipefail
+    openstack undercloud upgrade --yes --system-upgrade {{ system_upgrade_yaml }} 2>&1 | tee {{ working_dir }}/undercloud_system_upgrade.log
+
+# Reboot, and wait for 30 mins
+- name: Reboot the undercloud
+  become: true
+  become_user: root
+  reboot:
+    reboot_timeout: 1800
+
+- name: Unregister the node once the OS was upgraded if desired
+  redhat_subscription:
+    state: absent
+  when:
+    - leapp_unregister|bool
+    - not leapp_unsubscribed|bool

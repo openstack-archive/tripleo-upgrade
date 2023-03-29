@@ -11,15 +11,18 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
+# TODO: FIXME: THIS SHOULD BE PART OF THT
 - name: Disable scheduling on {{ host }}
   when:
     - compute_present|bool
+  tags: ffu_overcloud_system_upgrade
   shell: |
     set -o pipefail
     source {{ overcloud_rc }}
     HOST="$(openstack compute service list -f value -c Host | grep {{ host }})"
     openstack compute service set --disable --disable-reason FFWD "$HOST" nova-compute
 
+# TODO: FIXME: PART OF THT?
 - name: run the pre upgrade script for the host {{ host }}
   when:
     - compute_present | bool
@@ -34,9 +37,12 @@
 
 - name: run the RHEL upgrade steps for the host {{ host }}
   shell: |
-    set -o pipefail
-    {{ overcloud_system_upgrade_script_base }}-{{ host }}.sh 2>&1 {{ timestamper_cmd }} >> \
-        {{ overcloud_system_upgrade_script_base }}-{{ host }}.log
+    #TODO: FIXME: use clouds.yaml instead
+    source {{ undercloud_rc }}
+    openstack overcloud upgrade run --yes \
+    --stack {{ overcloud_stack_name }} \
+    --tags system_upgrade_run \
+    --limit {{ host }} 2>&1 {{ timestamper_cmd }} > ffu_system_upgrade-{{ host }}.log
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
@@ -60,16 +66,17 @@
   when: ffu_upgrade_workarounds
   tags: ffu_overcloud_system_upgrade
 
-######## overcloud upgrade run ########
 - name: Enable scheduling on {{ host }}
   when:
     - compute_present|bool
+  tags: ffu_overcloud_system_upgrade
   shell: |
     set -o pipefail
     source {{ overcloud_rc }}
     HOST="$(openstack compute service list -f value -c Host | grep {{ host }})"
     openstack compute service set --enable "$HOST" nova-compute
 
+######## overcloud upgrade run ########
 - name: apply pre ffu overcloud upgrade workarounds in {{ host }}
   shell: |
     set -o pipefail
