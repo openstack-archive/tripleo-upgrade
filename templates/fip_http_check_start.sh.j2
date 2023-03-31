@@ -6,7 +6,20 @@ if [[ ! -s {{ working_dir }}/vm_ip.sh ]]; then
     {% if workload_sriov | bool %}
     echo export VM_IP=$(openstack server list -f json | jq -r -c '.[0]["Networks"]' | cut -d"=" -f2) > {{ working_dir }}/vm_ip.sh
     {% else %}
-    echo export VM_IP=$(openstack floating ip list -f json | jq -r -c '.[] | select(.Port) | .["Floating IP Address"]' | head -1) > {{ working_dir }}/vm_ip.sh
+    #openstack server list --status ACTIVE -c Networks -f value produces different results in different OSP versions
+    #OSP10,13,16
+    #openstack server list --status ACTIVE -c Networks -f value
+    #internal_net_6f58c1ef02=192.168.0.13, 10.0.0.159
+    #internal_net_7c845f5f18=192.168.0.13, 10.0.0.173
+    #OSP17+
+    #{'internal_net_93bd647902': ['192.168.0.22', '10.0.0.159']}
+    #{'internal_net_7c845a1e74': ['192.168.0.13', '10.0.0.173']}
+    #IPv6 IPs are also possible
+    #
+    #Next line extracts last ip from all active networks and finds correspondant floating IP
+    echo export VM_IP=$(openstack floating ip list -c 'Floating IP Address' -f value | \
+                        grep "$(openstack server list --status ACTIVE -c Networks -f value | \
+                        grep -Eo '(([0-9a-fA-F]{1,4}:+){3,7}[0-9a-fA-F]{1,4})|(([0-9]{1,3}[\.]){3}[0-9]{1,3})' | tail -1)") > {{ working_dir }}/vm_ip.sh
     {% endif %}
 fi
 
