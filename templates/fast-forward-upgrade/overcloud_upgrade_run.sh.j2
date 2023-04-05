@@ -26,17 +26,6 @@ bash {{ working_dir }}/fip_http_check_start.sh &
 
 source {{ undercloud_rc }}
 
-{% if stop_services and not fast_and_furious -%}
-
-echo "[$(date)] Started upgrade stop services for {{ hosts }}"
-
-openstack overcloud external-upgrade run --yes \
-        --stack {{ overcloud_stack_name }} \
-        --tags system_upgrade_stop_services 2>&1
-
-echo "[$(date)] Finished upgrade stop services for {{ hosts }}"
-{% endif -%}
-
 echo "[$(date)] Running major upgrade for {{ hosts }} hosts"
 
 openstack overcloud upgrade run --yes \
@@ -44,7 +33,7 @@ openstack overcloud upgrade run --yes \
         {% if tripleo_upgrade_debug|bool %}
         --debug \
         {% endif -%}
-        --limit {{ hosts }} --playbook all 2>&1
+        --limit {{ hosts }},undercloud --playbook all 2>&1
 
 echo "[$(date)] Finished major upgrade for {{ hosts }} hosts"
 
