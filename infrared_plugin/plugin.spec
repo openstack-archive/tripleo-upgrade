@@ -223,6 +223,11 @@ subparsers:
                           the validations group execution.
                           Example: validations-extra-args: "--extra-vars min_undercloud_ram_gb=5"
                       default: ''
+                  update-controlplane-check:
+                      type: Bool
+                      help: |
+                          Check control plane during update.
+                      default: false
 
             - title: TripleO Options
               options:

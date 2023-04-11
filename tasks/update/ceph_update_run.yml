@@ -47,6 +47,9 @@
     - name: import tasks from l3_agent_connectivity_check_start_script
       import_tasks: ../common/l3_agent_connectivity_check_start_script.yml
 
+    - name: Start control plane testing
+      import_tasks: ../common/control_plane_test_start.yaml
+
     - name: Start Ceph update using cephadm
       command:
         cmd: >
@@ -104,3 +107,8 @@
       import_tasks: ../common/l3_agent_connectivity_check_stop_script.yml
       vars:
         current_stage_error: "{{ update_loss_threshold }}"
+    - name: Stop control plane testing
+      import_tasks: ../common/control_plane_test_stop.yaml
+      vars:
+        max_cons_err: 0
+        max_err: 0

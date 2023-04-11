@@ -1,0 +1,6 @@
+---
+- name: Stop control plane testing.
+  shell: |
+    {{ working_dir }}/control_plane_test_stop.sh \
+      {{ max_cons_err is defined|ternary(max_cons_err,tu_ctl_plane_max_successive_failure)}} {{ max_err is defined|ternary(max_err,tu_ctl_plane_max_failure)}}
+  when: control_plane_check|bool
