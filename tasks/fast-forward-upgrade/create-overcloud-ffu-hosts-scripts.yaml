@@ -15,7 +15,7 @@
   vars:
     hosts: "{{ item | reject('none') | join(',') }}"
   template:
-    src: "fast-forward-upgrade/overcloud_system_upgrade.sh.j2"
+    src: "overcloud_system_upgrade.sh.j2"
     dest: "{{ overcloud_system_upgrade_script_base }}-{{ hosts }}.sh"
     mode: 0775
     force: true

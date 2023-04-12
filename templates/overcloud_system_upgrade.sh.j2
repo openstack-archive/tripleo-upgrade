@@ -1,17 +1,17 @@
 #!/bin/env bash
 #
-# Run overcloud Operating System upgrade on overcloud node {{ item }}
+# Run overcloud Operating System upgrade on overcloud node {{ hosts }}
 #
 
 set -eu
 source {{ undercloud_rc }}
 set -o pipefail
 
-echo "[$(date)] Started system upgrade run for {{ item }} role"
+echo "[$(date)] Started system upgrade run for {{ hosts }}"
 
 openstack overcloud upgrade run --yes \
         --stack {{ overcloud_stack_name }} \
-        --tags system_upgrade_run \
-        --limit {{ item }} 2>&1
+        --tags system_upgrade \
+        --limit {{ hosts }} 2>&1
 
-echo "[$(date)] Finished system upgrade run for {{ item }} role"
+echo "[$(date)] Finished system upgrade run for {{ hosts }}"
