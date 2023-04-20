@@ -95,7 +95,7 @@
   shell: |
     cat {{ overcloud_deploy_script }} | \
        tr -s ' ' | tr '[:space:]' '\n' | \
-       awk '/^-(e|-environment-files)\s*$/ {getline param_value ; print param_value}'
+       awk '/^-(e|-environment-file)\s*$/ {getline param_value ; print param_value}'
   register: initial_env_file
 
 - name: set initial_env_file fact
