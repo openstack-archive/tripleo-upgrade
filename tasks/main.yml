@@ -27,6 +27,8 @@
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
+  environment:
+    COMPUTE_NODE: "{{ oc_roles_hosts['ComputeRHEL8'][0] | default(oc_roles_hosts['Compute'][0]) }}"
   when: workload_launch|bool
   tags: always
 
