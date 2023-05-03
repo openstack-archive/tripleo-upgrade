@@ -188,6 +188,9 @@ log_playbook: "{{ working_dir }}/collect_log.yaml"
 log_playbook_script: "{{ working_dir }}/collect_log"
 log_stages: true
 
+# enable ha_image_update external run.
+ha_image_update_run: false
+
 # enable control plane testing.
 control_plane_check: false
 # Max number of workload launch consecutive failure

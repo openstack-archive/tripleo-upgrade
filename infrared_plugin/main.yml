@@ -115,6 +115,11 @@
             control_plane_check: true
           when: install.get('update', {}).get('controlplane', {}).get('check', {})
 
+        - name: Set ha_image_update external run during update.
+          set_fact:
+            ha_image_update_run: true
+          when: install.get('update', {}).get('haimageupdate', {}).get('run', {})
+
         - name: Set upgrade floating ip check
           set_fact:
             l3_agent_connectivity_check: true
