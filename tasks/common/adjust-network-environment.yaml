@@ -1,0 +1,27 @@
+---
+- name: Read the yaml
+  slurp:
+    path: "{{ network_environment_file }}"
+  register: _network_environment_file_slurp
+
+- name: Backup original network environment file
+  copy:
+    src: "{{ network_environment_file }}"
+    dest: "{{ network_environment_file | regex_replace('.yaml$') }}.original.yaml"
+    remote_src: true
+    force: false
+
+- name: extract the data
+  set_fact:
+    network_environment: "{{ _network_environment_file_slurp['content'] | b64decode | from_yaml }}"
+    modified_network_environment: {}
+
+- set_fact:
+    modified_network_environment: "{{ modified_network_environment |combine({item.key: item.value}) }}"
+  when: item.key not in ['resource_registry']
+  with_dict: "{{ network_environment }}"
+
+- name: Write back to a file
+  copy:
+    content: '{{ modified_network_environment | to_nice_yaml }}'
+    dest: "{{ network_environment_file }}"
