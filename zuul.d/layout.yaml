@@ -4,19 +4,21 @@
     templates:
       - check-requirements
       - openstack-tox-molecule
+      - tripleo-upgrades-wallaby-pipeline
     check:
       jobs:
         - tripleo-ci-centos-9-content-provider: &content_provider_deps
             dependencies:
               - tripleo-upgrade-centos-8-molecule
+        - tripleo-ci-centos-9-content-provider-current: *content_provider_deps
         - openstack-tox-linters
         - tripleo-tox-molecule
         - tripleo-ci-centos-8-content-provider: *content_provider_deps
         - tripleo-upgrade-centos-8-molecule:
             dependencies:
               - tripleo-tox-molecule
-        - tripleo-ci-centos-9-scenario000-multinode-oooq-container-updates:
-            irrelevant-files: &multinode_ignored
+        - tripleo-ci-centos-8-9-multinode-mixed-os-update:
+            irrelevant-files:
               - ^.*\.md$
               - ^.*\.rst$
               - ^.pre-commit-config.yaml$
@@ -45,16 +47,11 @@
               - playbooks/quickstart-extras-standalone.yml
               - roles/standalone/.*
               - roles/standalone-upgrade/.*
-            vars: &multi_consumer_vars
+            vars:
               consumer_job: true
               build_container_images: false
               remove_tags:
                 - build
-            dependencies:
-              - tripleo-ci-centos-9-content-provider
-        - tripleo-ci-centos-8-9-multinode-mixed-os-update:
-            irrelevant-files: *multinode_ignored
-            vars: *multi_consumer_vars
             dependencies:
               - tripleo-ci-centos-9-content-provider
               - tripleo-ci-centos-8-content-provider
@@ -63,11 +60,7 @@
         - openstack-tox-linters
         - tripleo-upgrade-centos-8-molecule
         - tripleo-ci-centos-9-content-provider: *content_provider_deps
-        - tripleo-ci-centos-9-scenario000-multinode-oooq-container-updates:
-            irrelevant-files: *multinode_ignored
-            vars: *multi_consumer_vars
-            dependencies:
-              - tripleo-ci-centos-9-content-provider
+        - tripleo-ci-centos-9-content-provider-current: *content_provider_deps
     post:
       jobs:
         - publish-openstack-python-branch-tarball
