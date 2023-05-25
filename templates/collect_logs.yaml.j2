@@ -87,6 +87,15 @@
           debug:
             var: comm_result.stdout
 
+- hosts: ceph_mon
+  gather_facts: false
+  become: true
+  run_once: true
+  tasks:
+    - name: get ceph health status
+      shell: |
+        cephadm shell ceph -s &>> /var/log/extra/ceph-status-{% raw %}{{ current_stage }}{% endraw %}.txt
+
 - hosts: ovn_controller
   gather_facts: false
   become: true
