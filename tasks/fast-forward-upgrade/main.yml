@@ -147,6 +147,13 @@
       import_tasks: ../common/replace_environment_files.yaml
       tags: ffu_overcloud_prepare
 
+    - name: adjust network-environment for upgrade
+      include_tasks: ../common/adjust-network-environment.yaml
+      when:
+        - network_environment_file is defined
+        - network_environment_file != ''
+      tags: ffu_overcloud_prepare
+
     - name: adjust role-data for upgrade
       include_tasks: ../common/adjust-roles-data.yaml
       when: custom_roles_used|bool

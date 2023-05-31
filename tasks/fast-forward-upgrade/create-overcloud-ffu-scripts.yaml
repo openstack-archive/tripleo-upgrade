@@ -123,22 +123,9 @@
     old_img:
       - "{{ working_dir }}/{{ container_registry_file }}"
       - "/usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
-      - "{{ network_environment_file | default('') }}"
   template:
     src: "overcloud_upgrade_prepare.sh.j2"
     dest: "{{ overcloud_upgrade_prepare_script }}"
-    mode: 0775
-    force: true
-
-- name: create overcloud converge script
-  vars:
-    old_img:
-      - "{{ working_dir }}/{{ container_registry_file }}"
-      - "/usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
-      - "{{ network_environment_file | default('') }}"
-  template:
-    src: "overcloud_upgrade_converge.sh.j2"
-    dest: "{{ working_dir }}/overcloud_upgrade_converge.sh"
     mode: 0775
     force: true
 
