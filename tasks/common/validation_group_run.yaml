@@ -5,7 +5,7 @@
 # validation_args: string containing extra arguments for the validation command. (defaults to empty string)
 - block:
     - name: "Retrieve validations for group {{ validation_group }}"
-      command: "openstack tripleo validator list --group {{ validation_group }} -f value -c ID"
+      command: "validation list --group {{ validation_group }} -f value -c ID"
       register: validations_in_group
     - name: Set fact validations_filtered which removes validations from skiplist
       set_fact:
@@ -15,7 +15,7 @@
       shell: |
         set -o pipefail
         source {{ undercloud_rc }}
-        openstack tripleo validator run --validation {{ validations_filtered | join(',') }} --inventory {{ upgrade_validation_inventory }} \
+        validation run --validation {{ validations_filtered | join(',') }} --inventory {{ upgrade_validation_inventory }} \
            {{ validations_extra_args }} 2>&1 {{ timestamper_cmd }} >> validation-{{ validation_group }}.log
       when:
         - "validations_filtered|length > 0"
@@ -28,7 +28,7 @@
         - "validations_filtered|length == 0"
   rescue:
     - name: Retrieve the validations results
-      command: openstack tripleo validator show history -f json -c UUID -c Status
+      command: validation show history -f json -c UUID -c Status
       register: validation_history
     - name: Set fact validation_status with the validations results
       set_fact:
@@ -36,7 +36,7 @@
       when: validation_history is defined
     - name: Log all the validations failed
       shell: |
-        openstack tripleo validator show run {{ item }} &>> validation-{{ validation_group }}-failed.log
+        validation show run {{ item }} &>> validation-{{ validation_group }}-failed.log
       loop: "{{ validations_failed }}"
       when:
         - "validations_failed|length > 0"
