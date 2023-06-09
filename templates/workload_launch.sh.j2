@@ -285,6 +285,11 @@ function workload_launch {
     ## create instance
     TENANT_NET_ID=$( openstack network show -f json ${TENANT_NET_NAME} |  jq -r -c '.id' )
 
+    COMPUTE_NODE_STR=""
+    if [[ ! -z "${COMPUTE_NODE}" ]]; then
+        COMPUTE_NODE_STR="--hypervisor-hostname ${COMPUTE_NODE}.$(hostname -d) "
+    fi
+
     echo "Creating overcloud instance ${INSTANCE_NAME}"
     {% if workload_sriov | bool -%}
     os_cmd server create  \
@@ -300,6 +305,7 @@ function workload_launch {
         --security-group ${SECGROUP_NAME} \
         --key-name  ${KEYPAIR_NAME} \
         --nic net-id=${TENANT_NET_ID} \
+        ${COMPUTE_NODE_STR} \
         ${INSTANCE_NAME}
     {%- endif %}
 
