@@ -47,7 +47,6 @@
 
 - name: generate roles list from inventory file
   import_tasks: ../common/load_roles_from_inventory.yaml
-  when: not oc_roles
 
 - name: create overcloud update prepare script
   vars:
