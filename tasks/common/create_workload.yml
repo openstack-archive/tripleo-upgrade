@@ -1,7 +1,4 @@
 ---
-- name: generate roles list from inventory file
-  import_tasks: ../common/load_roles_from_inventory.yaml
-
 - name: create workload launch script
   template:
     src: "workload_launch.sh.j2"
