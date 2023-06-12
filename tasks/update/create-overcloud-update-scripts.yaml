@@ -64,6 +64,13 @@
     mode: 0775
     force: true
 
+- name: create overcloud ha image external update
+  template:
+    src: "ha-image-update-external-update.sh.j2"
+    dest: "{{ working_dir }}/ha-image-update-external-update.sh"
+    mode: 0775
+    force: true
+
 - name: create overcloud_prepare_containers.sh script
   template:
     src: overcloud_prepare_containers.sh.j2
@@ -79,6 +86,7 @@
     - log_stages|bool
   loop:
     - before_ovn_controller_update
+    - before_haimage_update
     - before_ceph_update
     - before_reboot
 

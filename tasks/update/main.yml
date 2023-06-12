@@ -196,6 +196,26 @@
         - updates_validations
         - pre_update_run_validations
 
+    - name: collect log before HA images update.
+      include_tasks: ../common/trigger_log.yml
+      vars:
+        log_current_stage: 'before_haimage_update'
+      when:
+        - log_stages|bool
+        - ha_image_update_run|bool
+
+    - name: run ha_image_update external update run
+      shell: |
+        set -o pipefail
+        ./ha-image-update-external-update.sh 2>&1 {{ timestamper_cmd }} >> \
+          ha-image-update-external-update.log
+      args:
+        chdir: "{{ working_dir }}"
+        executable: /usr/bin/bash
+      tags:
+        - overcloud_update_haimage
+      when: ha_image_update_run|bool
+
     - name: import overcloud update run tasks
       import_tasks: overcloud_update_run.yml
       tags:

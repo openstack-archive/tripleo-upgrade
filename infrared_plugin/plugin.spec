@@ -228,6 +228,12 @@ subparsers:
                       help: |
                           Check control plane during update.
                       default: false
+                  update-haimageupdate-run:
+                      type: Bool
+                      help: |
+                          Run ha_image_update during update for changing
+                          pacemaker container image name.
+                      default: false
 
             - title: TripleO Options
               options:
