@@ -351,6 +351,11 @@ subparsers:
                       help: |
                           Fast Forward Upgrade compute nodes one by one
                       default: false
+                  overcloud-ffu-remove-env-files:
+                      type: ListValue
+                      help: |
+                          A comma-separated list of environment files to remove from deployment
+                          script to be used in upgrade prepare.
                   overcloud-ffu-replace-env-files:
                       type: KeyValueList
                       help: |
@@ -358,6 +363,25 @@ subparsers:
                           whose content should be replaced during the upgrade phase.
                           The value must be the path to the new file, while the key must match
                           the file name to replaced as it shows inside the deploy script.
+                  overcloud-ffu-role-copy:
+                      type: KeyValueList
+                      help: |
+                          A comma-separated list of key/values of Roles and their RHEL8 counterparts
+                          to create. Compute=ComputeRHEL8,ComputeHCI=ComputeHCIRHEL8
+                          Note this is useful if you want specific role and hosts to go for multirhel
+                          else use ffu-multi-rhel.
+                  overcloud-ffu-compute-multirhel:
+                      type: ListValue
+                      help: |
+                          A comma-separated list of nodes to switch to multirhel. Their original role
+                          will be looked up in overcloud-ffu-role-copy to define target role.
+                  ffu-multi-rhel:
+                      type: Bool
+                      help: |
+                          Instead of providing roles list and compute list we can use flag ffu--multi-rhel.
+                          If this is true for each compute role we create new <role>RHEL8 and use last
+                          compute from original role as the multi-rhel one.
+                      default: false
             - title: Set up FFU packages
               options:
                   mirror:

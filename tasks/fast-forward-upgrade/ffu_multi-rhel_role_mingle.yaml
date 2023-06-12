@@ -1,0 +1,69 @@
+---
+- name: Update Roles data
+  shell: |
+    set -o pipefail
+    python /usr/share/openstack-tripleo-heat-templates/tools/copy-roles-data.py \
+    --role-file {{ roles_data }} \
+    --src-role {{ item.key }} \
+    --minor {{ item.value }} \
+    --major {{ item.key }}
+  loop: "{{ overcloud_ffu_roles_copy | dict2items }}"
+
+- name: Create copy_role_param_{{role}}.sh
+  vars:
+    src: "{{ item.key }}"
+    dst: "{{ item.value }}"
+  template:
+    src: "fast-forward-upgrade/copy_role_params.sh.j2"
+    dest: "copy_role_{{ item.key }}_param.sh"
+    mode: 0775
+    force: true
+  loop: "{{ overcloud_ffu_roles_copy | dict2items }}"
+
+- name: Generate the param files
+  shell: |
+    time sh copy_role_{{ item.key }}_param.sh
+  loop: "{{ overcloud_ffu_roles_copy | dict2items }}"
+
+- name: fetch baremetal deploy file source
+  shell: |
+    grep overcloud-node-provision .tripleo/history | sed -e "s/.* input=\(.*\), output.*/\1/"
+  register: baremetal_file
+
+- name: fetch baremetal deploy file destination
+  shell: |
+    grep overcloud-node-provision .tripleo/history  | sed -e "s/.* input=.*, output=\(.*\), yes=.*/\1/"
+  register: baremetal_file_dst
+
+- set_fact:
+    compute_dance: "{{ compute_dance|default([]) + [{item: ( oc_roles_hosts|dict2items | selectattr('value','contains',item) | map(attribute='key') | first )}] }}"
+  loop: "{{ (oc_roles_hosts|dict2items | selectattr('key', 'in', inventory_rolemap['nova_compute'] | default([]))) | map(attribute='value') | map('sort') | map('last') | list }}"
+  when: ffu_multi_rhel|bool
+
+- set_fact:
+    compute_dance: "{{ compute_dance|default([]) + [{item: ( oc_roles_hosts|dict2items | selectattr('value','contains',item) | map(attribute='key') | first )}] }}"
+  loop: "{{ install.overcloud.ffu.compute.multirhel | default([]) }}"
+
+- name: Move baremetal deployment for compute
+  shell: |
+    set -o pipefail
+    python /usr/share/openstack-tripleo-heat-templates/tools/baremetal_transition.py \
+    --baremetal-deployment {{baremetal_file.stdout}} \
+    --src-role {{item | dict2items | map(attribute='value') | first }} \
+    --dst-role {{ item | dict2items | map(attribute='value') | first + "RHEL8" }} \
+    {{item | dict2items | map(attribute='key') | first}}
+  loop: "{{ compute_dance|default([]) }}"
+
+- name: Re-run baremetal provision step
+  shell: |
+    set -o pipefail
+    source ~/stackrc
+    openstack overcloud node provision --yes \
+    --stack {{ overcloud_stack_name }} \
+    --output  {{ baremetal_file_dst.stdout }} {{baremetal_file.stdout}} \
+    --overcloud-ssh-user tripleo-admin
+  when: compute_dance is defined
+
+- set_fact:
+    computes_minor_multirhel: "{{ computes_minor_multirhel|default([]) + [item | dict2items | map(attribute='key') | first] }}"
+  loop: "{{ compute_dance|default([]) }}"

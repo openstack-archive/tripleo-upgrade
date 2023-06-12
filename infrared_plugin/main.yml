@@ -230,6 +230,11 @@
             fast_and_furious: true
           when: install.fast.and.furious
 
+        - name: Set if we should do multi-rhel FFU Upgrade
+          set_fact:
+            ffu_multi_rhel: true
+          when: install.ffu.multi.rhel
+
         - name: Set overcloud FFU upgrade releases
           set_fact:
             ffu_overcloud_releases: "{{ install.overcloud.ffu.releases }}"

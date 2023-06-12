@@ -22,6 +22,18 @@
 - name: generate roles list from inventory file
   import_tasks: ../common/load_roles_from_inventory.yaml
 
+- set_fact:
+    compute_roles: "{{ compute_roles|default({}) | combine({ item: item + 'RHEL8' }) }}"
+  loop: "{{ inventory_rolemap['nova_compute'] }}"
+  when: ffu_multi_rhel|bool
+
+- set_fact:
+    overcloud_ffu_roles_copy: "{{ install.overcloud.ffu.role.copy | default({}) | combine(compute_roles|default({})) }}"
+
+- set_fact:
+    ffu_generated_role_files: "{{ ffu_generated_role_files|default([]) + [item.value + '_params.yaml'] }}"
+  loop: "{{ overcloud_ffu_roles_copy | dict2items }}"
+
 - name: create ffu upgrade workaround scripts
   template:
     src: workarounds.sh.j2
@@ -118,11 +130,31 @@
   import_tasks: ../common/build_extra_template.yaml
   when: config_heat_extra_yaml is defined
 
+- stat:
+    path: "/usr/share/openstack-tripleo-heat-templates/roles_data.yaml"
+  register: default_roles_exist
+- name: Copy roles_data.yaml from default if needed
+  when:
+    - roles_data == "/usr/share/openstack-tripleo-heat-templates/roles_data.yaml"
+    - default_roles_exist.stat.exists
+  block:
+    - name: copy roles_data
+      when: not role_file_copy.stat.exists
+      copy:
+        src: "/usr/share/openstack-tripleo-heat-templates/roles_data.yaml"
+        dest: "{{ working_dir }}/roles_data.yaml"
+        force: false
+        remote_src: true
+    - name: set new roles_data path
+      set_fact:
+        roles_data: "{{ working_dir }}/roles_data.yaml"
+
 - name: create overcloud upgrade prepare script
   vars:
-    old_img:
+    default_old_img:
       - "{{ working_dir }}/{{ container_registry_file }}"
       - "/usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
+    old_img: "{{ default_old_img + (install.overcloud.ffu.remove.env.files | default([])) | flatten }}"
   template:
     src: "overcloud_upgrade_prepare.sh.j2"
     dest: "{{ overcloud_upgrade_prepare_script }}"

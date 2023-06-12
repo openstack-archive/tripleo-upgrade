@@ -38,7 +38,7 @@ system_upgrade_yaml: "{{ working_dir }}/system_upgrade.yaml"
 # This procedure will pause ceph and upgrade the whole overcloud
 # at once.
 fast_and_furious: false
-
+ffu_multi_rhel: false
 # enable cells update
 update_cell: false
 

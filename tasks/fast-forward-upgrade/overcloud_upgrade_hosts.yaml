@@ -44,10 +44,14 @@
   register: overcloud_system_upgrade_res
   ignore_errors: true
   tags: ffu_overcloud_system_upgrade
+  # here we assume that we run one by one compute, everything else will not match
+  when: host not in computes_minor_multirhel|default([])
 
 - name: was the RHEL upgrade step successful.
   fail: msg="Overcloud Operating System upgrade failed in {{ host }}."
-  when: overcloud_system_upgrade_res.rc != 0
+  when:
+    - host not in computes_minor_multirhel|default([])
+    - overcloud_system_upgrade_res.rc != 0
   tags: ffu_overcloud_system_upgrade
 
 - name: apply post ffu overcloud system upgrade workarounds in {{ host }}
@@ -58,7 +62,9 @@
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
-  when: ffu_upgrade_workarounds
+  when:
+    - ffu_upgrade_workarounds
+    - host not in computes_minor_multirhel|default([])
   tags: ffu_overcloud_system_upgrade
 
 - name: Enable scheduling on {{ host }}

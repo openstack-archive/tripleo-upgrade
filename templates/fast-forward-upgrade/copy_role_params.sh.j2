@@ -1,19 +1,8 @@
 #!/bin/env bash
-#
-# Setup HEAT's output
-#
-set -eu
-
-PREPARE_ANSWER=""
-if openstack overcloud upgrade prepare --help | grep -qe "--yes"; then
-    PREPARE_ANSWER="--yes"
-fi
-set -o pipefail
-
-source {{undercloud_rc }}
-
-echo "Running major upgrade prepare step"
-openstack overcloud upgrade prepare ${PREPARE_ANSWER} \
+/usr/share/openstack-tripleo-heat-templates/tools/copy_role_params.py \
+ --rolename-src {{ src }} \
+ --rolename-dst {{ dst }} \
+-o {{ dst }}_params.yaml \
     --stack {{ overcloud_stack_name }} \
     --templates {{ tht_directory }} \
     {% if overcloud_ssh_user != '' -%}
