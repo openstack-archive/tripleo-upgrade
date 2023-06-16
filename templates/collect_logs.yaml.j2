@@ -35,11 +35,13 @@
 
     - name: get systemd information at this stage
       shell: |
-        systemctl &>> /var/log/extra/systemctl-{% raw %}{{ current_stage }}{% endraw %}.txt
+        systemctl list-units --all --no-pager &>> /var/log/extra/systemctl-{% raw %}{{ current_stage }}{% endraw %}.txt
 
     - name: get tripleo services information at this stage
       shell: |
         systemctl status 'tripleo*' &>> /var/log/extra/systemctl-tripleo-{% raw %}{{ current_stage }}{% endraw %}.txt
+      register: systemctl_cmd
+      failed_when: systemctl_cmd.rc not in [0,2]
 
     - name: get cgroup information at this stage
       shell: |
