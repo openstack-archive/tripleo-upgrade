@@ -107,6 +107,7 @@ launch_sanity_workload: true
 
 # launch workload before update/upgrade
 workload_launch: false
+workload_launch_traffic: false
 workload_cleanup: false
 external_network_name: "public"
 workload_image_url: "https://download.cirros-cloud.net/0.6.0/cirros-0.6.0-x86_64-disk.img"
@@ -116,6 +117,8 @@ workload_disk: 5
 workload_vcpu: 1
 workload_swap: 512
 workload_sriov: false
+
+tripleo_upgrade_iperf_bin_url: "https://github.com/userdocs/iperf3-static/releases/download/3.12%2B/iperf3-amd64"
 
 # upgrade scripts name:
 undercloud_upgrade_script: "{{ working_dir }}/undercloud_upgrade.sh"

@@ -17,6 +17,16 @@
             workload_launch: true
           when: install.upgrade.workload
 
+        - name: Generate some traffic after workload launch
+          set_fact:
+            workload_launch_traffic: true
+          when: install.upgrade.workloadtraffic
+
+        - name: Iperf binary url
+          set_fact:
+            tripleo_upgrade_iperf_bin_url: "{{ install.upgrade.workloadiperfurl }}"
+          when: install.upgrade.workloadiperfurl
+
         - name: Set upgrade workload cleanup
           set_fact:
             workload_cleanup: true

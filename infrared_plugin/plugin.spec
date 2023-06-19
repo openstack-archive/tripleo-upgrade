@@ -52,6 +52,16 @@ subparsers:
                       help: |
                           Launch workload before starting upgrade
                       default: false
+                  upgrade-workloadtraffic:
+                      type: Bool
+                      help: |
+                          Launch workload before starting upgrade
+                      default: false
+                  upgrade-workloadiperfurl:
+                      type: Value
+                      help: |
+                          URL of iperf binary
+                      default: https://github.com/userdocs/iperf3-static/releases/download/3.12%2B/iperf3-amd64
                   upgrade-workloadcleanup:
                       type: Bool
                       help: |

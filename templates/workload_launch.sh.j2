@@ -15,6 +15,7 @@ set -x
 
 IN_TEARDOWN=false
 FAST=""
+SSH="ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 if [[ -n ${1} ]]; then
     MODE="${1}"
@@ -29,6 +30,24 @@ function os_cmd {
     set -e
     openstack "$@"
     set +e
+}
+
+function set_vm_ip {
+    ## assign floating ip or external ip
+    local workload_sriov={{workload_sriov | bool | ternary("True", "")}}
+    if [ -n "${workload_sriov}" ]; then
+        EXTERNAL_IP=$(os_cmd port show ${SRIOV_PORT} -f json -c fixed_ips | jq -r -c '.fixed_ips[0]["ip_address"]')
+        VM_IP=${EXTERNAL_IP}
+    else
+        INSTANCE_FIP=$(os_cmd floating ip create ${EXTERNAL_NET_NAME} -f json | jq -r -c '.floating_ip_address' )
+        if [ -z "${INSTANCE_FIP}" ]; then
+            echo "Cannot get a new FIP"
+            exit 66
+        fi
+        echo "Assign FIP[${INSTANCE_FIP}] to server ${INSTANCE_NAME}"
+        os_cmd server add floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
+        VM_IP="${INSTANCE_FIP}"
+    fi
 }
 
 # This function get installed as a trap in sanity and sanityfast.
@@ -55,12 +74,62 @@ cleanup_on_exit() {
     exit $RC
 }
 
+function generate_traffic {
+    if [ -z "${VM_IP}" ]; then
+        set_vm_ip
+    fi
+    if ! ${SSH} cirros@${VM_IP} test -e ${IPERF_BIN}; then
+        NS_FIXUP=false
+        # We only test the grep part, hence the +o pipefail.
+        if (set +o pipefail; \
+            ${SSH} cirros@${VM_IP} nslookup -type=a github.com 2>&1 | \
+                grep 'no servers could be reached'); then
+            NS_FIXUP=true
+            # we have a name resolution issue in the vm. Work around it.
+            ${SSH} cirros@${VM_IP} cat /etc/resolv.conf > resolv.back
+            cat /etc/resolv.conf | ${SSH} cirros@${VM_IP} sudo tee /etc/resolv.conf
+        fi
+        ${SSH} cirros@${VM_IP} curl -L -k -O "${IPERF_STATIC_URL}"
+        if $NS_FIXUP; then
+            cat resolv.back | ${SSH} cirros@${VM_IP} sudo tee /etc/resolv.conf
+            rm -f resolv.back
+        fi
+        if ! ${SSH} cirros@${VM_IP} chmod +x ${IPERF_BIN}; then
+            echo "We could not get the file, abort traffic generation."
+            return 0
+        fi
+    fi
+    if ! ${SSH} cirros@${VM_IP} ps fauxw | grep -q ${IPERF_BIN}; then
+        ${SSH} -T cirros@${VM_IP} ./${IPERF_BIN} -D -s
+    fi
+    if ! openstack security group show ${SECGROUP_NAME} | grep -q 'port_range.*=.5201'; then
+        openstack security group rule create --proto tcp --dst-port 5201 ${SECGROUP_NAME}
+    fi
+    if ! rpm -qa | grep iperf3; then
+        sudo dnf -y install iperf3
+    fi
+    if [ ! -e iperf3.log ]; then
+        echo -n "Generating traffic ...."
+        iperf3 -c ${VM_IP} -t 60  --connect-timeout 3000 --logfile iperf3.log
+        rc=$?
+        if [ "${rc}" -ne 0 ]; then
+            echo "Error: Problem generating traffic using iperf: ${rc}"
+            cat iperf3.log
+            exit 1
+        fi
+        echo " done"
+    fi
+}
+
+
 function prepare_env {
 
     export OVERCLOUD_RC='{{ overcloud_rc }}'
     export IMAGE_URL='{{ workload_image_url }}'
     export IMAGE_NAME="upgrade_workload_${SUFFIX}"
     export IMAGE_FILE="$(mktemp -d )/upgrade_workload_image.qcow2"
+    export IPERF_STATIC_URL="{{ tripleo_upgrade_iperf_bin_url }}"
+    export IPERF_BIN="iperf3-amd64"
     export INSTANCE_NAME="instance_${SUFFIX}"
     export INSTANCE_USER='{{ workload_user }}'
     export KEYPAIR_NAME="userkey_${SUFFIX}"
@@ -324,23 +393,7 @@ function workload_launch {
         fi
     done
 
-    ## assign floating ip or external ip
-    {% if workload_sriov | bool -%}
-    EXTERNAL_IP=$(os_cmd port show ${SRIOV_PORT} -f json -c fixed_ips | jq -r -c '.fixed_ips[0]["ip_address"]')
-    VM_IP=${EXTERNAL_IP}
-    {% else -%}
-    INSTANCE_FIP=$(os_cmd floating ip create ${EXTERNAL_NET_NAME} -f json | jq -r -c '.floating_ip_address' )
-
-    if [ -z "${INSTANCE_FIP}" ]; then
-        echo "Cannot get a new FIP"
-        exit 66
-    fi
-    echo "Assign FIP[${INSTANCE_FIP}] to server ${INSTANCE_NAME}"
-    os_cmd server add floating ip ${INSTANCE_NAME} ${INSTANCE_FIP}
-    VM_IP="${INSTANCE_FIP}"
-
-    {%- endif %}
-
+    set_vm_ip
     ## create and attach a volume
     ## The cinder resource must be created and available to be attach
     CINDER_VOL_ID=$(os_cmd volume create --size 1 vol_${SUFFIX} -f json | jq -r .id)
@@ -375,11 +428,11 @@ function workload_launch {
     while true; do
         # assert instance is reachable via ssh
         echo "  [$(date)] Trying to ssh to ${VM_IP}"
-        ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+        ${SSH} \
             ${INSTANCE_USER}@${VM_IP} 'whoami'
         if [[ ${?} -eq 0 ]]; then
             echo "Instance ${INSTANCE_NAME} is reachable via ${VM_IP}"
-            echo "Write VM_IP ${VM_IP} to file"
+            echo "Write VM_IP ${VM_IP} to file ~/${INSTANCE_NAME}"
             echo "vm-ip: ${VM_IP}" > ~/${INSTANCE_NAME}
             break
         fi
@@ -400,6 +453,19 @@ if [[ "${MODE}" == "workload" ]]; then
     echo "export SUFFIX=${SUFFIX}" > ~/workload_suffix
     echo "export CINDER_VOL_ID=${CINDER_VOL_ID}" >> ~/workload_suffix
     echo "export INSTANCE_FIP=${INSTANCE_FIP}" >> ~/workload_suffix
+    echo "export VM_IP=${VM_IP}" > ~/vm_ip.sh
+fi
+
+if [[ "${MODE}" == "workload_traffic" ]]; then
+    SUFFIX=$(openssl rand -hex 5)
+    prepare_env
+    sanity_check
+    workload_launch
+    echo "export SUFFIX=${SUFFIX}" > ~/workload_suffix
+    echo "export CINDER_VOL_ID=${CINDER_VOL_ID}" >> ~/workload_suffix
+    echo "export INSTANCE_FIP=${INSTANCE_FIP}" >> ~/workload_suffix
+    echo "export VM_IP=${VM_IP}" > ~/vm_ip.sh
+    generate_traffic
 fi
 
 if [[ "${MODE}" == "cleanup" ]]; then

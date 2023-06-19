@@ -20,10 +20,15 @@
     state: latest
   tags: always
 
+- debug:
+    msg: 1 minute traffic generation using iperf started.
+  when: workload_launch_traffic|bool
+  tags: always
+
 - name: launch workload
   shell: |
     set -o pipefail
-    {{ workload_launch_script }} 2>&1 {{ timestamper_cmd }} >> workload_launch.log
+    {{ workload_launch_script }} {{(workload_launch_traffic|bool)|ternary("workload_traffic","")}} 2>&1 {{ timestamper_cmd }} >> workload_launch.log
   args:
     chdir: "{{ working_dir }}"
     executable: /usr/bin/bash
