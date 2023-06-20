@@ -147,11 +147,20 @@
       import_tasks: ../common/replace_environment_files.yaml
       tags: ffu_overcloud_prepare
 
+    - name: check whether the network-environment file exists
+      stat:
+        path: "{{ network_environment_file }}"
+      register: network_file_stat
+      when:
+        - network_environment_file is defined
+        - network_environment_file != ''
+
     - name: adjust network-environment for upgrade
       include_tasks: ../common/adjust-network-environment.yaml
       when:
         - network_environment_file is defined
         - network_environment_file != ''
+        - network_file_stat.stat.exists
       tags: ffu_overcloud_prepare
 
     - name: adjust role-data for upgrade
