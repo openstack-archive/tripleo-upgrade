@@ -1,5 +1,12 @@
 ---
+- stat:
+    path: "{{ upgrade_validation_inventory }}"
+  register: inventory_stat
+- set_fact:
+    upgrade_validation_inventory: "/var/lib/mistral/{{ overcloud_stack_name }}/tripleo-ansible-inventory.yaml"
+  when: not inventory_stat.stat.exists
 - name: load inventory file
+  become: true
   slurp:
     src: "{{ upgrade_validation_inventory }}"
   register: upgrade_tripleo_inventory
