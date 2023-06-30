@@ -77,7 +77,7 @@
           when: comm_result.stdout != ""
       when:
         - current_stage == "before_reboot"
-        - not {{ mixed_os|default(false)|bool }}
+        - not {{ tripleo_ci|bool }}
       always:
         - name: container images comparison result
           debug:
