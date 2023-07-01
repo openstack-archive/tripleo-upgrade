@@ -139,7 +139,6 @@
     - default_roles_exist.stat.exists
   block:
     - name: copy roles_data
-      when: not role_file_copy.stat.exists
       copy:
         src: "/usr/share/openstack-tripleo-heat-templates/roles_data.yaml"
         dest: "{{ working_dir }}/roles_data.yaml"
