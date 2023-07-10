@@ -104,6 +104,10 @@ Set to true to launch an instance before starting upgrade. This can be useful fo
 
     workload_launch: false
 
+Set to true to generate some traffic to the created vm.
+
+    workload_launch_traffic: false
+
 Set to true to cleanup previously launched workload when update/upgrade finishes::
 
     workload_cleanup: false
@@ -160,6 +164,10 @@ Set to true to enable validations::
 Enable extra logs during update. Default to true. It collects in /var/log/extras/ the output of the commands from collect_logs.yaml for every stages of the update run::
 
     log_stages: true
+
+URL of an iperf binary.
+
+    tripleo_upgrade_iperf_bin_url: https://github.com/userdocs/iperf3-static/releases/download/3.12%2B/iperf3-amd64
 
 Dependencies
 ------------
