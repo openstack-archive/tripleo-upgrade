@@ -1,6 +1,7 @@
 ---
 # validation_group: validation group to execute
 # skiplist_validations: comma separated string of the validations to be skipped in a group
+# skiplist_validations_stage: comma separated string of the validations to be skipped in a group defined for a stage, added to the list.
 # validation_allowed_groups: list of allowed groups to run
 # validation_args: string containing extra arguments for the validation command. (defaults to empty string)
 - block:
@@ -9,7 +10,7 @@
       register: validations_in_group
     - name: Set fact validations_filtered which removes validations from skiplist
       set_fact:
-        validations_filtered: "{{ validations_in_group.stdout_lines | difference( skiplist_validations.split(',') ) }}"
+        validations_filtered: "{{ validations_in_group.stdout_lines | difference( skiplist_validations.split(',') +  skiplist_validations_stage.split(',') ) }}"
     - name: "Running validations {{ validations_filtered }}"
       register: validations_result
       shell: |

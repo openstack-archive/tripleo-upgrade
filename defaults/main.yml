@@ -58,6 +58,7 @@ run_validations: false
 
 # comma separated list of skipped validations
 skiplist_validations: ''
+skiplist_validations_stage: ''
 
 # Validation Ansible inventory for Upgrade
 upgrade_validation_inventory: "{{ working_dir }}/overcloud-deploy/{{ overcloud_stack_name }}/config-download/{{ overcloud_stack_name }}/tripleo-ansible-inventory.yaml"

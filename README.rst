@@ -169,6 +169,11 @@ URL of an iperf binary.
 
     tripleo_upgrade_iperf_bin_url: https://github.com/userdocs/iperf3-static/releases/download/3.12%2B/iperf3-amd64
 
+Add validations to skip for a certain stage (post-update, pre-update, ...) in the form of comma separated string. Added to the list of validation to skip. Default to empty list.
+
+    skiplist_validations_stage: ''
+
+
 Dependencies
 ------------
 

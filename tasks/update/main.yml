@@ -273,6 +273,7 @@
       vars:
         validation_group: "post-update"
         validation_allowed_groups: "{{ updates_validations_groups }}"
+        skiplist_validations_stage: check-reboot
       when: run_validations|bool
       tags:
         - updates_validations
