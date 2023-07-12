@@ -28,7 +28,7 @@
         - "validations_filtered|length == 0"
   rescue:
     - name: Retrieve the validations results
-      command: validation show history -f json -c UUID -c Status
+      command: validation history list -f json -c UUID -c Status
       register: validation_history
     - name: Set fact validation_status with the validations results
       set_fact:
@@ -36,7 +36,7 @@
       when: validation_history is defined
     - name: Log all the validations failed
       shell: |
-        validation show run {{ item }} &>> validation-{{ validation_group }}-failed.log
+        validation show {{ item }} &>> validation-{{ validation_group }}-failed.log
       loop: "{{ validations_failed }}"
       when:
         - "validations_failed|length > 0"
