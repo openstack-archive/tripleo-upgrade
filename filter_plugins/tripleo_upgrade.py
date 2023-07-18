@@ -48,7 +48,8 @@ def to_inventory_hostmap(data):
                 else:
                     group_host_map[group] = []
                     for child in inventory[group]['children']:
-                        group_host_map[group] += group_host_map[child]
+                        if child in group_host_map:
+                            group_host_map[group] += group_host_map[child]
                     group_host_map[group].sort()
     return group_host_map
 
