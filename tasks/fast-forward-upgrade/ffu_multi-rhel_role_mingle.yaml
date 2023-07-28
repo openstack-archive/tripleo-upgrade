@@ -27,12 +27,12 @@
 
 - name: fetch baremetal deploy file source
   shell: |
-    grep overcloud-node-provision .tripleo/history | head -n 1 | sed -e "s/.* input=\(.*\), output.*/\1/"
+    grep overcloud-node-provision .tripleo/history | grep stack={{ overcloud_stack_name }} | head -n 1 | sed -e "s/.* input=\(.*\), output.*/\1/"
   register: baremetal_file
 
 - name: fetch baremetal deploy file destination
   shell: |
-    grep overcloud-node-provision .tripleo/history  | head -n 1 | sed -e "s/.* input=.*, output=\(.*\), yes=.*/\1/"
+    grep overcloud-node-provision .tripleo/history | grep stack={{ overcloud_stack_name }} | head -n 1 | sed -e "s/.* input=.*, output=\(.*\), yes=.*/\1/"
   register: baremetal_file_dst
 
 - set_fact:
