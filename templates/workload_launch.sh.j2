@@ -192,6 +192,9 @@ function sanity_teardown {
 
     {%- endif %}
 
+    echo "Removing volume from the VM"
+    openstack server remove volume ${INSTANCE_NAME} ${CINDER_VOL_ID}
+
     echo "Remove VM ${INSTANCE_NAME}"
     openstack server delete ${INSTANCE_NAME}
     while true; do
@@ -210,7 +213,7 @@ function sanity_teardown {
 
     if [ -n "${CINDER_VOL_ID}" ]; then
         echo "Remove cinder volume ${CINDER_VOL_ID}"
-        openstack volume delete ${CINDER_VOL_ID}
+        openstack volume delete --force ${CINDER_VOL_ID}
 
         elapsed_seconds=0
         while true; do
