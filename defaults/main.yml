@@ -201,6 +201,8 @@ control_plane_check: false
 tu_ctl_plane_max_successive_failure: 2
 # Max number of total failure (euristic for update run)
 tu_ctl_plane_max_failure: 6
+# Max retries waiting for the control plane test to stop
+control_plane_test_stop_max_retries: 60  # 5 seconds x num_tries = 5 min by default
 
 # enable web load test
 fip_http_check: false

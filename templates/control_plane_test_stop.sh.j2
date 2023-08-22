@@ -22,7 +22,7 @@ result_file={{ working_dir }}/control-plane-test-${PID}.log
 
 kill "${PID}"
 
-max_tries=60                     # 5min
+max_tries={{ control_plane_test_stop_max_retries }}
 current_try=0
 until [ -e ${done_file} ]; do
     if [ $current_try -le $max_tries ]; then
