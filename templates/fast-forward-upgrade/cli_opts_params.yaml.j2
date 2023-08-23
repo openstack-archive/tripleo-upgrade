@@ -17,6 +17,6 @@ parameter_defaults:
 {% if ceph_flavor is succeeded %}
     OvercloudCephStorageFlavor: {{ ceph_flavor.stdout.split()[1]}}
 {% endif %}
-{% if ntp_server is succeeded %}
-    NtpServer: {{ ntp_server.stdout.split()[1] }}
+{% if ntp_server_result is succeeded %}
+    NtpServer: {{ ntp_server_result.stdout.split()[1] }}
 {% endif %}

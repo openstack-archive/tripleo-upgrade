@@ -80,15 +80,15 @@
 - name: register ntp-server opts
   shell: |
     grep -oP "ntp-server\ .*\ "  {{ overcloud_deploy_script }}
-  register: ntp_server
+  register: ntp_server_result
   ignore_errors: true
 
 - name: remove ntp-server opts from deploy command
   lineinfile:
     path: "{{ overcloud_deploy_script }}"
-    regexp: "{{ ntp_server.stdout }}"
+    regexp: "{{ ntp_server_result.stdout }}"
     state: absent
-  when: ntp_server is succeeded
+  when: ntp_server_result is succeeded
 
 - name: convert cli options into parameters
   template:
@@ -103,7 +103,7 @@
       control_flavor is succeeded or
       compute_flavor is succeeded or
       ceph_flavor is succeeded or
-      ntp_server is succeeded
+      ntp_server_result is succeeded
 
 - name: check "{{ working_dir }}/cli_opts_params.yaml" exists
   stat:
