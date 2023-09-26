@@ -1,7 +1,22 @@
 ---
-- name: Adjust ssh config to skip host key check
-  copy:
-    src: ssh_config
-    dest: "~/.ssh/config"
+- name: Check whether the ssh config exists
+  stat:
+    path: "~/.ssh/config"
+  register: ssh_config_exists
+  when: need_ssh_config|bool
+
+- name: Create the .ssh/config file
+  file:
+    path: "~/.ssh/config"
+    state: touch
     mode: 0600
+  when:
+    - ssh_config_exists.stat.exists == False
+    - need_ssh_config|bool
+
+- name: Adjust ssh config to skip host key check
+  blockinfile:
+    block: "{{ lookup('template', 'ssh_config') }}"
+    path: "~/.ssh/config"
+    marker: "# {mark} TRIPLEO-UPGRADE MARKER"
   when: need_ssh_config|bool
