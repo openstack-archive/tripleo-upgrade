@@ -1,13 +1,16 @@
 ---
 - set_fact:
     pcs_host: ""
+- set_fact:
+    boostrap_node: "{{ ((oc_roles_hosts|dict2items |
+                      selectattr('key', 'in', inventory_rolemap['mysql'] | default([]))) |
+                       map(attribute='value') | map('sort') |  list | flatten(1))[0] | default('') }}"
 - name: Create /var/lib/tripleo/transfer-flags/var-lib-mysql in bootstrap node
   become: true
   become_user: "{{ (overcloud_ssh_user) | ternary(overcloud_ssh_user, 'heat-admin') }}"
-  delegate_to: "{{ ((oc_roles_hosts|dict2items |
-                     selectattr('key', 'in', inventory_rolemap['mysql'] | default([]))) |
-                     map(attribute='value') | map('sort') |  list | flatten(1))[0]   }}"
+  delegate_to: "{{ boostrap_node }}"
   shell: "sudo mkdir -p /var/lib/tripleo/transfer-flags && sudo touch /var/lib/tripleo/transfer-flags/var-lib-mysql"
+  when: boostrap_node|bool
 
 - name: upgrade the whole overcloud
   vars:
