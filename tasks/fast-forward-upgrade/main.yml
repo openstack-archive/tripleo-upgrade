@@ -136,12 +136,23 @@
     - name: run pre-upgrade validation for the overcloud nodes
       import_tasks: ../common/validation_group_run.yaml
       vars:
-        validation_group: "pre-upgrade"
+        validation_group: "pre-upgrade-prepare"
         validation_allowed_groups: "{{ upgrades_validations_groups }}"
       when: run_validations|bool
       tags:
         - overcloud_upgrade_prepare
         - upgrades_validations
+
+    - name: run pre-upgrade validation
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "pre-upgrade"
+        validation_allowed_groups: "{{ upgrades_validations_groups }}"
+      when: run_validations|bool
+      tags:
+        - undercloud_upgrade
+        - upgrades_validations
+        - pre_upgrades_validations
 
     - name: replace environment files
       import_tasks: ../common/replace_environment_files.yaml
@@ -365,6 +376,16 @@
             - ffu_overcloud_post
       tags: ffu_overcloud_post
       when: controller_upgrade_post|bool
+
+    - name: run post-upgrade validation
+      import_tasks: ../common/validation_group_run.yaml
+      vars:
+        validation_group: "post-upgrade"
+        validation_allowed_groups: "{{ upgrades_validations_groups }}"
+      when: run_validations|bool
+      tags:
+        - upgrades_validations
+        - post_upgrades_validations
 
     - name: run post upgrade nova actions
       import_tasks: ../common/nova_actions_check.yml

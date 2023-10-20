@@ -76,8 +76,8 @@ updates_validations_groups:
   - pre-update-run
   - post-update
 
-# validations groups for updates to be
-# executed if updates_validations is true.
+# validations groups for upgrades to be
+# executed if upgrades _validations is true.
 upgrades_validations_groups:
   - pre-upgrade
   - pre-system-upgrade
