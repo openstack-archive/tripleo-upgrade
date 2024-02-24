@@ -1,2 +1,0 @@
-source {{ undercloud_rc }}
-upgrade-non-controller.sh --upgrade {{ node_name | splitext | first | splitext | first }} --stack-name {{ overcloud_stack_name }} &> {{ node_name | splitext | first | splitext | first }}-upgrade.log

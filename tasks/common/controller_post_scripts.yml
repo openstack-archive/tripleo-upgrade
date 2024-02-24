@@ -1,5 +1,0 @@
----
-- include_tasks: controller_post_script.yml
-  loop_control:
-    loop_var: node_name
-  loop: "{{ inventory_hostmap[controller_role_name] }}"

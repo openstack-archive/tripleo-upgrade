@@ -1,8 +1,0 @@
----
-- hosts: undercloud
-  gather_facts: true
-  become: true
-  become_method: sudo
-  become_user: stack
-  roles:
-    - tripleo-upgrade

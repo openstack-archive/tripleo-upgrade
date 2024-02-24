@@ -1,5 +1,0 @@
----
-- name: collect logs on the overcloud for the current stage
-  shell: |
-    {{ log_playbook_script }}-{{ log_current_stage }}.sh &>> {{ log_playbook_script }}-{{ log_current_stage }}.log
-  when: log_stages|bool

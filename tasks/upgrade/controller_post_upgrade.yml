@@ -1,5 +1,0 @@
----
-- include_tasks: controller_node_upgrade.yml
-  loop: "{{ inventory_hostmap[controller_role_name] }}"
-  loop_control:
-    loop_var: node_name
